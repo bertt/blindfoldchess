@@ -42,12 +42,12 @@ g1f3    - Move piece from g1 to f3
 ```
   a b c d e f g h
 8 ♖ ♘ ♗ ♕ ♔ ♗ ♘ ♖ 8
-7 ♟ ♟ ♟ ♟ ♟ ♟ ♟ ♟ 7
+7 ♙ ♙ ♙ ♙ ♙ ♙ ♙ ♙ 7
 6 . . . . . . . . 6
 5 . . . . . . . . 5
 4 . . . . . . . . 4
 3 . . . . . . . . 3
-2 ♙ ♙ ♙ ♙ ♙ ♙ ♙ ♙ 2
+2 ♟ ♟ ♟ ♟ ♟ ♟ ♟ ♟ 2
 1 ♜ ♞ ♝ ♛ ♚ ♝ ♞ ♜ 1
   a b c d e f g h
 ```
@@ -131,7 +131,7 @@ You can adjust the computer's strength:
 - ♜ - Rook
 - ♝ - Bishop
 - ♞ - Knight
-- ♙ - Pawn
+- ♟ - Pawn
 
 ### Black (computer plays this color)
 - ♔ - King
@@ -139,7 +139,7 @@ You can adjust the computer's strength:
 - ♖ - Rook
 - ♗ - Bishop
 - ♘ - Knight
-- ♟ - Pawn
+- ♙ - Pawn
 
 ## Example Game Flow
 
