@@ -233,22 +233,52 @@ For castling:
 - King must not move through check
 - King must not end in check
 
-## GitHub Copilot SDK (Required)
+## GitHub Copilot CLI (Required)
 
-The application uses the **GitHub Copilot SDK** for all chess intelligence.
+The application uses the **[GitHub Copilot CLI](https://www.npmjs.com/package/copilot)** for all chess intelligence.
+
+### What is it?
+The GitHub Copilot CLI is a command-line interface that provides access to AI models. This application uses it for:
+- Chess move generation
+- Position analysis
+- Strategic evaluation
 
 ### Installation & Setup
+
+1. **Install the CLI**:
+   ```bash
+   npm install -g copilot
+   ```
+   
+   (Requires Node.js/npm - download from [https://nodejs.org/](https://nodejs.org/))
+
+2. **Verify installation**:
+   ```bash
+   copilot --version
+   ```
+
+### Authentication
+
+**Automatic (Recommended):**
+- On first run, a browser window opens automatically
+- Sign in to GitHub and authorize the Copilot CLI
+- Authentication is saved in `~/.copilot/` and persists
+
+**Manual:**
 ```bash
-npm install -g copilot
+copilot auth login
 ```
 
-Verify installation:
+**Check status:**
 ```bash
-copilot --version
+copilot auth status
 ```
 
-On first run, Copilot will authenticate with your GitHub account automatically.
-Requires an active [GitHub Copilot subscription](https://github.com/settings/copilot).
+**Requirements:**
+- Active [GitHub Copilot subscription](https://github.com/settings/copilot) ($10/month for individuals)
+- Internet connection (required for all AI functionality)
+
+**Learn more:** [GitHub Copilot CLI Documentation](https://docs.github.com/en/copilot/using-github-copilot/using-github-copilot-in-the-command-line)
 
 ### AI Models
 
@@ -308,9 +338,11 @@ If the AI times out (doesn't respond within 15-20 seconds):
 **Authentication Issues:**
 If Copilot is not working:
 1. Verify installation: `copilot --version`
-2. Check your [GitHub Copilot subscription status](https://github.com/settings/copilot)
-3. Ensure you're signed in to GitHub
-4. Check your internet connection
+2. Check authentication: `copilot auth status`
+3. Re-authenticate if needed: `copilot auth logout` then `copilot auth login`
+4. Check your [GitHub Copilot subscription status](https://github.com/settings/copilot)
+5. Ensure you're signed in to GitHub
+6. Check your internet connection (required for Copilot CLI)
 
 **Model Switch Failures:**
 - The application will keep using the current model

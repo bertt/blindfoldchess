@@ -43,12 +43,21 @@ A C# console application for learning **blindfold chess**. Play against the comp
 2. **Extract the archive** to your preferred location
 
 3. **Install GitHub Copilot CLI**:
+   
+   The [GitHub Copilot CLI](https://www.npmjs.com/package/copilot) is required for all AI functionality. Install it via npm:
+   
    ```bash
    npm install -g copilot
    ```
    
-   On first run, Copilot will authenticate automatically with your GitHub account.
-   Requires an active [GitHub Copilot subscription](https://github.com/settings/copilot).
+   **Authentication**: On first run, the application will automatically trigger the Copilot CLI authentication flow:
+   - A browser window will open prompting you to sign in to GitHub
+   - After signing in, you'll authorize the Copilot CLI
+   - The authentication is saved locally and persists across sessions
+   
+   **Requirements**: Active [GitHub Copilot subscription](https://github.com/settings/copilot) ($10/month for individuals or included with GitHub Copilot Enterprise)
+   
+   **Learn more**: [GitHub Copilot CLI Documentation](https://docs.github.com/en/copilot/using-github-copilot/using-github-copilot-in-the-command-line)
 
 4. **Run the application**:
    - Windows: Double-click `blindfoldchess.exe` or run in terminal
@@ -230,34 +239,80 @@ The project consists of three modules:
 - Algebraic notation input
 - Real-time analysis display
 
-## GitHub Copilot SDK (Required)
+## GitHub Copilot CLI (Required)
 
-This application uses the **GitHub Copilot SDK** which requires the Copilot CLI to be installed locally.
+This application uses the **[GitHub Copilot CLI](https://www.npmjs.com/package/copilot)** for all AI-powered chess functionality.
+
+### What is GitHub Copilot CLI?
+
+The GitHub Copilot CLI is a command-line interface that provides access to GitHub Copilot's AI models. This application uses it to:
+- Analyze chess positions
+- Generate chess moves at different difficulty levels
+- Provide strategic analysis and position evaluation
+
+**Official Resources:**
+- [GitHub Copilot CLI on npm](https://www.npmjs.com/package/copilot)
+- [GitHub Copilot CLI Documentation](https://docs.github.com/en/copilot/using-github-copilot/using-github-copilot-in-the-command-line)
+- [GitHub Copilot Subscription](https://github.com/settings/copilot) - $10/month for individuals
 
 ### Setup
 
-1. **Install GitHub Copilot CLI**:
+1. **Install Node.js** (if not already installed):
+   - Download from [https://nodejs.org/](https://nodejs.org/)
+   - npm (Node Package Manager) is included with Node.js
+
+2. **Install GitHub Copilot CLI**:
    ```bash
    npm install -g copilot
    ```
-
-2. **Authenticate with GitHub Copilot**:
-   ```bash
-   copilot auth
-   ```
-   - Requires an active GitHub Copilot subscription
-   - Follow the authentication prompts in your browser
 
 3. **Verify Installation**:
    ```bash
    copilot --version
    ```
 
-4. **Run the Application**:
-   ```bash
-   cd src\Chess.Console
-   dotnet run
-   ```
+### Authentication
+
+The Copilot CLI uses **OAuth authentication** with your GitHub account:
+
+**Automatic Authentication (Recommended):**
+- When you first run this application, it will automatically trigger authentication
+- A browser window opens asking you to sign in to GitHub
+- After signing in, you'll be prompted to authorize the GitHub Copilot CLI
+- Click "Authorize" to grant access
+- The authentication token is saved locally in `~/.copilot/` directory
+- You only need to authenticate once - the token persists across sessions
+
+**Manual Authentication:**
+You can also authenticate manually before running the application:
+```bash
+copilot auth
+```
+
+**Verify Authentication:**
+```bash
+copilot auth status
+```
+
+**Subscription Required:**
+- Active [GitHub Copilot subscription](https://github.com/settings/copilot) is required
+- Individual: $10/month or $100/year
+- Included with GitHub Copilot Enterprise
+- Free for verified students, teachers, and maintainers of popular open source projects
+
+### Running the Application
+
+**From Pre-built Release:**
+```bash
+./blindfoldchess      # Linux/macOS
+blindfoldchess.exe    # Windows
+```
+
+**From Source:**
+```bash
+cd src\Chess.Console
+dotnet run
+```
 
 ### AI Models
 
@@ -297,16 +352,29 @@ All chess intelligence comes from AI models via the Copilot SDK:
 
 ### Troubleshooting
 
-If you see "Copilot analysis error" messages:
+**"Copilot analysis error" messages:**
 1. Verify CLI is installed: `copilot --version`
-2. Ensure you have an active [GitHub Copilot subscription](https://github.com/settings/copilot)
-3. Check your internet connection
-4. Try a different model with the `model` command
-5. Check error details with the `debug` command
+2. Check authentication status: `copilot auth status`
+3. Ensure you have an active [GitHub Copilot subscription](https://github.com/settings/copilot)
+4. Check your internet connection (Copilot CLI requires internet access)
+5. Try re-authenticating: `copilot auth login`
+6. Try a different model with the `model` command
+7. Check error details with the `debug` command
+
+**Authentication Issues:**
+- If authentication fails, try: `copilot auth logout` then `copilot auth login`
+- Check your subscription status at [https://github.com/settings/copilot](https://github.com/settings/copilot)
+- Ensure your GitHub account has access to Copilot
 
 **Timeout errors:**
 - If the AI times out (15-20 seconds), you'll be prompted to retry
 - Try switching to a faster model like `gpt-4o-mini` or `gpt-4.1`
+- Check your internet connection speed
+
+**Command not found:**
+- Ensure npm is installed: `npm --version`
+- Ensure global npm packages are in your PATH
+- Try reinstalling: `npm uninstall -g copilot && npm install -g copilot`
 
 ## Development
 
