@@ -5,52 +5,12 @@ on:
     tags:
       - 'v*.*.*'
 
+permissions:
+  contents: write
+
 jobs:
-  create-release:
-    name: Create Release
-    runs-on: ubuntu-latest
-    outputs:
-      upload_url: ${{ steps.create_release.outputs.upload_url }}
-      version: ${{ steps.get_version.outputs.version }}
-    steps:
-      - name: Get version from tag
-        id: get_version
-        run: echo "version=${GITHUB_REF#refs/tags/v}" >> $GITHUB_OUTPUT
-
-      - name: Create Release
-        id: create_release
-        uses: actions/create-release@v1
-        env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-        with:
-          tag_name: ${{ github.ref }}
-          release_name: Blindfold Chess ${{ github.ref }}
-          draft: false
-          prerelease: false
-          body: |
-            ## Blindfold Chess ${{ github.ref }}
-            
-            Console application for learning blindfold chess with AI opponent powered by GitHub Copilot SDK.
-            
-            ### Requirements
-            - GitHub Copilot CLI: `npm install -g copilot`
-            - Active GitHub Copilot subscription
-            - For source builds: .NET 8.0 SDK
-            
-            ### Downloads
-            Download the appropriate build for your platform below and extract the archive.
-            
-            ### Quick Start
-            1. Install GitHub Copilot CLI: `npm install -g copilot`
-            2. Authenticate: `copilot auth`
-            3. Run the executable
-            4. Type `help` for commands
-            
-            See [README.md](https://github.com/bertt/blindfoldchess/blob/main/README.md) for complete documentation.
-
   build:
     name: Build ${{ matrix.platform }}
-    needs: create-release
     runs-on: ${{ matrix.os }}
     strategy:
       matrix:
@@ -84,7 +44,8 @@ jobs:
       - name: Update version in csproj
         shell: bash
         run: |
-          sed -i.bak "s|<Version>.*</Version>|<Version>${{ needs.create-release.outputs.version }}</Version>|" src/Chess.Console/Chess.Console.csproj
+          VERSION=${GITHUB_REF#refs/tags/v}
+          sed -i.bak "s|<Version>.*</Version>|<Version>${VERSION}</Version>|" src/Chess.Console/Chess.Console.csproj
           rm -f src/Chess.Console/Chess.Console.csproj.bak
 
       - name: Restore dependencies
@@ -104,8 +65,9 @@ jobs:
       - name: Create README for release
         shell: bash
         run: |
-          cat > ./publish/${{ matrix.platform }}/README.txt << 'EOF'
-          Blindfold Chess v${{ needs.create-release.outputs.version }}
+          VERSION=${GITHUB_REF#refs/tags/v}
+          cat > ./publish/${{ matrix.platform }}/README.txt << EOF
+          Blindfold Chess v${VERSION}
           =============================================
           
           Console application for learning blindfold chess with AI opponent.
@@ -146,12 +108,69 @@ jobs:
           chmod +x blindfoldchess
           zip -r ../../${{ matrix.artifact }} *
 
-      - name: Upload Release Asset
-        uses: actions/upload-release-asset@v1
+      - name: Upload artifacts
+        uses: actions/upload-artifact@v4
+        with:
+          name: ${{ matrix.platform }}
+          path: ${{ matrix.artifact }}
+
+  release:
+    name: Create Release
+    needs: build
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Download all artifacts
+        uses: actions/download-artifact@v4
+        with:
+          path: artifacts
+
+      - name: Display structure
+        run: ls -R artifacts/
+
+      - name: Create Release
+        uses: softprops/action-gh-release@v1
+        with:
+          draft: false
+          prerelease: false
+          generate_release_notes: true
+          files: artifacts/**/*.zip
+          body: |
+            ## Blindfold Chess ${{ github.ref_name }}
+            
+            Console application for learning blindfold chess with AI opponent powered by GitHub Copilot SDK.
+            
+            ### 📦 Downloads
+            Download the appropriate build for your platform below and extract the archive:
+            - **Windows**: `blindfoldchess-windows-x64.zip`
+            - **Linux**: `blindfoldchess-linux-x64.zip`
+            - **macOS Intel**: `blindfoldchess-macos-x64.zip`
+            - **macOS Apple Silicon**: `blindfoldchess-macos-arm64.zip`
+            
+            ### ✅ Requirements
+            - **GitHub Copilot CLI** (REQUIRED): `npm install -g copilot`
+            - **Active GitHub Copilot subscription** (REQUIRED)
+            - For building from source: .NET 8.0 SDK
+            
+            ### 🚀 Quick Start
+            1. Install GitHub Copilot CLI: `npm install -g copilot`
+            2. Authenticate: `copilot auth`
+            3. Extract the downloaded archive
+            4. Run the executable:
+               - Windows: `blindfoldchess.exe`
+               - Linux/macOS: `./blindfoldchess`
+            5. Type `help` for available commands
+            
+            ### 📚 Documentation
+            See [README.md](https://github.com/bertt/blindfoldchess/blob/main/README.md) for complete documentation.
+            
+            ### 🎯 Features
+            - Blindfold chess training mode
+            - AI opponent with 3 difficulty levels
+            - 4 AI models to choose from
+            - Complete chess rules (castling, en passant, promotion, etc.)
+            - Position analysis and move history
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-        with:
-          upload_url: ${{ needs.create-release.outputs.upload_url }}
-          asset_path: ./${{ matrix.artifact }}
-          asset_name: ${{ matrix.artifact }}
-          asset_content_type: application/zip
