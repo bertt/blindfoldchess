@@ -139,7 +139,7 @@ You can adjust the computer's strength:
 - ♜ - Rook
 - ♝ - Bishop
 - ♞ - Knight
-- ♙ - Pawn
+- ♟ - Pawn
 
 ## Example Game Flow
 
