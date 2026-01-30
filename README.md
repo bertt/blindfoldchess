@@ -141,6 +141,7 @@ analyze/a       - Analyze position
 debug/d         - Show last AI prompt & response
 level/l         - Change difficulty level
 model/m         - Change AI model
+timeout/t       - Set Copilot timeout (default: 30 seconds, 0 = infinite)
 version/v       - Show version information
 new             - Start new game
 quit/q/exit     - Exit
@@ -198,6 +199,7 @@ See [USER_GUIDE.md](USER_GUIDE.md) for complete documentation.
 | `debug` | `d` | Show last AI prompt and response (debugging) |
 | `level` | `l`, `difficulty` | Show difficulty level menu |
 | `model` | `m` | Show AI model selection menu |
+| `timeout` | `t` | Set Copilot timeout (default: 30 seconds, 0 = infinite) |
 | `version` | `v` | Show version information |
 | `new` | - | Start a new game |
 | `quit` | `q`, `exit` | Exit the application |
@@ -365,9 +367,12 @@ All chess intelligence comes from AI models via the Copilot SDK:
 - Ensure your GitHub account has access to Copilot
 
 **Timeout errors:**
-- If the AI times out (15-20 seconds), you'll be prompted to retry
+- Default timeout is 30 seconds for Copilot responses
+- Change timeout with the `timeout` command (e.g., set to 60 seconds or 0 for infinite)
+- If the AI times out, you'll be prompted to retry
 - Try switching to a faster model like `gpt-4o-mini` or `gpt-4.1`
 - Check your internet connection speed
+- For slow connections, consider increasing timeout or using infinite timeout (0)
 
 **Command not found:**
 - Ensure npm is installed: `npm --version`

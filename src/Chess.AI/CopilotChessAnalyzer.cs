@@ -10,6 +10,7 @@ public class CopilotChessAnalyzer : IAsyncDisposable
     private bool _isInitialized = false;
     public DifficultyLevel Difficulty { get; set; } = DifficultyLevel.Intermediate;
     public string Model { get; set; } = "gpt-4o-mini";
+    public int TimeoutSeconds { get; set; } = 30; // 0 = infinite timeout
     
     // Debug information
     public string? LastPrompt { get; private set; }
@@ -80,13 +81,21 @@ public class CopilotChessAnalyzer : IAsyncDisposable
         {
             await _session.SendAsync(new MessageOptions { Prompt = prompt });
             
-            // Add timeout
-            var timeoutTask = Task.Delay(TimeSpan.FromSeconds(timeoutSeconds));
-            var completedTask = await Task.WhenAny(done.Task, timeoutTask);
-            
-            if (completedTask == timeoutTask)
+            // Add timeout (if not infinite)
+            if (timeoutSeconds > 0)
             {
-                throw new TimeoutException("Copilot response timed out");
+                var timeoutTask = Task.Delay(TimeSpan.FromSeconds(timeoutSeconds));
+                var completedTask = await Task.WhenAny(done.Task, timeoutTask);
+                
+                if (completedTask == timeoutTask)
+                {
+                    throw new TimeoutException("Copilot response timed out");
+                }
+            }
+            else
+            {
+                // Infinite timeout - just wait for completion
+                await done.Task;
             }
             
             // Store response for debugging
@@ -227,7 +236,7 @@ Reply with ONLY the best move (e.g., e2e4):",
             _ => $"Valid: {movesStr}. Reply one move:"
         };
 
-        string response = await AskCopilotAsync(prompt, timeoutSeconds: 20);
+        string response = await AskCopilotAsync(prompt, timeoutSeconds: TimeoutSeconds);
         
         if (string.IsNullOrEmpty(response))
         {

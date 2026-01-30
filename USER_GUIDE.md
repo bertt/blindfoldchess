@@ -84,6 +84,7 @@ e5d6    - When black just played d7-d5
 - **debug** / **d** - 🔍 Show last AI prompt & response (for debugging)
 - **level** / **l** / **difficulty** - Change difficulty level
 - **model** / **m** - 🤖 Change AI model
+- **timeout** / **t** - ⏱️ Set Copilot timeout (default: 30 seconds, 0 = infinite)
 - **version** / **v** - Show version information
 - **new** - Start a new game
 - **quit** / **q** / **exit** - Exit
@@ -330,10 +331,15 @@ Use the `debug` or `d` command to see:
 ### Troubleshooting
 
 **Timeout Errors:**
-If the AI times out (doesn't respond within 15-20 seconds):
-- You'll be prompted to retry
+If the AI times out (doesn't respond within the set timeout):
+- Default timeout is 30 seconds
+- Change timeout with the `timeout` command
+- You can set it to 60, 120 seconds or more
+- Set to 0 for infinite timeout (no timeout - waits indefinitely)
+- You'll be prompted to retry when a timeout occurs
 - Consider switching to a faster model (`gpt-4o-mini` or `gpt-4.1`)
 - Check your internet connection
+- For slow/unstable connections, use a longer timeout or infinite timeout
 
 **Authentication Issues:**
 If Copilot is not working:

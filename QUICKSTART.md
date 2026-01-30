@@ -73,6 +73,7 @@ dotnet run
 - `show` / `s` - View the board (peeking!)
 - `level` / `l` - Change difficulty (beginner/intermediate/advanced or 1/2/3)
 - `model` / `m` - Change AI model (gpt-4o-mini/gpt-4o/claude-sonnet-4.5/gpt-4.1)
+- `timeout` / `t` - Set timeout (default: 30 seconds, 0 = infinite)
 - `moves` - Show move history
 - `analyze` / `a` - Analyze position
 - `debug` / `d` - Show AI prompt/response

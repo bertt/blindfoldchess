@@ -104,6 +104,7 @@ class ChessGame
             System.Console.WriteLine($"New game started! You play WHITE (♙), computer plays BLACK (♟)");
             System.Console.WriteLine($"Difficulty: {_analyzer.Difficulty}");
             System.Console.WriteLine($"AI Model: {_analyzer.Model}");
+            System.Console.WriteLine($"Timeout: {(_analyzer.TimeoutSeconds == 0 ? "Infinite" : $"{_analyzer.TimeoutSeconds} seconds")}");
             System.Console.WriteLine();
 
             while (_isRunning)
@@ -246,7 +247,7 @@ class ChessGame
             System.Console.ForegroundColor = ConsoleColor.Red;
             System.Console.WriteLine("\n❌ ERROR: GitHub Copilot timeout!");
             System.Console.ResetColor();
-            System.Console.WriteLine("   Copilot did not respond within 15 seconds.");
+            System.Console.WriteLine($"   Copilot did not respond within {_analyzer.TimeoutSeconds} seconds.");
             System.Console.WriteLine("   Please check:");
             System.Console.WriteLine("   1. Your internet connection");
             System.Console.WriteLine("   2. Copilot CLI is running: copilot --version");
@@ -351,6 +352,11 @@ class ChessGame
             case "model":
             case "m":
                 await ShowModelMenu();
+                return true;
+
+            case "timeout":
+            case "t":
+                ShowTimeoutMenu();
                 return true;
 
             case "version":
@@ -536,6 +542,40 @@ class ChessGame
         System.Console.WriteLine("═══════════════════════════════════════════");
     }
 
+    private void ShowTimeoutMenu()
+    {
+        System.Console.WriteLine("\n╔════════════════════════════════════════════╗");
+        System.Console.WriteLine("║        COPILOT TIMEOUT SETTING             ║");
+        System.Console.WriteLine("╚════════════════════════════════════════════╝");
+        System.Console.WriteLine();
+        System.Console.WriteLine($"Current: {(_analyzer.TimeoutSeconds == 0 ? "Infinite (no timeout)" : $"{_analyzer.TimeoutSeconds} seconds")}");
+        System.Console.WriteLine();
+        System.Console.WriteLine("Set the maximum time to wait for Copilot responses:");
+        System.Console.WriteLine();
+        System.Console.WriteLine("  • Enter number of seconds (e.g., 30, 60, 120)");
+        System.Console.WriteLine("  • Enter 0 for infinite timeout (wait indefinitely)");
+        System.Console.WriteLine();
+        System.Console.WriteLine("Recommended: 30-60 seconds");
+        System.Console.WriteLine("Use infinite timeout only if you have slow internet");
+        System.Console.WriteLine();
+        System.Console.Write("Enter timeout (seconds): ");
+        
+        var input = System.Console.ReadLine()?.Trim();
+        
+        if (int.TryParse(input, out int seconds) && seconds >= 0)
+        {
+            _analyzer.TimeoutSeconds = seconds;
+            System.Console.ForegroundColor = ConsoleColor.Green;
+            System.Console.WriteLine($"\n✓ Timeout set to: {(seconds == 0 ? "Infinite" : $"{seconds} seconds")}");
+            System.Console.ResetColor();
+        }
+        else
+        {
+            System.Console.WriteLine("❌ Invalid input. Timeout unchanged.");
+        }
+        System.Console.WriteLine();
+    }
+
     private void ShowVersion()
     {
         System.Console.WriteLine("\n╔════════════════════════════════════════════╗");
@@ -547,6 +587,7 @@ class ChessGame
         System.Console.WriteLine($"  OS: {System.Runtime.InteropServices.RuntimeInformation.OSDescription}");
         System.Console.WriteLine($"  AI Model: {_analyzer.Model}");
         System.Console.WriteLine($"  Difficulty: {_analyzer.Difficulty}");
+        System.Console.WriteLine($"  Timeout: {(_analyzer.TimeoutSeconds == 0 ? "Infinite" : $"{_analyzer.TimeoutSeconds} seconds")}");
         System.Console.WriteLine();
         System.Console.WriteLine("  GitHub: https://github.com/bertt/blindfoldchess");
         System.Console.WriteLine();
@@ -572,6 +613,7 @@ class ChessGame
         System.Console.WriteLine("  debug/d     - 🔍 Show last AI prompt & response");
         System.Console.WriteLine("  level/l     - Change difficulty level");
         System.Console.WriteLine("  model/m     - 🤖 Change AI model");
+        System.Console.WriteLine("  timeout/t   - ⏱️  Set Copilot timeout");
         System.Console.WriteLine("  version/v   - Show version information");
         System.Console.WriteLine("  new         - Start new game");
         System.Console.WriteLine("  quit/q      - Exit");
