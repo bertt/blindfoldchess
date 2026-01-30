@@ -5,18 +5,21 @@ A C# console application for learning **blindfold chess**. Play against the comp
 ## Features
 
 ✨ **Blindfold Mode**: Board is NOT automatically shown - visualize in your head!
-♟️ **Complete Chess Rules**: Including castling, en passant, pawn promotion, check/checkmate
-🤖 **AI Opponent**: Computer plays black with optional GitHub Copilot SDK integration
-📊 **Analysis**: Material evaluation and position analysis after each move
-👀 **Peek Function**: Type 'show' to view the board when needed
+♟️ **Complete Chess Rules**: Including castling, en passant, pawn promotion, check/checkmate/stalemate
+🤖 **AI Opponent**: Powered by GitHub Copilot SDK (required) - computer plays black using advanced AI models
+🎯 **3 Difficulty Levels**: Beginner (~800), Intermediate (~1500), Advanced (~2200) via prompt engineering
+🧠 **Multiple AI Models**: Choose from gpt-4o-mini, gpt-4o, claude-sonnet-4.5, or gpt-4.1
+📊 **Position Analysis**: Real-time material evaluation and strategic analysis after each move
+👀 **Peek Function**: Type 'show' to view the board when needed (but try not to!)
 📜 **Move History**: Track all played moves in algebraic notation
+🔍 **Debug Mode**: View AI prompts and responses for learning and troubleshooting
 
 ## Requirements
 
 - [.NET 8.0 SDK](https://dotnet.microsoft.com/download/dotnet/8.0) or higher
 - Windows/Linux/macOS terminal with UTF-8 support
-- **GitHub Copilot CLI** - Install with: `npm install -g copilot`
-- **Active GitHub Copilot subscription**
+- **GitHub Copilot CLI** (REQUIRED) - Install with: `npm install -g copilot`
+- **Active GitHub Copilot subscription** (REQUIRED) - All AI functionality requires Copilot
 
 ## Installation
 
