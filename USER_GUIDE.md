@@ -265,16 +265,6 @@ The GitHub Copilot CLI is a command-line interface that provides access to AI mo
 - Sign in to GitHub and authorize the Copilot CLI
 - Authentication is saved in `~/.copilot/` and persists
 
-**Manual:**
-```bash
-copilot auth login
-```
-
-**Check status:**
-```bash
-copilot auth status
-```
-
 **Requirements:**
 - Active [GitHub Copilot subscription](https://github.com/settings/copilot)
 - Internet connection (required for all AI functionality)
@@ -344,11 +334,10 @@ If the AI times out (doesn't respond within the set timeout):
 **Authentication Issues:**
 If Copilot is not working:
 1. Verify installation: `copilot --version`
-2. Check authentication: `copilot auth status`
-3. Re-authenticate if needed: `copilot auth logout` then `copilot auth login`
-4. Check your [GitHub Copilot subscription status](https://github.com/settings/copilot)
-5. Ensure you're signed in to GitHub
-6. Check your internet connection (required for Copilot CLI)
+2. Check your [GitHub Copilot subscription status](https://github.com/settings/copilot)
+3. Ensure you're signed in to GitHub
+4. Check your internet connection (required for Copilot CLI)
+5. If authentication fails, restart the application to trigger the authentication flow again
 
 **Model Switch Failures:**
 - The application will keep using the current model

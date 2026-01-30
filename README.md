@@ -285,17 +285,6 @@ The Copilot CLI uses **OAuth authentication** with your GitHub account:
 - The authentication token is saved locally in `~/.copilot/` directory
 - You only need to authenticate once - the token persists across sessions
 
-**Manual Authentication:**
-You can also authenticate manually before running the application:
-```bash
-copilot auth
-```
-
-**Verify Authentication:**
-```bash
-copilot auth status
-```
-
 **Subscription Required:**
 - Active [GitHub Copilot subscription](https://github.com/settings/copilot) is required
 - Available for individuals, enterprises, and free for verified students, teachers, and maintainers of popular open source projects
@@ -354,17 +343,15 @@ All chess intelligence comes from AI models via the Copilot SDK:
 
 **"Copilot analysis error" messages:**
 1. Verify CLI is installed: `copilot --version`
-2. Check authentication status: `copilot auth status`
-3. Ensure you have an active [GitHub Copilot subscription](https://github.com/settings/copilot)
-4. Check your internet connection (Copilot CLI requires internet access)
-5. Try re-authenticating: `copilot auth login`
-6. Try a different model with the `model` command
-7. Check error details with the `debug` command
+2. Ensure you have an active [GitHub Copilot subscription](https://github.com/settings/copilot)
+3. Check your internet connection (Copilot CLI requires internet access)
+4. Try a different model with the `model` command
+5. Check error details with the `debug` command
 
 **Authentication Issues:**
-- If authentication fails, try: `copilot auth logout` then `copilot auth login`
 - Check your subscription status at [https://github.com/settings/copilot](https://github.com/settings/copilot)
 - Ensure your GitHub account has access to Copilot
+- If authentication fails, restart the application to trigger the authentication flow again
 
 **Timeout errors:**
 - Default timeout is 30 seconds for Copilot responses
