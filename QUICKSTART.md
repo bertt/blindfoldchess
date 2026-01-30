@@ -23,9 +23,11 @@
 **Using Pre-built Release:**
 ```bash
 # Download and extract the release for your platform
-# Windows: blindfoldchess-windows-x64.zip
+# Windows x64: blindfoldchess-windows-x64.zip
+# Windows ARM64: blindfoldchess-windows-arm64.zip
 # Linux: blindfoldchess-linux-x64.zip
-# macOS: blindfoldchess-macos-x64.zip or blindfoldchess-macos-arm64.zip
+# macOS Intel: blindfoldchess-macos-x64.zip
+# macOS Apple Silicon: blindfoldchess-macos-arm64.zip
 
 # Run the executable
 ./blindfoldchess    # Linux/macOS

@@ -26,10 +26,11 @@ A C# console application for learning **blindfold chess**. Play against the comp
 ### Option 1: Download Pre-built Release (Recommended)
 
 1. **Download the latest release** for your platform from [Releases](https://github.com/bertt/blindfoldchess/releases)
-   - Windows: `blindfoldchess-windows-x64.zip`
-   - Linux: `blindfoldchess-linux-x64.zip`
+   - Windows x64: `blindfoldchess-windows-x64.zip`
+   - Windows ARM64: `blindfoldchess-windows-arm64.zip` (Surface Pro X, ARM devices)
+   - Linux x64: `blindfoldchess-linux-x64.zip`
    - macOS Intel: `blindfoldchess-macos-x64.zip`
-   - macOS Apple Silicon: `blindfoldchess-macos-arm64.zip`
+   - macOS Apple Silicon: `blindfoldchess-macos-arm64.zip` (M1/M2/M3)
 
 2. **Extract the archive** to your preferred location
 
@@ -315,13 +316,14 @@ git push origin v0.1.0
 ```
 
 GitHub Actions will automatically:
-- Build for Windows (x64), Linux (x64), macOS (x64 and ARM64)
+- Build for Windows (x64, ARM64), Linux (x64), macOS (x64, ARM64)
 - Create self-contained single-file executables
 - Package them as ZIP files
 - Create a GitHub release with all artifacts
 
 **Supported Platforms:**
-- `blindfoldchess-windows-x64.zip` - Windows 10/11 (64-bit)
+- `blindfoldchess-windows-x64.zip` - Windows 10/11 (64-bit Intel/AMD)
+- `blindfoldchess-windows-arm64.zip` - Windows 11 ARM64 (Surface Pro X, ARM devices)
 - `blindfoldchess-linux-x64.zip` - Linux (64-bit)
 - `blindfoldchess-macos-x64.zip` - macOS Intel (64-bit)
 - `blindfoldchess-macos-arm64.zip` - macOS Apple Silicon (M1/M2/M3)
