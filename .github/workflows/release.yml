@@ -52,6 +52,7 @@ jobs:
         run: dotnet restore
 
       - name: Build and Publish
+        shell: bash
         run: |
           dotnet publish src/Chess.Console/Chess.Console.csproj \
             -c Release \
@@ -98,11 +99,13 @@ jobs:
 
       - name: Create ZIP (Windows)
         if: matrix.os == 'windows-latest'
+        shell: pwsh
         run: |
           Compress-Archive -Path ./publish/${{ matrix.platform }}/* -DestinationPath ${{ matrix.artifact }}
 
       - name: Create ZIP (Linux/macOS)
         if: matrix.os != 'windows-latest'
+        shell: bash
         run: |
           cd ./publish/${{ matrix.platform }}
           chmod +x blindfoldchess
