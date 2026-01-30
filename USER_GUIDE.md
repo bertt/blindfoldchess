@@ -240,13 +240,15 @@ The application uses the **GitHub Copilot SDK** for all chess intelligence.
 ### Installation & Setup
 ```bash
 npm install -g copilot
-copilot auth
 ```
 
 Verify installation:
 ```bash
 copilot --version
 ```
+
+On first run, Copilot will authenticate with your GitHub account automatically.
+Requires an active [GitHub Copilot subscription](https://github.com/settings/copilot).
 
 ### AI Models
 
@@ -304,10 +306,11 @@ If the AI times out (doesn't respond within 15-20 seconds):
 - Check your internet connection
 
 **Authentication Issues:**
-```bash
-copilot auth        # Re-authenticate
-copilot --version   # Verify installation
-```
+If Copilot is not working:
+1. Verify installation: `copilot --version`
+2. Check your [GitHub Copilot subscription status](https://github.com/settings/copilot)
+3. Ensure you're signed in to GitHub
+4. Check your internet connection
 
 **Model Switch Failures:**
 - The application will keep using the current model

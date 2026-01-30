@@ -67,7 +67,8 @@ class Program
                 System.Console.ForegroundColor = ConsoleColor.Yellow;
                 System.Console.WriteLine("⚠ Not responding correctly");
                 System.Console.ResetColor();
-                System.Console.WriteLine("  Try: copilot auth");
+                System.Console.WriteLine("  Ensure you have an active GitHub Copilot subscription:");
+                System.Console.WriteLine("  https://github.com/settings/copilot");
                 System.Console.WriteLine("  The app will use basic material evaluation as fallback.");
             }
         }
@@ -77,7 +78,8 @@ class Program
             System.Console.WriteLine("⚠ Not found");
             System.Console.ResetColor();
             System.Console.WriteLine("  Install with: npm install -g copilot");
-            System.Console.WriteLine("  Then authenticate with: copilot auth");
+            System.Console.WriteLine("  Requires active GitHub Copilot subscription:");
+            System.Console.WriteLine("  https://github.com/settings/copilot");
             System.Console.WriteLine("  The app will use basic material evaluation as fallback.");
         }
     }
@@ -248,7 +250,8 @@ class ChessGame
             System.Console.WriteLine("   Please check:");
             System.Console.WriteLine("   1. Your internet connection");
             System.Console.WriteLine("   2. Copilot CLI is running: copilot --version");
-            System.Console.WriteLine("   3. You are authenticated: copilot auth");
+            System.Console.WriteLine("   3. You have an active GitHub Copilot subscription");
+            System.Console.WriteLine("      https://github.com/settings/copilot");
             System.Console.WriteLine();
             System.Console.Write("   Retry? (y/n): ");
             
@@ -268,9 +271,11 @@ class ChessGame
             System.Console.WriteLine($"\n❌ ERROR: {ex.Message}");
             System.Console.ResetColor();
             System.Console.WriteLine("   GitHub Copilot is not working correctly.");
-            System.Console.WriteLine("   Make sure Copilot CLI is installed and authenticated.");
-            System.Console.WriteLine("   Install: npm install -g copilot");
-            System.Console.WriteLine("   Auth: copilot auth");
+            System.Console.WriteLine("   Please check:");
+            System.Console.WriteLine("   1. Copilot CLI is installed: npm install -g copilot");
+            System.Console.WriteLine("   2. You have an active GitHub Copilot subscription");
+            System.Console.WriteLine("      https://github.com/settings/copilot");
+            System.Console.WriteLine("   3. Your internet connection is working");
             System.Console.WriteLine();
             System.Console.Write("   Retry? (y/n): ");
             

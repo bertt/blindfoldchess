@@ -7,16 +7,17 @@
 - Install GitHub Copilot CLI:
   ```bash
   npm install -g copilot
-  copilot auth
   ```
+  On first run, Copilot authenticates with your GitHub account automatically.
+  Requires [GitHub Copilot subscription](https://github.com/settings/copilot).
 
 **Option 2: Build from Source**
 - .NET 8.0 SDK
 - GitHub Copilot CLI:
   ```bash
   npm install -g copilot
-  copilot auth
   ```
+  Requires [GitHub Copilot subscription](https://github.com/settings/copilot).
 
 ## Installation
 

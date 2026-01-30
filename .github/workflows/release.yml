@@ -80,8 +80,8 @@ jobs:
           REQUIREMENTS:
           - GitHub Copilot CLI (REQUIRED)
             Install: npm install -g copilot
-            Authenticate: copilot auth
           - Active GitHub Copilot subscription
+            https://github.com/settings/copilot
           
           QUICK START:
           1. Ensure GitHub Copilot CLI is installed and authenticated
@@ -164,7 +164,7 @@ jobs:
             
             ### 🚀 Quick Start
             1. Install GitHub Copilot CLI: `npm install -g copilot`
-            2. Authenticate: `copilot auth`
+            2. Ensure you have an active [GitHub Copilot subscription](https://github.com/settings/copilot)
             3. Extract the downloaded archive
             4. Run the executable:
                - Windows: `blindfoldchess.exe`

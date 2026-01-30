@@ -37,8 +37,10 @@ A C# console application for learning **blindfold chess**. Play against the comp
 3. **Install GitHub Copilot CLI**:
    ```bash
    npm install -g copilot
-   copilot auth
    ```
+   
+   On first run, Copilot will authenticate automatically with your GitHub account.
+   Requires an active [GitHub Copilot subscription](https://github.com/settings/copilot).
 
 4. **Run the application**:
    - Windows: Double-click `blindfoldchess.exe` or run in terminal
@@ -283,8 +285,8 @@ All chess intelligence comes from AI models via the Copilot SDK:
 
 If you see "Copilot analysis error" messages:
 1. Verify CLI is installed: `copilot --version`
-2. Verify authentication: `copilot auth`
-3. Check your Copilot subscription status
+2. Ensure you have an active [GitHub Copilot subscription](https://github.com/settings/copilot)
+3. Check your internet connection
 4. Try a different model with the `model` command
 5. Check error details with the `debug` command
 
