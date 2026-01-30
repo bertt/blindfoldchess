@@ -23,26 +23,49 @@ A C# console application for learning **blindfold chess**. Play against the comp
 
 ## Installation
 
-### 1. Clone or Download
-```bash
-cd C:\dev\github.com\bertt\consolechess
-```
+### Option 1: Download Pre-built Release (Recommended)
 
-### 2. Restore Dependencies
-```bash
-dotnet restore
-```
+1. **Download the latest release** for your platform from [Releases](https://github.com/bertt/blindfoldchess/releases)
+   - Windows: `blindfoldchess-windows-x64.zip`
+   - Linux: `blindfoldchess-linux-x64.zip`
+   - macOS Intel: `blindfoldchess-macos-x64.zip`
+   - macOS Apple Silicon: `blindfoldchess-macos-arm64.zip`
 
-### 3. Build
-```bash
-dotnet build
-```
+2. **Extract the archive** to your preferred location
 
-### 4. Run
-```bash
-cd src\Chess.Console
-dotnet run
-```
+3. **Install GitHub Copilot CLI**:
+   ```bash
+   npm install -g copilot
+   copilot auth
+   ```
+
+4. **Run the application**:
+   - Windows: Double-click `blindfoldchess.exe` or run in terminal
+   - Linux/macOS: `./blindfoldchess` (make executable with `chmod +x blindfoldchess` if needed)
+
+### Option 2: Build from Source
+
+1. **Clone or Download**
+   ```bash
+   git clone https://github.com/bertt/blindfoldchess.git
+   cd blindfoldchess
+   ```
+
+2. **Restore Dependencies**
+   ```bash
+   dotnet restore
+   ```
+
+3. **Build**
+   ```bash
+   dotnet build
+   ```
+
+4. **Run**
+   ```bash
+   cd src\Chess.Console
+   dotnet run
+   ```
 
 ## Quick Start
 
@@ -92,6 +115,7 @@ analyze/a       - Analyze position
 debug/d         - Show last AI prompt & response
 level/l         - Change difficulty level
 model/m         - Change AI model
+version/v       - Show version information
 new             - Start new game
 quit/q/exit     - Exit
 ```
@@ -148,6 +172,7 @@ See [USER_GUIDE.md](USER_GUIDE.md) for complete documentation.
 | `debug` | `d` | Show last AI prompt and response (debugging) |
 | `level` | `l`, `difficulty` | Show difficulty level menu |
 | `model` | `m` | Show AI model selection menu |
+| `version` | `v` | Show version information |
 | `new` | - | Start a new game |
 | `quit` | `q`, `exit` | Exit the application |
 
@@ -277,6 +302,29 @@ dotnet build
 ```bash
 dotnet test
 ```
+
+### Creating a Release
+
+Releases are automatically created when a version tag is pushed:
+
+```bash
+# Update version in src/Chess.Console/Chess.Console.csproj
+# Then tag and push
+git tag v0.1.0
+git push origin v0.1.0
+```
+
+GitHub Actions will automatically:
+- Build for Windows (x64), Linux (x64), macOS (x64 and ARM64)
+- Create self-contained single-file executables
+- Package them as ZIP files
+- Create a GitHub release with all artifacts
+
+**Supported Platforms:**
+- `blindfoldchess-windows-x64.zip` - Windows 10/11 (64-bit)
+- `blindfoldchess-linux-x64.zip` - Linux (64-bit)
+- `blindfoldchess-macos-x64.zip` - macOS Intel (64-bit)
+- `blindfoldchess-macos-arm64.zip` - macOS Apple Silicon (M1/M2/M3)
 
 ### Project Structure
 ```

@@ -84,6 +84,7 @@ e5d6    - When black just played d7-d5
 - **debug** / **d** - 🔍 Show last AI prompt & response (for debugging)
 - **level** / **l** / **difficulty** - Change difficulty level
 - **model** / **m** - 🤖 Change AI model
+- **version** / **v** - Show version information
 - **new** - Start a new game
 - **quit** / **q** / **exit** - Exit
 

@@ -5,6 +5,11 @@
     <TargetFramework>net8.0</TargetFramework>
     <ImplicitUsings>enable</ImplicitUsings>
     <Nullable>enable</Nullable>
+    <Version>0.1.0</Version>
+    <AssemblyName>blindfoldchess</AssemblyName>
+    <Product>Blindfold Chess</Product>
+    <Authors>Bert Temme</Authors>
+    <Description>Console application for learning blindfold chess with AI opponent</Description>
   </PropertyGroup>
 
   <ItemGroup>

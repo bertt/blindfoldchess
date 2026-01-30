@@ -5,11 +5,14 @@ namespace Chess.Console;
 
 class Program
 {
+    public static readonly string Version = typeof(Program).Assembly.GetName().Version?.ToString(3) ?? "0.1.0";
+    
     static async Task Main(string[] args)
     {
         System.Console.OutputEncoding = System.Text.Encoding.UTF8;
         System.Console.WriteLine("╔════════════════════════════════════════════╗");
         System.Console.WriteLine("║   Blindfold Chess - Train Your Vision      ║");
+        System.Console.WriteLine($"║              Version {Version,-22} ║");
         System.Console.WriteLine("╚════════════════════════════════════════════╝");
         System.Console.WriteLine();
         System.Console.WriteLine("Goal: Learn blindfold chess! The board is NOT automatically shown.");
@@ -345,6 +348,11 @@ class ChessGame
                 await ShowModelMenu();
                 return true;
 
+            case "version":
+            case "v":
+                ShowVersion();
+                return true;
+
             case "quit":
             case "exit":
             case "q":
@@ -523,6 +531,22 @@ class ChessGame
         System.Console.WriteLine("═══════════════════════════════════════════");
     }
 
+    private void ShowVersion()
+    {
+        System.Console.WriteLine("\n╔════════════════════════════════════════════╗");
+        System.Console.WriteLine("║           VERSION INFORMATION              ║");
+        System.Console.WriteLine("╚════════════════════════════════════════════╝");
+        System.Console.WriteLine();
+        System.Console.WriteLine($"  Blindfold Chess v{Program.Version}");
+        System.Console.WriteLine($"  .NET Runtime: {System.Runtime.InteropServices.RuntimeInformation.FrameworkDescription}");
+        System.Console.WriteLine($"  OS: {System.Runtime.InteropServices.RuntimeInformation.OSDescription}");
+        System.Console.WriteLine($"  AI Model: {_analyzer.Model}");
+        System.Console.WriteLine($"  Difficulty: {_analyzer.Difficulty}");
+        System.Console.WriteLine();
+        System.Console.WriteLine("  GitHub: https://github.com/bertt/blindfoldchess");
+        System.Console.WriteLine();
+    }
+
     private void ShowHelp()
     {
         System.Console.WriteLine("\n╔════════════════════════════════════════════╗");
@@ -543,8 +567,8 @@ class ChessGame
         System.Console.WriteLine("  debug/d     - 🔍 Show last AI prompt & response");
         System.Console.WriteLine("  level/l     - Change difficulty level");
         System.Console.WriteLine("  model/m     - 🤖 Change AI model");
+        System.Console.WriteLine("  version/v   - Show version information");
         System.Console.WriteLine("  new         - Start new game");
-        System.Console.WriteLine("  quit/q      - Exit");
         System.Console.WriteLine("  quit/q      - Exit");
         System.Console.WriteLine();
         System.Console.WriteLine("PIECES:");
