@@ -43,7 +43,7 @@ public class Piece
             (PieceType.Rook, PieceColor.Black) => '♜',
             (PieceType.Bishop, PieceColor.Black) => '♝',
             (PieceType.Knight, PieceColor.Black) => '♞',
-            (PieceType.Pawn, PieceColor.Black) => '♙',
+            (PieceType.Pawn, PieceColor.Black) => '♟',
             _ => '?'
         };
     }

@@ -101,7 +101,7 @@ class ChessGame
     {
         try
         {
-            System.Console.WriteLine($"New game started! You play WHITE (♙), computer plays BLACK (♙)");
+            System.Console.WriteLine($"New game started! You play WHITE (♙), computer plays BLACK (♟)");
             System.Console.WriteLine($"Difficulty: {_analyzer.Difficulty}");
             System.Console.WriteLine($"AI Model: {_analyzer.Model}");
             System.Console.WriteLine($"Timeout: {(_analyzer.TimeoutSeconds == 0 ? "Infinite" : $"{_analyzer.TimeoutSeconds} seconds")}");
@@ -620,7 +620,7 @@ class ChessGame
         System.Console.WriteLine();
         System.Console.WriteLine("PIECES:");
         System.Console.WriteLine("  White: ♔ King  ♕ Queen  ♖ Rook  ♗ Bishop  ♘ Knight  ♙ Pawn");
-        System.Console.WriteLine("  Black: ♚ King  ♛ Queen  ♜ Rook  ♝ Bishop  ♞ Knight  ♙ Pawn");
+        System.Console.WriteLine("  Black: ♚ King  ♛ Queen  ♜ Rook  ♝ Bishop  ♞ Knight  ♟ Pawn");
         System.Console.WriteLine();
         System.Console.WriteLine("DIFFICULTY LEVELS:");
         System.Console.WriteLine("  Type 'level' to change: Beginner / Intermediate / Advanced");
