@@ -2,8 +2,9 @@
 
 ## Prerequisites
 
-**Option 1: Download Release (Easiest)**
+**Option 1: Download Release (Easiest - No .NET Required)**
 - Download from [Releases](https://github.com/bertt/blindfoldchess/releases)
+- Self-contained executable - **no .NET installation needed**
 - Install GitHub Copilot CLI:
   ```bash
   npm install -g copilot
@@ -11,8 +12,8 @@
   On first run, Copilot authenticates with your GitHub account automatically.
   Requires [GitHub Copilot subscription](https://github.com/settings/copilot).
 
-**Option 2: Build from Source**
-- .NET 8.0 SDK
+**Option 2: Build from Source (Requires .NET 8.0 SDK)**
+- [.NET 8.0 SDK](https://dotnet.microsoft.com/download/dotnet/8.0) - **required to compile the code**
 - GitHub Copilot CLI:
   ```bash
   npm install -g copilot
@@ -21,7 +22,7 @@
 
 ## Installation
 
-**Using Pre-built Release:**
+**Using Pre-built Release (No .NET Required):**
 ```bash
 # Download and extract the release for your platform
 # Windows x64: blindfoldchess-windows-x64.zip
@@ -30,14 +31,14 @@
 # macOS Intel: blindfoldchess-macos-x64.zip
 # macOS Apple Silicon: blindfoldchess-macos-arm64.zip
 
-# Run the executable
+# Run the executable - no installation needed!
 ./blindfoldchess    # Linux/macOS
 blindfoldchess.exe  # Windows
 ```
 
-**Building from Source:**
-**Building from Source:**
+**Building from Source (Requires .NET 8.0 SDK):**
 ```bash
+# Install .NET 8.0 SDK first from https://dotnet.microsoft.com/download/dotnet/8.0
 git clone https://github.com/bertt/blindfoldchess.git
 cd blindfoldchess
 dotnet restore

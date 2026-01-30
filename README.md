@@ -16,7 +16,13 @@ A C# console application for learning **blindfold chess**. Play against the comp
 
 ## Requirements
 
-- [.NET 8.0 SDK](https://dotnet.microsoft.com/download/dotnet/8.0) or higher
+### For Pre-built Release Executables
+- Windows/Linux/macOS terminal with UTF-8 support
+- **GitHub Copilot CLI** (REQUIRED) - Install with: `npm install -g copilot`
+- **Active GitHub Copilot subscription** (REQUIRED) - All AI functionality requires Copilot
+
+### For Building from Source
+- [.NET 8.0 SDK](https://dotnet.microsoft.com/download/dotnet/8.0) or higher (required to compile the code)
 - Windows/Linux/macOS terminal with UTF-8 support
 - **GitHub Copilot CLI** (REQUIRED) - Install with: `npm install -g copilot`
 - **Active GitHub Copilot subscription** (REQUIRED) - All AI functionality requires Copilot
@@ -24,6 +30,8 @@ A C# console application for learning **blindfold chess**. Play against the comp
 ## Installation
 
 ### Option 1: Download Pre-built Release (Recommended)
+
+**No .NET installation needed** - the executables are self-contained and include everything required.
 
 1. **Download the latest release** for your platform from [Releases](https://github.com/bertt/blindfoldchess/releases)
    - Windows x64: `blindfoldchess-windows-x64.zip`
@@ -48,23 +56,29 @@ A C# console application for learning **blindfold chess**. Play against the comp
 
 ### Option 2: Build from Source
 
-1. **Clone or Download**
+**Requires .NET 8.0 SDK** - needed to compile and run the source code.
+
+1. **Install .NET 8.0 SDK**
+   - Download from [https://dotnet.microsoft.com/download/dotnet/8.0](https://dotnet.microsoft.com/download/dotnet/8.0)
+   - Verify installation: `dotnet --version`
+
+2. **Clone or Download**
    ```bash
    git clone https://github.com/bertt/blindfoldchess.git
    cd blindfoldchess
    ```
 
-2. **Restore Dependencies**
+3. **Restore Dependencies**
    ```bash
    dotnet restore
    ```
 
-3. **Build**
+4. **Build**
    ```bash
    dotnet build
    ```
 
-4. **Run**
+5. **Run**
    ```bash
    cd src\Chess.Console
    dotnet run
