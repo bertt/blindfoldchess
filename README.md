@@ -82,44 +82,86 @@ e7e8q       - Pawn promotion to Queen
 
 ### Commands
 ```
-show/s      - Show the board
-help/h      - Show help
-moves       - Show move history
-analyze/a   - Analyze position
-level/l     - Change difficulty level
-new         - New game
-quit/q      - Exit
+show/s/board    - Show the board (peeking!)
+help/h/?        - Show help
+moves/history   - Show move history
+analyze/a       - Analyze position
+debug/d         - Show last AI prompt & response
+level/l         - Change difficulty level
+model/m         - Change AI model
+new             - Start new game
+quit/q/exit     - Exit
 ```
 
 ### Difficulty Levels
 
 The computer has three difficulty levels:
 
-**1. Beginner** - Makes random legal moves
+**1. Beginner** - Simple moves (rating ~800)
 - Perfect for learning the rules
 - Easy to beat
 - Good for practicing visualization without pressure
-- Uses GPT-4o with high temperature (creative/random)
+- Focuses on basic development and center control
 
-**2. Intermediate** (Default) - Tactical play
+**2. Intermediate** (Default) - Tactical play (rating ~1500)
 - Evaluates material and position
 - Prefers captures and center control
 - Develops pieces logically
+- Looks for tactical patterns
 - Challenging for casual players
-- Uses GPT-4o with rating ~1500 persona
 
-**3. Advanced** - Strategic depth  
-- Uses GPT-4o with rating ~2200 persona
-- Plans several moves ahead
-- Considers positional factors
-- Strong tactical play
+**3. Advanced** - Strategic depth (rating ~2200)
+- Deep analysis of tactics and strategy
+- Plans several moves ahead (3-4 moves)
+- Considers king safety, pawn structure, piece activity
+- Strong positional and tactical play
 - Challenging for intermediate players
 
-**Note**: All levels use GitHub Copilot (GPT-4o) - difficulty is controlled through prompt engineering.
+**Note**: All levels use GitHub Copilot SDK with configurable AI models - difficulty is controlled through prompt engineering.
 
-To change level: Type `level` and follow the menu, or directly type `beginner`, `intermediate`, or `advanced`.
+**To change level:** 
+- Type `level` or `l` to show the menu
+- Or directly type: `beginner`, `intermediate`, `advanced`, `1`, `2`, or `3`
 
 See [USER_GUIDE.md](USER_GUIDE.md) for complete documentation.
+
+## Complete Command Reference
+
+### Move Input
+| Command | Description | Example |
+|---------|-------------|---------|
+| `[from][to]` | Basic move | `e2e4`, `g1f3` |
+| `[from][to][piece]` | Pawn promotion | `e7e8q` (Queen), `e7e8r` (Rook), `e7e8b` (Bishop), `e7e8n` (Knight) |
+| `o-o` | Kingside castling | `o-o` |
+| `o-o-o` | Queenside castling | `o-o-o` |
+
+### Game Commands
+| Command | Aliases | Description |
+|---------|---------|-------------|
+| `show` | `s`, `board` | Display the current board position |
+| `help` | `h`, `?` | Show help and command list |
+| `moves` | `history` | Display move history in algebraic notation |
+| `analyze` | `a` | Analyze current position (material, evaluation) |
+| `debug` | `d` | Show last AI prompt and response (debugging) |
+| `level` | `l`, `difficulty` | Show difficulty level menu |
+| `model` | `m` | Show AI model selection menu |
+| `new` | - | Start a new game |
+| `quit` | `q`, `exit` | Exit the application |
+
+### Difficulty Level Shortcuts
+| Command | Description |
+|---------|-------------|
+| `beginner` or `1` | Set difficulty to Beginner (rating ~800) |
+| `intermediate` or `2` | Set difficulty to Intermediate (rating ~1500) |
+| `advanced` or `3` | Set difficulty to Advanced (rating ~2200) |
+
+### AI Model Configuration
+| Model | Speed | Cost | Strength | Best For |
+|-------|-------|------|----------|----------|
+| `gpt-4o-mini` | ⚡⚡⚡ | 💰 | 🎯🎯 | Default, daily practice |
+| `gpt-4o` | ⚡⚡ | 💰💰 | 🎯🎯🎯 | Challenging games |
+| `claude-sonnet-4.5` | ⚡⚡ | 💰💰 | 🎯🎯🎯 | Creative, positional play |
+| `gpt-4.1` | ⚡⚡⚡ | 💰 | 🎯 | Quick practice |
 
 ## Architecture
 
@@ -172,11 +214,37 @@ This application uses the **GitHub Copilot SDK** which requires the Copilot CLI 
    dotnet run
    ```
 
+### AI Models
+
+The application supports multiple AI models. Change models with the `model` command.
+
+**Available Models:**
+
+1. **gpt-4o-mini** (Default)
+   - ⚡ Fastest | 💰 Cheapest | 🎯 Good chess strength
+   - Best for: Quick games, practice, blindfold training
+
+2. **gpt-4o**
+   - ⚖️ Balanced | 💰💰 Moderate cost | 🎯🎯 Strong chess
+   - Best for: Challenging games, learning tactics
+
+3. **claude-sonnet-4.5**
+   - 🧠 Strategic | 💰💰 Moderate cost | 🎯🎯 Creative play
+   - Best for: Positional chess, varied openings
+
+4. **gpt-4.1**
+   - 🚀 Fast | 💰 Low cost | 🎯 Decent strength
+   - Best for: Quick practice games
+
+**To change model:**
+- Type `model` or `m` to show the menu
+- Select by number (1-4) or name
+
 ### How It Works
 
-All chess intelligence comes from **GPT-4o** via the Copilot SDK:
-- **Position Analysis**: Copilot evaluates positions using FEN notation
-- **Move Selection**: Copilot chooses moves based on difficulty level
+All chess intelligence comes from AI models via the Copilot SDK:
+- **Position Analysis**: AI evaluates positions using FEN notation
+- **Move Selection**: AI chooses moves based on difficulty level
 - **Difficulty via Prompting**: Different system prompts create different playing strengths
   - Beginner: Simple moves, rating ~800
   - Intermediate: Tactical play, rating ~1500
@@ -188,7 +256,12 @@ If you see "Copilot analysis error" messages:
 1. Verify CLI is installed: `copilot --version`
 2. Verify authentication: `copilot auth`
 3. Check your Copilot subscription status
-4. The app will fallback to basic material evaluation if Copilot is unavailable
+4. Try a different model with the `model` command
+5. Check error details with the `debug` command
+
+**Timeout errors:**
+- If the AI times out (15-20 seconds), you'll be prompted to retry
+- Try switching to a faster model like `gpt-4o-mini` or `gpt-4.1`
 
 ## Development
 

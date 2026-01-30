@@ -77,43 +77,47 @@ e5d6    - When black just played d7-d5
 ## Commands
 
 ### Game Commands
-- **show** or **s** - 👀 Show the board (PEEKING! Use sparingly)
-- **help** or **h** or **?** - Show help information
-- **moves** or **history** - Show all played moves
-- **analyze** or **a** - Analyze the current position
-- **level** or **l** - Change difficulty level
+- **show** / **s** / **board** - 👀 Show the board (PEEKING! Use sparingly)
+- **help** / **h** / **?** - Show help information
+- **moves** / **history** - Show all played moves
+- **analyze** / **a** - Analyze the current position
+- **debug** / **d** - 🔍 Show last AI prompt & response (for debugging)
+- **level** / **l** / **difficulty** - Change difficulty level
+- **model** / **m** - 🤖 Change AI model
 - **new** - Start a new game
-- **quit** or **q** - Exit
+- **quit** / **q** / **exit** - Exit
 
 ### Difficulty Levels
 
 You can adjust the computer's strength:
 
 #### 1. Beginner
-- GPT-4o with beginner persona (rating ~800)
+- AI with beginner persona (rating ~800)
 - Makes simple, straightforward moves
+- Focuses on basic development and center control
 - Perfect for learning rules and practicing visualization
 - Very easy to beat
 
 #### 2. Intermediate (Default)
-- GPT-4o with intermediate persona (rating ~1500)
+- AI with intermediate persona (rating ~1500)
 - Tactical evaluation of positions
-- Captures valuable pieces
-- Controls the center
-- Develops pieces logically
+- Looks for captures, threats, and tactical patterns
+- Controls the center and develops pieces logically
+- Avoids hanging pieces
 - Good challenge for casual players
 
 #### 3. Advanced
-- GPT-4o with master persona (rating ~2200)
+- AI with master persona (rating ~2200)
 - Deep analysis: tactics, strategy, king safety
-- Strong positional play
-- Piece coordination and pawn structure
+- Calculates 3-4 moves ahead
+- Strong positional play and pawn structure evaluation
+- Piece coordination and endgame considerations
 - Challenging for intermediate players
 
-**Powered by**: GitHub Copilot (GPT-4o via Azure AI)
+**Powered by**: GitHub Copilot SDK with configurable AI models
 
 **To change level:**
-- Type `level` to see the menu
+- Type `level`, `l`, or `difficulty` to see the menu
 - Or directly type: `beginner`, `intermediate`, or `advanced`
 - Or use shortcuts: `1`, `2`, or `3`
 
@@ -230,18 +234,84 @@ For castling:
 
 ## GitHub Copilot SDK (Required)
 
-The application uses the **GitHub Models API** for all chess analysis.
+The application uses the **GitHub Copilot SDK** for all chess intelligence.
 
-### Configuration
-Set environment variable with your GitHub token:
+### Installation & Setup
+```bash
+npm install -g copilot
+copilot auth
 ```
-GITHUB_TOKEN=your_github_token_here
+
+Verify installation:
+```bash
+copilot --version
 ```
 
-Get your token from: https://github.com/settings/tokens
+### AI Models
 
-### Without Copilot SDK
-The app requires the GitHub token to function. All chess intelligence comes from GPT-4o via GitHub Models.
+You can change the AI model during gameplay with the `model` command.
+
+**Available Models:**
+
+1. **gpt-4o-mini** (Default)
+   - ⚡ Fastest response time
+   - 💰 Lowest cost
+   - 🎯 Good chess strength
+   - **Best for:** Quick games, practice, daily blindfold training
+
+2. **gpt-4o**
+   - ⚖️ Balanced performance
+   - 💰💰 Moderate cost
+   - 🎯🎯 Strong chess play
+   - **Best for:** Challenging games, learning tactics
+
+3. **claude-sonnet-4.5**
+   - 🧠 Strategic thinking
+   - 💰💰 Moderate cost
+   - 🎯🎯 Creative and varied play
+   - **Best for:** Positional chess, exploring different openings
+
+4. **gpt-4.1**
+   - 🚀 Fast response
+   - 💰 Low cost
+   - 🎯 Decent strength
+   - **Best for:** Quick practice sessions
+
+**Performance Comparison:**
+- **Speed:** gpt-4.1 > gpt-4o-mini > gpt-4o ≈ claude-sonnet-4.5
+- **Cost:** gpt-4.1 < gpt-4o-mini < gpt-4o ≈ claude-sonnet-4.5
+- **Chess Strength:** gpt-4o > claude-sonnet-4.5 > gpt-4o-mini > gpt-4.1
+
+**To change model:**
+- Type `model` or `m` during gameplay
+- Select by number (1-4) or enter the model name
+- The current session will switch to the new model
+
+### Debug Command
+
+Use the `debug` or `d` command to see:
+- The exact prompt sent to the AI
+- The AI's raw response
+- Useful for troubleshooting move selection issues
+
+### Troubleshooting
+
+**Timeout Errors:**
+If the AI times out (doesn't respond within 15-20 seconds):
+- You'll be prompted to retry
+- Consider switching to a faster model (`gpt-4o-mini` or `gpt-4.1`)
+- Check your internet connection
+
+**Authentication Issues:**
+```bash
+copilot auth        # Re-authenticate
+copilot --version   # Verify installation
+```
+
+**Model Switch Failures:**
+- The application will keep using the current model
+- Check the debug output for error details
+- Ensure your Copilot subscription is active
 
 ## Have Fun!
 

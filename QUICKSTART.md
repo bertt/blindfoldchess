@@ -25,11 +25,22 @@ dotnet run
 
 ## Quick Commands
 
+**Moves:**
 - `e2e4` - Play a move
-- `show` - View the board (peeking!)
-- `level` - Change difficulty (beginner/intermediate/advanced)
-- `help` - Show all commands
-- `quit` - Exit
+- `o-o` - Kingside castling
+- `o-o-o` - Queenside castling
+- `e7e8q` - Pawn promotion to Queen
+
+**Game Commands:**
+- `show` / `s` - View the board (peeking!)
+- `level` / `l` - Change difficulty (beginner/intermediate/advanced or 1/2/3)
+- `model` / `m` - Change AI model (gpt-4o-mini/gpt-4o/claude-sonnet-4.5/gpt-4.1)
+- `moves` - Show move history
+- `analyze` / `a` - Analyze position
+- `debug` / `d` - Show AI prompt/response
+- `help` / `h` - Show all commands
+- `new` - New game
+- `quit` / `q` - Exit
 
 ## First Moves Example
 
