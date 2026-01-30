@@ -37,13 +37,13 @@ public class Piece
             (PieceType.Rook, PieceColor.White) => '♜',
             (PieceType.Bishop, PieceColor.White) => '♝',
             (PieceType.Knight, PieceColor.White) => '♞',
-            (PieceType.Pawn, PieceColor.White) => '♟',
+            (PieceType.Pawn, PieceColor.White) => '♙',
             (PieceType.King, PieceColor.Black) => '♔',
             (PieceType.Queen, PieceColor.Black) => '♕',
             (PieceType.Rook, PieceColor.Black) => '♖',
             (PieceType.Bishop, PieceColor.Black) => '♗',
             (PieceType.Knight, PieceColor.Black) => '♘',
-            (PieceType.Pawn, PieceColor.Black) => '♙',
+            (PieceType.Pawn, PieceColor.Black) => '♟',
             _ => '?'
         };
     }
