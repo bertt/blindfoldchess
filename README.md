@@ -55,7 +55,7 @@ A C# console application for learning **blindfold chess**. Play against the comp
    - After signing in, you'll authorize the Copilot CLI
    - The authentication is saved locally and persists across sessions
    
-   **Requirements**: Active [GitHub Copilot subscription](https://github.com/settings/copilot) ($10/month for individuals or included with GitHub Copilot Enterprise)
+   **Requirements**: Active [GitHub Copilot subscription](https://github.com/settings/copilot)
    
    **Learn more**: [GitHub Copilot CLI Documentation](https://docs.github.com/en/copilot/using-github-copilot/using-github-copilot-in-the-command-line)
 
@@ -253,7 +253,7 @@ The GitHub Copilot CLI is a command-line interface that provides access to GitHu
 **Official Resources:**
 - [GitHub Copilot CLI on npm](https://www.npmjs.com/package/copilot)
 - [GitHub Copilot CLI Documentation](https://docs.github.com/en/copilot/using-github-copilot/using-github-copilot-in-the-command-line)
-- [GitHub Copilot Subscription](https://github.com/settings/copilot) - $10/month for individuals
+- [GitHub Copilot Subscription](https://github.com/settings/copilot)
 
 ### Setup
 
@@ -296,9 +296,7 @@ copilot auth status
 
 **Subscription Required:**
 - Active [GitHub Copilot subscription](https://github.com/settings/copilot) is required
-- Individual: $10/month or $100/year
-- Included with GitHub Copilot Enterprise
-- Free for verified students, teachers, and maintainers of popular open source projects
+- Available for individuals, enterprises, and free for verified students, teachers, and maintainers of popular open source projects
 
 ### Running the Application
 

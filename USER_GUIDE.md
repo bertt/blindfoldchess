@@ -275,7 +275,7 @@ copilot auth status
 ```
 
 **Requirements:**
-- Active [GitHub Copilot subscription](https://github.com/settings/copilot) ($10/month for individuals)
+- Active [GitHub Copilot subscription](https://github.com/settings/copilot)
 - Internet connection (required for all AI functionality)
 
 **Learn more:** [GitHub Copilot CLI Documentation](https://docs.github.com/en/copilot/using-github-copilot/using-github-copilot-in-the-command-line)

@@ -12,7 +12,7 @@
   **Authentication**: On first run, a browser opens for GitHub sign-in. Authorize the Copilot CLI and you're done.
   The authentication is saved and persists across sessions.
   
-  **Requires**: [GitHub Copilot subscription](https://github.com/settings/copilot) ($10/month or included with Enterprise)
+  **Requires**: [GitHub Copilot subscription](https://github.com/settings/copilot)
 
 **Option 2: Build from Source (Requires .NET 8.0 SDK)**
 - [.NET 8.0 SDK](https://dotnet.microsoft.com/download/dotnet/8.0) - **required to compile the code**
