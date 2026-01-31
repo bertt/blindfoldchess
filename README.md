@@ -93,6 +93,7 @@ o-o-o       Queenside castling
 | `help` | `h`, `?` | Show help |
 | `moves` | `history` | Show move history |
 | `analyze` | `a` | Analyze position |
+| `analytics` | `stats` | Toggle move analytics ON/OFF (default: ON) |
 | `debug` | `d` | Show AI prompt/response |
 | `level` | `l` | Change difficulty |
 | `model` | `m` | Change AI model |
@@ -164,6 +165,7 @@ Files: a-h (left to right), Ranks: 1-8 (bottom to top)
 4. **Peek strategically** - Use `show` only to verify when stuck
 5. **Track key pieces** - Know where kings and queens are
 6. **Practice regularly** - Skills improve with consistent training
+7. **Use analytics toggle** - Turn off analytics (`analytics` command) for pure blindfold practice
 
 ## Architecture
 

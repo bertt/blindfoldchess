@@ -90,6 +90,7 @@ class ChessGame
     private Board _board;
     private CopilotChessAnalyzer _analyzer;
     private bool _isRunning = true;
+    private bool _showAnalytics = true;
 
     public ChessGame()
     {
@@ -182,41 +183,56 @@ class ChessGame
                 
                 System.Console.WriteLine($"✓ Move played: {move.ToAlgebraic()} ({pieceName} to {move.To.ToAlgebraic()})");
                 
-                if (move.CapturedPiece != null)
+                if (_showAnalytics)
                 {
-                    System.Console.ForegroundColor = ConsoleColor.Green;
-                    System.Console.WriteLine($"  ⚔️  Captured: {move.CapturedPiece.GetName()} (gained {GetPieceValue(move.CapturedPiece.Type)} points)");
-                    System.Console.ResetColor();
-                }
+                    if (move.CapturedPiece != null)
+                    {
+                        System.Console.ForegroundColor = ConsoleColor.Green;
+                        System.Console.WriteLine($"  ⚔️  Captured: {move.CapturedPiece.GetName()} (gained {GetPieceValue(move.CapturedPiece.Type)} points)");
+                        System.Console.ResetColor();
+                    }
 
-                if (move.PromotionPiece != null)
+                    if (move.PromotionPiece != null)
+                    {
+                        System.Console.ForegroundColor = ConsoleColor.Yellow;
+                        System.Console.WriteLine($"  👑 Promoted to: {move.PromotionPiece.Value}");
+                        System.Console.ResetColor();
+                    }
+
+                    if (move.IsCastling)
+                    {
+                        System.Console.ForegroundColor = ConsoleColor.Cyan;
+                        System.Console.WriteLine($"  🏰 Castled - King is safer now!");
+                        System.Console.ResetColor();
+                    }
+
+                    // Check if black is in check after white's move
+                    if (_board.IsInCheck(PieceColor.Black))
+                    {
+                        System.Console.ForegroundColor = ConsoleColor.Yellow;
+                        System.Console.WriteLine($"  ✨ You put BLACK in check!");
+                        System.Console.ResetColor();
+                    }
+
+                    // Show analysis
+                    var analysis = await _analyzer.AnalyzePosition(_board);
+                    ShowAnalysis(analysis);
+                    
+                    // Show additional position info
+                    ShowPositionInfo();
+                }
+                else
                 {
-                    System.Console.ForegroundColor = ConsoleColor.Yellow;
-                    System.Console.WriteLine($"  👑 Promoted to: {move.PromotionPiece.Value}");
-                    System.Console.ResetColor();
+                    // Minimal feedback mode - only show captures and check
+                    if (move.CapturedPiece != null)
+                    {
+                        System.Console.WriteLine($"  Captured: {move.CapturedPiece.GetName()}");
+                    }
+                    if (_board.IsInCheck(PieceColor.Black))
+                    {
+                        System.Console.WriteLine($"  Check!");
+                    }
                 }
-
-                if (move.IsCastling)
-                {
-                    System.Console.ForegroundColor = ConsoleColor.Cyan;
-                    System.Console.WriteLine($"  🏰 Castled - King is safer now!");
-                    System.Console.ResetColor();
-                }
-
-                // Check if black is in check after white's move
-                if (_board.IsInCheck(PieceColor.Black))
-                {
-                    System.Console.ForegroundColor = ConsoleColor.Yellow;
-                    System.Console.WriteLine($"  ✨ You put BLACK in check!");
-                    System.Console.ResetColor();
-                }
-
-                // Show analysis
-                var analysis = await _analyzer.AnalyzePosition(_board);
-                ShowAnalysis(analysis);
-                
-                // Show additional position info
-                ShowPositionInfo();
                 
                 ShowMoveHistory();
             }
@@ -387,6 +403,22 @@ class ChessGame
                 ShowTimeoutMenu();
                 return true;
 
+            case "analytics":
+            case "stats":
+                _showAnalytics = !_showAnalytics;
+                System.Console.ForegroundColor = _showAnalytics ? ConsoleColor.Green : ConsoleColor.Yellow;
+                System.Console.WriteLine($"✓ Move analytics {(_showAnalytics ? "ENABLED" : "DISABLED")}");
+                System.Console.ResetColor();
+                if (_showAnalytics)
+                {
+                    System.Console.WriteLine("  You will see detailed analysis after each move");
+                }
+                else
+                {
+                    System.Console.WriteLine("  Minimal feedback mode - focus on visualization!");
+                }
+                return true;
+
             case "version":
             case "v":
                 ShowVersion();
@@ -402,6 +434,7 @@ class ChessGame
                 _board = new Board();
                 System.Console.WriteLine("\n✓ New game started!");
                 System.Console.WriteLine($"Difficulty: {_analyzer.Difficulty}");
+                System.Console.WriteLine($"Analytics: {(_showAnalytics ? "ON" : "OFF")}");
                 return true;
 
             default:
@@ -658,6 +691,7 @@ class ChessGame
         System.Console.WriteLine($"  OS: {System.Runtime.InteropServices.RuntimeInformation.OSDescription}");
         System.Console.WriteLine($"  AI Model: {_analyzer.Model}");
         System.Console.WriteLine($"  Difficulty: {_analyzer.Difficulty}");
+        System.Console.WriteLine($"  Analytics: {(_showAnalytics ? "ON" : "OFF")}");
         System.Console.WriteLine($"  Timeout: {(_analyzer.TimeoutSeconds == 0 ? "Infinite" : $"{_analyzer.TimeoutSeconds} seconds")}");
         System.Console.WriteLine();
         System.Console.WriteLine("  GitHub: https://github.com/bertt/blindfoldchess");
@@ -681,6 +715,7 @@ class ChessGame
         System.Console.WriteLine("  help/h/?    - Show this help");
         System.Console.WriteLine("  moves       - Show move history");
         System.Console.WriteLine("  analyze/a   - Analyze current position");
+        System.Console.WriteLine("  analytics   - 📊 Toggle move analytics ON/OFF");
         System.Console.WriteLine("  debug/d     - 🔍 Show last AI prompt & response");
         System.Console.WriteLine("  level/l     - Change difficulty level");
         System.Console.WriteLine("  model/m     - 🤖 Change AI model");
