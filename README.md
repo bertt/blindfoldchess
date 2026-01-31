@@ -96,7 +96,7 @@ A C# console application for learning **blindfold chess**. Play against the comp
 ## Quick Start
 
 1. Start the application
-2. You play **WHITE** (♟), computer plays **BLACK** (♙)
+2. You play **WHITE** (♙), computer plays **BLACK** (♟)
 3. Enter moves using algebraic notation: `e2e4`
 4. Type `help` for all commands
 5. Type `show` if you want to see the board (peeking!)
@@ -112,8 +112,8 @@ Your move (white) > e2e4
 Your move (white) > show
 👀 PEEKING - Current board position:
   a b c d e f g h
-8 ♖ ♘ ♗ ♕ ♔ ♗ ♘ ♖ 8
-7 ♙ ♙ ♙ ♙ . ♙ ♙ ♙ 7
+8 ♜ ♞ ♝ ♛ ♚ ♝ ♞ ♜ 8
+7 ♟ ♟ ♟ ♟ . ♟ ♟ ♟ 7
 ...
 ```
 

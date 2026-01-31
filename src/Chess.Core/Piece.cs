@@ -32,18 +32,18 @@ public class Piece
     {
         return (Type, Color) switch
         {
-            (PieceType.King, PieceColor.White) => '♚',
-            (PieceType.Queen, PieceColor.White) => '♛',
-            (PieceType.Rook, PieceColor.White) => '♜',
-            (PieceType.Bishop, PieceColor.White) => '♝',
-            (PieceType.Knight, PieceColor.White) => '♞',
-            (PieceType.Pawn, PieceColor.White) => '♟',
-            (PieceType.King, PieceColor.Black) => '♔',
-            (PieceType.Queen, PieceColor.Black) => '♕',
-            (PieceType.Rook, PieceColor.Black) => '♖',
-            (PieceType.Bishop, PieceColor.Black) => '♗',
-            (PieceType.Knight, PieceColor.Black) => '♘',
-            (PieceType.Pawn, PieceColor.Black) => '♙',
+            (PieceType.King, PieceColor.White) => '♔',
+            (PieceType.Queen, PieceColor.White) => '♕',
+            (PieceType.Rook, PieceColor.White) => '♖',
+            (PieceType.Bishop, PieceColor.White) => '♗',
+            (PieceType.Knight, PieceColor.White) => '♘',
+            (PieceType.Pawn, PieceColor.White) => '♙',
+            (PieceType.King, PieceColor.Black) => '♚',
+            (PieceType.Queen, PieceColor.Black) => '♛',
+            (PieceType.Rook, PieceColor.Black) => '♜',
+            (PieceType.Bishop, PieceColor.Black) => '♝',
+            (PieceType.Knight, PieceColor.Black) => '♞',
+            (PieceType.Pawn, PieceColor.Black) => '♟',
             _ => '?'
         };
     }
