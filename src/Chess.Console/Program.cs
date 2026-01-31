@@ -258,15 +258,18 @@ class ChessGame
                 
                 System.Console.WriteLine($"💻 Computer move: {move.ToAlgebraic()} ({pieceName} to {move.To.ToAlgebraic()})");
                 
-                if (move.CapturedPiece != null)
+                if (_showAnalytics)
                 {
-                    System.Console.WriteLine($"   Captured: {move.CapturedPiece.GetName()}");
-                }
+                    if (move.CapturedPiece != null)
+                    {
+                        System.Console.WriteLine($"   Captured: {move.CapturedPiece.GetName()}");
+                    }
 
-                // Show analysis
-                var analysis = await _analyzer.AnalyzePosition(_board);
-                ShowAnalysis(analysis);
-                ShowMoveHistory();
+                    // Show analysis
+                    var analysis = await _analyzer.AnalyzePosition(_board);
+                    ShowAnalysis(analysis);
+                    ShowMoveHistory();
+                }
             }
             else
             {
