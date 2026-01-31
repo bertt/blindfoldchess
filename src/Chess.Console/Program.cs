@@ -220,21 +220,9 @@ class ChessGame
                     
                     // Show additional position info
                     ShowPositionInfo();
+                    
+                    ShowMoveHistory();
                 }
-                else
-                {
-                    // Minimal feedback mode - only show captures and check
-                    if (move.CapturedPiece != null)
-                    {
-                        System.Console.WriteLine($"  Captured: {move.CapturedPiece.GetName()}");
-                    }
-                    if (_board.IsInCheck(PieceColor.Black))
-                    {
-                        System.Console.WriteLine($"  Check!");
-                    }
-                }
-                
-                ShowMoveHistory();
             }
             else
             {
