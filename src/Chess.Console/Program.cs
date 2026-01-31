@@ -184,12 +184,40 @@ class ChessGame
                 
                 if (move.CapturedPiece != null)
                 {
-                    System.Console.WriteLine($"  Captured: {move.CapturedPiece.GetName()}");
+                    System.Console.ForegroundColor = ConsoleColor.Green;
+                    System.Console.WriteLine($"  ⚔️  Captured: {move.CapturedPiece.GetName()} (gained {GetPieceValue(move.CapturedPiece.Type)} points)");
+                    System.Console.ResetColor();
+                }
+
+                if (move.PromotionPiece != null)
+                {
+                    System.Console.ForegroundColor = ConsoleColor.Yellow;
+                    System.Console.WriteLine($"  👑 Promoted to: {move.PromotionPiece.Value}");
+                    System.Console.ResetColor();
+                }
+
+                if (move.IsCastling)
+                {
+                    System.Console.ForegroundColor = ConsoleColor.Cyan;
+                    System.Console.WriteLine($"  🏰 Castled - King is safer now!");
+                    System.Console.ResetColor();
+                }
+
+                // Check if black is in check after white's move
+                if (_board.IsInCheck(PieceColor.Black))
+                {
+                    System.Console.ForegroundColor = ConsoleColor.Yellow;
+                    System.Console.WriteLine($"  ✨ You put BLACK in check!");
+                    System.Console.ResetColor();
                 }
 
                 // Show analysis
                 var analysis = await _analyzer.AnalyzePosition(_board);
                 ShowAnalysis(analysis);
+                
+                // Show additional position info
+                ShowPositionInfo();
+                
                 ShowMoveHistory();
             }
             else
@@ -481,7 +509,24 @@ class ChessGame
             int blackMat = int.Parse(analysis.Details["BlackMaterial"]);
             int diff = whiteMat - blackMat;
             
-            System.Console.WriteLine($"   Material: White {whiteMat} - Black {blackMat} (difference: {(diff >= 0 ? "+" : "")}{diff})");
+            System.Console.Write($"   Material: White {whiteMat} - Black {blackMat}");
+            
+            if (diff > 0)
+            {
+                System.Console.ForegroundColor = ConsoleColor.Green;
+                System.Console.WriteLine($" (You're ahead by {diff})");
+                System.Console.ResetColor();
+            }
+            else if (diff < 0)
+            {
+                System.Console.ForegroundColor = ConsoleColor.Red;
+                System.Console.WriteLine($" (You're behind by {Math.Abs(diff)})");
+                System.Console.ResetColor();
+            }
+            else
+            {
+                System.Console.WriteLine(" (Equal material)");
+            }
         }
 
         if (!string.IsNullOrEmpty(analysis.Description))
@@ -493,6 +538,32 @@ class ChessGame
         {
             System.Console.WriteLine("   ⚠️  Check!");
         }
+    }
+
+    private void ShowPositionInfo()
+    {
+        var whiteValidMoves = _board.GetValidMoves(PieceColor.White);
+        var blackValidMoves = _board.GetValidMoves(PieceColor.Black);
+        
+        System.Console.WriteLine($"   Legal moves: You have {whiteValidMoves.Count}, Computer has {blackValidMoves.Count}");
+        
+        // Show move count
+        int moveNumber = (_board.MoveHistory.Count / 2) + 1;
+        System.Console.WriteLine($"   Move #{moveNumber} completed");
+    }
+
+    private int GetPieceValue(PieceType type)
+    {
+        return type switch
+        {
+            PieceType.Pawn => 1,
+            PieceType.Knight => 3,
+            PieceType.Bishop => 3,
+            PieceType.Rook => 5,
+            PieceType.Queen => 9,
+            PieceType.King => 0,
+            _ => 0
+        };
     }
 
     private void ShowMoveHistory()
