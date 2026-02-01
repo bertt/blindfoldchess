@@ -500,6 +500,10 @@ class ChessGame
                 ShowVersion();
                 return true;
 
+            case "update":
+                await CheckForUpdates();
+                return true;
+
             case "quit":
             case "exit":
             case "q":
@@ -775,6 +779,79 @@ class ChessGame
         System.Console.WriteLine($"  Timeout: {(_analyzer.TimeoutSeconds == 0 ? "Infinite" : $"{_analyzer.TimeoutSeconds} seconds")}");
         System.Console.WriteLine();
         System.Console.WriteLine("  GitHub: https://github.com/bertt/blindfoldchess");
+        System.Console.WriteLine("  Update: Type 'update' to check for new versions");
+        System.Console.WriteLine();
+    }
+
+    private async Task CheckForUpdates()
+    {
+        System.Console.WriteLine("\n🔍 Checking for updates...");
+        
+        try
+        {
+            using var httpClient = new System.Net.Http.HttpClient();
+            httpClient.DefaultRequestHeaders.Add("User-Agent", "blindfoldchess");
+            
+            var response = await httpClient.GetStringAsync("https://api.github.com/repos/bertt/blindfoldchess/releases/latest");
+            
+            // Simple JSON parsing for tag_name
+            var tagMatch = System.Text.RegularExpressions.Regex.Match(response, "\"tag_name\":\\s*\"([^\"]+)\"");
+            if (!tagMatch.Success)
+            {
+                System.Console.WriteLine("❌ Could not parse version information");
+                return;
+            }
+            
+            var latestVersion = tagMatch.Groups[1].Value.TrimStart('v');
+            var currentVersion = Program.Version;
+            
+            System.Console.WriteLine($"\n📌 Current version: v{currentVersion}");
+            System.Console.WriteLine($"📌 Latest version:  v{latestVersion}");
+            System.Console.WriteLine();
+            
+            if (latestVersion == currentVersion)
+            {
+                System.Console.ForegroundColor = ConsoleColor.Green;
+                System.Console.WriteLine("✅ You are running the latest version!");
+                System.Console.ResetColor();
+            }
+            else
+            {
+                System.Console.ForegroundColor = ConsoleColor.Yellow;
+                System.Console.WriteLine("⚡ New version available!");
+                System.Console.ResetColor();
+                System.Console.WriteLine();
+                System.Console.WriteLine("To update, run the installation script:");
+                System.Console.WriteLine();
+                
+                if (System.Runtime.InteropServices.RuntimeInformation.IsOSPlatform(System.Runtime.InteropServices.OSPlatform.Windows))
+                {
+                    System.Console.WriteLine("  PowerShell:");
+                    System.Console.WriteLine("  irm https://raw.githubusercontent.com/bertt/blindfoldchess/main/install.ps1 | iex");
+                }
+                else if (System.Runtime.InteropServices.RuntimeInformation.IsOSPlatform(System.Runtime.InteropServices.OSPlatform.Linux))
+                {
+                    System.Console.WriteLine("  Linux:");
+                    System.Console.WriteLine("  curl -fsSL https://raw.githubusercontent.com/bertt/blindfoldchess/main/install.sh | bash");
+                }
+                else if (System.Runtime.InteropServices.RuntimeInformation.IsOSPlatform(System.Runtime.InteropServices.OSPlatform.OSX))
+                {
+                    System.Console.WriteLine("  macOS:");
+                    System.Console.WriteLine("  curl -fsSL https://raw.githubusercontent.com/bertt/blindfoldchess/main/install.sh | bash");
+                }
+                
+                System.Console.WriteLine();
+                System.Console.WriteLine($"Or download from: https://github.com/bertt/blindfoldchess/releases/tag/v{latestVersion}");
+            }
+        }
+        catch (Exception ex)
+        {
+            System.Console.ForegroundColor = ConsoleColor.Red;
+            System.Console.WriteLine($"❌ Error checking for updates: {ex.Message}");
+            System.Console.ResetColor();
+            System.Console.WriteLine("Please check manually at: https://github.com/bertt/blindfoldchess/releases");
+        }
+        
         System.Console.WriteLine();
     }
 
@@ -801,6 +878,7 @@ class ChessGame
         System.Console.WriteLine("  model/m     - 🤖 Change AI model");
         System.Console.WriteLine("  timeout/t   - ⏱️  Set Copilot timeout");
         System.Console.WriteLine("  version/v   - Show version information");
+        System.Console.WriteLine("  update      - 🔄 Check for updates");
         System.Console.WriteLine("  yolo        - 🎲 Let Copilot make a move for you");
         System.Console.WriteLine("  new         - Start new game");
         System.Console.WriteLine("  quit/q      - Exit");

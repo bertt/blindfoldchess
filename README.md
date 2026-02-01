@@ -16,12 +16,43 @@ A C# console application for learning **blindfold chess**. Play against AI witho
 
 - **GitHub Copilot CLI** (REQUIRED): `npm install -g copilot`
 - **Active GitHub Copilot subscription** (REQUIRED): [Subscribe here](https://github.com/settings/copilot)
-- **For pre-built releases**: No .NET needed (self-contained executables)
+- **For installation script**: No .NET needed (self-contained executables)
 - **For building from source**: [.NET 8.0 SDK](https://dotnet.microsoft.com/download/dotnet/8.0)
 
 ## Installation & Setup
 
-### Option 1: Pre-built Release (Recommended - No .NET Required)
+### Quick Install (Recommended) ⚡
+
+**Linux/macOS:**
+```bash
+curl -fsSL https://raw.githubusercontent.com/bertt/blindfoldchess/main/install.sh | bash
+```
+
+**Windows (PowerShell):**
+```powershell
+irm https://raw.githubusercontent.com/bertt/blindfoldchess/main/install.ps1 | iex
+```
+
+The script will:
+- ✅ Auto-detect your OS and architecture
+- ✅ Download the latest release
+- ✅ Install to `~/.local/bin` (Linux/macOS) or `%LOCALAPPDATA%\blindfoldchess` (Windows)
+- ✅ Add to PATH automatically (Windows) or show instructions (Linux/macOS)
+
+Then install GitHub Copilot CLI:
+```bash
+npm install -g copilot
+```
+- Requires [Node.js](https://nodejs.org/) (includes npm)
+- On first run, browser opens for GitHub authentication - sign in and authorize
+- Requires active [GitHub Copilot subscription](https://github.com/settings/copilot)
+
+### Manual Installation
+
+<details>
+<summary>Click to expand manual installation options</summary>
+
+#### Option 1: Download Pre-built Release
 
 1. **Download** the latest release for your platform from [Releases](https://github.com/bertt/blindfoldchess/releases):
    - Windows: `blindfoldchess-windows-x64.zip` or `blindfoldchess-windows-arm64.zip`
@@ -34,15 +65,7 @@ A C# console application for learning **blindfold chess**. Play against AI witho
    blindfoldchess.exe    # Windows
    ```
 
-3. **Install GitHub Copilot CLI**:
-   ```bash
-   npm install -g copilot
-   ```
-   - Requires [Node.js](https://nodejs.org/) (includes npm)
-   - On first run, browser opens for GitHub authentication - sign in and authorize
-   - Requires active [GitHub Copilot subscription](https://github.com/settings/copilot)
-
-### Option 2: Build from Source
+#### Option 2: Build from Source
 
 ```bash
 # Install .NET 8.0 SDK from https://dotnet.microsoft.com/download/dotnet/8.0
@@ -52,6 +75,22 @@ dotnet restore
 dotnet build
 cd src\Chess.Console
 dotnet run
+```
+
+</details>
+
+## Updating
+
+To update to the latest version, type `update` in the game or re-run the installation script:
+
+**Linux/macOS:**
+```bash
+curl -fsSL https://raw.githubusercontent.com/bertt/blindfoldchess/main/install.sh | bash
+```
+
+**Windows (PowerShell):**
+```powershell
+irm https://raw.githubusercontent.com/bertt/blindfoldchess/main/install.ps1 | iex
 ```
 
 ## Quick Start
@@ -100,6 +139,7 @@ o-o-o       Queenside castling
 | `timeout` | `t` | Set timeout (default: 30s, 0=infinite) |
 | `yolo` | - | Let Copilot make a move for you |
 | `version` | `v` | Version info |
+| `update` | - | Check for updates |
 | `new` | - | New game |
 | `quit` | `q`, `exit` | Exit |
 
