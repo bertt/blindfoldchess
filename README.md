@@ -98,6 +98,7 @@ o-o-o       Queenside castling
 | `level` | `l` | Change difficulty |
 | `model` | `m` | Change AI model |
 | `timeout` | `t` | Set timeout (default: 30s, 0=infinite) |
+| `yolo` | - | Let Copilot make a move for you |
 | `version` | `v` | Version info |
 | `new` | - | New game |
 | `quit` | `q`, `exit` | Exit |
