@@ -1,0 +1,609 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="description" content="Blindfold Chess - Train your chess visualization skills by playing without seeing the board. AI-powered console application.">
+    <meta name="keywords" content="chess, blindfold chess, chess training, visualization, AI chess">
+    <title>Blindfold Chess - Train Your Vision</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, sans-serif;
+            line-height: 1.6;
+            color: #333;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+        }
+
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 0 20px;
+        }
+
+        header {
+            padding: 60px 0 40px;
+            text-align: center;
+            color: white;
+        }
+
+        h1 {
+            font-size: 3.5rem;
+            margin-bottom: 1rem;
+            font-weight: 800;
+            text-shadow: 2px 2px 4px rgba(0,0,0,0.3);
+        }
+
+        .tagline {
+            font-size: 1.5rem;
+            margin-bottom: 2rem;
+            opacity: 0.95;
+        }
+
+        .badge {
+            display: inline-block;
+            background: rgba(255,255,255,0.2);
+            padding: 8px 16px;
+            border-radius: 20px;
+            margin: 5px;
+            font-size: 0.9rem;
+            backdrop-filter: blur(10px);
+        }
+
+        .hero-section {
+            background: white;
+            border-radius: 20px;
+            padding: 40px;
+            margin: 40px 0;
+            box-shadow: 0 20px 60px rgba(0,0,0,0.3);
+        }
+
+        .demo-section {
+            text-align: center;
+            margin: 40px 0;
+        }
+
+        .demo-container {
+            background: #1e1e1e;
+            border-radius: 10px;
+            padding: 20px;
+            margin: 20px auto;
+            max-width: 900px;
+            box-shadow: 0 10px 40px rgba(0,0,0,0.5);
+            position: relative;
+        }
+
+        .demo-container::before {
+            content: '● ● ●';
+            position: absolute;
+            top: 10px;
+            left: 20px;
+            color: #ff5f56;
+            letter-spacing: 8px;
+        }
+
+        .terminal {
+            background: #1e1e1e;
+            color: #00ff00;
+            font-family: 'Courier New', monospace;
+            padding: 40px 20px 20px;
+            border-radius: 5px;
+            text-align: left;
+            font-size: 14px;
+            line-height: 1.5;
+            overflow-x: auto;
+        }
+
+        .terminal .prompt {
+            color: #569cd6;
+        }
+
+        .terminal .output {
+            color: #d4d4d4;
+        }
+
+        .terminal .success {
+            color: #4ec9b0;
+        }
+
+        .terminal .error {
+            color: #f48771;
+        }
+
+        .video-placeholder {
+            background: linear-gradient(135deg, #2d2d2d 0%, #1a1a1a 100%);
+            border-radius: 10px;
+            padding: 60px 20px;
+            margin: 20px auto;
+            max-width: 900px;
+            text-align: center;
+            color: #888;
+            border: 2px dashed #444;
+        }
+
+        .video-placeholder h3 {
+            margin-bottom: 10px;
+            color: #aaa;
+        }
+
+        .features {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+            gap: 30px;
+            margin: 40px 0;
+        }
+
+        .feature-card {
+            background: white;
+            padding: 30px;
+            border-radius: 15px;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.2);
+            transition: transform 0.3s ease, box-shadow 0.3s ease;
+        }
+
+        .feature-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 15px 40px rgba(0,0,0,0.3);
+        }
+
+        .feature-icon {
+            font-size: 3rem;
+            margin-bottom: 15px;
+        }
+
+        .feature-card h3 {
+            color: #667eea;
+            margin-bottom: 10px;
+            font-size: 1.3rem;
+        }
+
+        .install-section {
+            background: white;
+            border-radius: 20px;
+            padding: 40px;
+            margin: 40px 0;
+            box-shadow: 0 20px 60px rgba(0,0,0,0.3);
+        }
+
+        .install-section h2 {
+            color: #667eea;
+            margin-bottom: 30px;
+            font-size: 2rem;
+            text-align: center;
+        }
+
+        .install-tabs {
+            display: flex;
+            justify-content: center;
+            gap: 10px;
+            margin-bottom: 30px;
+            flex-wrap: wrap;
+        }
+
+        .tab-button {
+            background: #f0f0f0;
+            border: none;
+            padding: 12px 24px;
+            border-radius: 8px;
+            cursor: pointer;
+            font-size: 1rem;
+            font-weight: 600;
+            transition: all 0.3s ease;
+        }
+
+        .tab-button:hover {
+            background: #e0e0e0;
+        }
+
+        .tab-button.active {
+            background: #667eea;
+            color: white;
+        }
+
+        .install-content {
+            display: none;
+        }
+
+        .install-content.active {
+            display: block;
+        }
+
+        .code-block {
+            background: #2d2d2d;
+            color: #f8f8f2;
+            padding: 20px;
+            border-radius: 10px;
+            font-family: 'Courier New', monospace;
+            font-size: 14px;
+            overflow-x: auto;
+            margin: 15px 0;
+            position: relative;
+        }
+
+        .code-block::before {
+            content: attr(data-lang);
+            position: absolute;
+            top: 5px;
+            right: 10px;
+            font-size: 11px;
+            color: #888;
+            text-transform: uppercase;
+        }
+
+        .copy-btn {
+            position: absolute;
+            top: 10px;
+            right: 60px;
+            background: #667eea;
+            color: white;
+            border: none;
+            padding: 5px 12px;
+            border-radius: 5px;
+            cursor: pointer;
+            font-size: 12px;
+            transition: background 0.3s ease;
+        }
+
+        .copy-btn:hover {
+            background: #5568d3;
+        }
+
+        .cta-section {
+            text-align: center;
+            padding: 60px 0;
+            color: white;
+        }
+
+        .cta-button {
+            display: inline-block;
+            background: white;
+            color: #667eea;
+            padding: 15px 40px;
+            border-radius: 30px;
+            text-decoration: none;
+            font-weight: 700;
+            font-size: 1.2rem;
+            margin: 10px;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.3);
+            transition: all 0.3s ease;
+        }
+
+        .cta-button:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 15px 40px rgba(0,0,0,0.4);
+        }
+
+        .cta-button.secondary {
+            background: transparent;
+            color: white;
+            border: 2px solid white;
+        }
+
+        footer {
+            background: rgba(0,0,0,0.2);
+            color: white;
+            text-align: center;
+            padding: 30px 0;
+            margin-top: 60px;
+        }
+
+        footer a {
+            color: white;
+            text-decoration: none;
+            font-weight: 600;
+        }
+
+        footer a:hover {
+            text-decoration: underline;
+        }
+
+        @media (max-width: 768px) {
+            h1 {
+                font-size: 2.5rem;
+            }
+
+            .tagline {
+                font-size: 1.2rem;
+            }
+
+            .features {
+                grid-template-columns: 1fr;
+            }
+
+            .hero-section, .install-section {
+                padding: 25px;
+            }
+        }
+
+        .chess-pattern {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            opacity: 0.05;
+            pointer-events: none;
+            z-index: -1;
+            background-image: 
+                linear-gradient(45deg, #000 25%, transparent 25%),
+                linear-gradient(-45deg, #000 25%, transparent 25%),
+                linear-gradient(45deg, transparent 75%, #000 75%),
+                linear-gradient(-45deg, transparent 75%, #000 75%);
+            background-size: 60px 60px;
+            background-position: 0 0, 0 30px, 30px -30px, -30px 0px;
+        }
+    </style>
+</head>
+<body>
+    <div class="chess-pattern"></div>
+    
+    <header>
+        <div class="container">
+            <h1>♟️ Blindfold Chess</h1>
+            <p class="tagline">Train Your Chess Visualization Skills</p>
+            <div>
+                <span class="badge">🤖 AI-Powered</span>
+                <span class="badge">🎯 3 Difficulty Levels</span>
+                <span class="badge">🆓 Free & Open Source</span>
+                <span class="badge">⚡ No GUI Required</span>
+            </div>
+        </div>
+    </header>
+
+    <div class="container">
+        <div class="hero-section">
+            <h2 style="color: #667eea; margin-bottom: 20px; font-size: 2rem;">What is Blindfold Chess?</h2>
+            <p style="font-size: 1.1rem; color: #555; margin-bottom: 20px;">
+                A console application that helps you master the ancient skill of playing chess without seeing the board. 
+                Visualize positions in your mind, make moves in algebraic notation, and sharpen your tactical vision 
+                against an AI opponent powered by GitHub Copilot.
+            </p>
+            <p style="font-size: 1.1rem; color: #555;">
+                Perfect for serious chess players who want to develop their board visualization skills, 
+                or anyone looking for a unique chess challenge!
+            </p>
+        </div>
+
+        <div class="demo-section">
+            <h2 style="color: white; margin-bottom: 20px; font-size: 2rem;">See It In Action</h2>
+            
+            <!-- Placeholder for demo video -->
+            <div class="video-placeholder">
+                <h3>📹 Demo Video Coming Soon</h3>
+                <p>A screencast showing gameplay will be added here</p>
+            </div>
+
+            <!-- Terminal preview -->
+            <div class="demo-container">
+                <div class="terminal">
+<span class="output">╔════════════════════════════════════════════╗
+║   Blindfold Chess - Train Your Vision      ║
+║              Version 0.1.3                  ║
+╚════════════════════════════════════════════╝
+
+New game started! You play WHITE (♟), computer plays BLACK (♙)
+Difficulty: Intermediate
+AI Model: gpt-4o-mini
+</span>
+<span class="prompt">Your move (white) &gt;</span> e2e4
+<span class="success">✓ Move played: e2e4 (Pawn to e4)</span>
+<span class="output">📊 Analysis: Material: White 39 - Black 39 (difference: +0)
+
+💻 Computer is thinking...
+💻 Computer move: e7e5 (Pawn to e5)
+📜 Moves: 1. e2e4 e7e5
+</span>
+<span class="prompt">Your move (white) &gt;</span> <span style="color: #dcdcaa;">help</span>
+<span class="output">
+COMMANDS:
+  show/s      - 👀 Show the board (peeking!)
+  yolo        - 🎲 Let Copilot make a move for you
+  analyze/a   - Analyze current position
+  help/h/?    - Show this help
+  ...</span>
+                </div>
+            </div>
+        </div>
+
+        <div class="features">
+            <div class="feature-card">
+                <div class="feature-icon">👀</div>
+                <h3>Blindfold Mode</h3>
+                <p>Board hidden by default - train your visualization by playing entirely from memory. Use 'show' command only when stuck!</p>
+            </div>
+
+            <div class="feature-card">
+                <div class="feature-icon">🤖</div>
+                <h3>AI Opponent</h3>
+                <p>Powered by GitHub Copilot with multiple AI models. Choose from gpt-4o-mini, gpt-4o, claude-sonnet-4.5, and more.</p>
+            </div>
+
+            <div class="feature-card">
+                <div class="feature-icon">🎯</div>
+                <h3>3 Difficulty Levels</h3>
+                <p>Beginner (~800), Intermediate (~1500), and Advanced (~2200) difficulty levels to match your skill.</p>
+            </div>
+
+            <div class="feature-card">
+                <div class="feature-icon">♟️</div>
+                <h3>Complete Chess Rules</h3>
+                <p>Full support for castling, en passant, pawn promotion, check, checkmate, and stalemate detection.</p>
+            </div>
+
+            <div class="feature-card">
+                <div class="feature-icon">📊</div>
+                <h3>Position Analysis</h3>
+                <p>Real-time material evaluation and strategic analysis after each move. Toggle analytics on/off as needed.</p>
+            </div>
+
+            <div class="feature-card">
+                <div class="feature-icon">🎲</div>
+                <h3>YOLO Command</h3>
+                <p>Stuck? Let Copilot suggest and play a move for you with the 'yolo' command. Great for learning!</p>
+            </div>
+        </div>
+
+        <div class="install-section">
+            <h2>Quick Installation</h2>
+            
+            <div class="install-tabs">
+                <button class="tab-button active" onclick="showTab('linux')">🐧 Linux</button>
+                <button class="tab-button" onclick="showTab('macos')">🍎 macOS</button>
+                <button class="tab-button" onclick="showTab('windows')">🪟 Windows</button>
+                <button class="tab-button" onclick="showTab('source')">📦 From Source</button>
+            </div>
+
+            <div id="linux" class="install-content active">
+                <h3 style="margin-bottom: 15px;">Install on Linux</h3>
+                <div class="code-block" data-lang="bash" style="position: relative;">
+                    <button class="copy-btn" onclick="copyCode(this)">Copy</button>
+                    <code>curl -fsSL https://raw.githubusercontent.com/bertt/blindfoldchess/main/install.sh | bash</code>
+                </div>
+                <p style="margin-top: 20px;">Then install GitHub Copilot CLI:</p>
+                <div class="code-block" data-lang="bash" style="position: relative;">
+                    <button class="copy-btn" onclick="copyCode(this)">Copy</button>
+                    <code>npm install -g copilot</code>
+                </div>
+                <p style="margin-top: 15px; color: #666;">
+                    ⚠️ Requires <a href="https://nodejs.org/" style="color: #667eea;">Node.js</a> and an active 
+                    <a href="https://github.com/settings/copilot" style="color: #667eea;">GitHub Copilot subscription</a>
+                </p>
+            </div>
+
+            <div id="macos" class="install-content">
+                <h3 style="margin-bottom: 15px;">Install on macOS</h3>
+                <div class="code-block" data-lang="bash" style="position: relative;">
+                    <button class="copy-btn" onclick="copyCode(this)">Copy</button>
+                    <code>curl -fsSL https://raw.githubusercontent.com/bertt/blindfoldchess/main/install.sh | bash</code>
+                </div>
+                <p style="margin-top: 20px;">Then install GitHub Copilot CLI:</p>
+                <div class="code-block" data-lang="bash" style="position: relative;">
+                    <button class="copy-btn" onclick="copyCode(this)">Copy</button>
+                    <code>npm install -g copilot</code>
+                </div>
+                <p style="margin-top: 15px; color: #666;">
+                    ⚠️ Requires <a href="https://nodejs.org/" style="color: #667eea;">Node.js</a> and an active 
+                    <a href="https://github.com/settings/copilot" style="color: #667eea;">GitHub Copilot subscription</a>
+                </p>
+            </div>
+
+            <div id="windows" class="install-content">
+                <h3 style="margin-bottom: 15px;">Install on Windows (PowerShell)</h3>
+                <div class="code-block" data-lang="powershell" style="position: relative;">
+                    <button class="copy-btn" onclick="copyCode(this)">Copy</button>
+                    <code>irm https://raw.githubusercontent.com/bertt/blindfoldchess/main/install.ps1 | iex</code>
+                </div>
+                <p style="margin-top: 20px;">Then install GitHub Copilot CLI:</p>
+                <div class="code-block" data-lang="powershell" style="position: relative;">
+                    <button class="copy-btn" onclick="copyCode(this)">Copy</button>
+                    <code>npm install -g copilot</code>
+                </div>
+                <p style="margin-top: 15px; color: #666;">
+                    ⚠️ Requires <a href="https://nodejs.org/" style="color: #667eea;">Node.js</a> and an active 
+                    <a href="https://github.com/settings/copilot" style="color: #667eea;">GitHub Copilot subscription</a>
+                </p>
+            </div>
+
+            <div id="source" class="install-content">
+                <h3 style="margin-bottom: 15px;">Build from Source</h3>
+                <p style="margin-bottom: 15px;">Requires <a href="https://dotnet.microsoft.com/download/dotnet/8.0" style="color: #667eea;">.NET 8.0 SDK</a></p>
+                <div class="code-block" data-lang="bash" style="position: relative;">
+                    <button class="copy-btn" onclick="copyCode(this)">Copy</button>
+                    <code>git clone https://github.com/bertt/blindfoldchess.git
+cd blindfoldchess
+dotnet restore
+dotnet build
+cd src/Chess.Console
+dotnet run</code>
+                </div>
+            </div>
+
+            <div style="margin-top: 40px; padding: 20px; background: #f8f9fa; border-radius: 10px; border-left: 4px solid #667eea;">
+                <h3 style="color: #667eea; margin-bottom: 10px;">📚 First Time Setup</h3>
+                <ol style="margin-left: 20px; color: #555;">
+                    <li style="margin: 8px 0;">Install the application using one of the methods above</li>
+                    <li style="margin: 8px 0;">Install GitHub Copilot CLI: <code style="background: #e0e0e0; padding: 2px 6px; border-radius: 3px;">npm install -g copilot</code></li>
+                    <li style="margin: 8px 0;">Run <code style="background: #e0e0e0; padding: 2px 6px; border-radius: 3px;">blindfoldchess</code> to start</li>
+                    <li style="margin: 8px 0;">On first run, authenticate with your GitHub account</li>
+                    <li style="margin: 8px 0;">Type <code style="background: #e0e0e0; padding: 2px 6px; border-radius: 3px;">help</code> in-game to see all commands</li>
+                </ol>
+            </div>
+        </div>
+
+        <div class="cta-section">
+            <h2 style="font-size: 2.5rem; margin-bottom: 20px;">Ready to Train Your Chess Vision?</h2>
+            <p style="font-size: 1.2rem; margin-bottom: 30px; opacity: 0.9;">
+                Start playing blindfold chess today and elevate your game!
+            </p>
+            <a href="https://github.com/bertt/blindfoldchess" class="cta-button">
+                ⭐ View on GitHub
+            </a>
+            <a href="https://github.com/bertt/blindfoldchess/releases" class="cta-button secondary">
+                📥 Download Latest Release
+            </a>
+        </div>
+    </div>
+
+    <footer>
+        <div class="container">
+            <p>
+                Made with ♟️ by <a href="https://github.com/bertt">Bert Temme</a> | 
+                <a href="https://github.com/bertt/blindfoldchess">Source Code</a> | 
+                <a href="https://github.com/bertt/blindfoldchess/issues">Report Issues</a>
+            </p>
+            <p style="margin-top: 10px; font-size: 0.9rem; opacity: 0.8;">
+                Powered by .NET 8.0 & GitHub Copilot SDK
+            </p>
+        </div>
+    </footer>
+
+    <script>
+        function showTab(tabName) {
+            // Hide all install content
+            const contents = document.querySelectorAll('.install-content');
+            contents.forEach(content => content.classList.remove('active'));
+
+            // Remove active from all buttons
+            const buttons = document.querySelectorAll('.tab-button');
+            buttons.forEach(button => button.classList.remove('active'));
+
+            // Show selected content and activate button
+            document.getElementById(tabName).classList.add('active');
+            event.target.classList.add('active');
+        }
+
+        function copyCode(button) {
+            const codeBlock = button.parentElement;
+            const code = codeBlock.querySelector('code').textContent;
+            
+            navigator.clipboard.writeText(code).then(() => {
+                const originalText = button.textContent;
+                button.textContent = 'Copied!';
+                button.style.background = '#4ec9b0';
+                
+                setTimeout(() => {
+                    button.textContent = originalText;
+                    button.style.background = '#667eea';
+                }, 2000);
+            });
+        }
+
+        // Add smooth scroll behavior
+        document.querySelectorAll('a[href^="#"]').forEach(anchor => {
+            anchor.addEventListener('click', function (e) {
+                e.preventDefault();
+                const target = document.querySelector(this.getAttribute('href'));
+                if (target) {
+                    target.scrollIntoView({ behavior: 'smooth' });
+                }
+            });
+        });
+    </script>
+</body>
+</html>
