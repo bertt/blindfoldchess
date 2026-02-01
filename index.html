@@ -98,6 +98,7 @@
             font-size: 14px;
             line-height: 1.5;
             overflow-x: auto;
+            white-space: pre-wrap;
         }
 
         .terminal .prompt {
@@ -381,8 +382,7 @@
 
             <!-- Terminal preview -->
             <div class="demo-container">
-                <div class="terminal">
-<span class="output">╔════════════════════════════════════════════╗
+                <div class="terminal">╔════════════════════════════════════════════╗
 ║   Blindfold Chess - Train Your Vision      ║
 ║              Version 0.1.3                  ║
 ╚════════════════════════════════════════════╝
@@ -390,24 +390,30 @@
 New game started! You play WHITE (♟), computer plays BLACK (♙)
 Difficulty: Intermediate
 AI Model: gpt-4o-mini
-</span>
+
 <span class="prompt">Your move (white) &gt;</span> e2e4
 <span class="success">✓ Move played: e2e4 (Pawn to e4)</span>
-<span class="output">📊 Analysis: Material: White 39 - Black 39 (difference: +0)
+<span class="output">📊 Analysis: Material: White 39 - Black 39 (difference: +0)</span>
 
-💻 Computer is thinking...
-💻 Computer move: e7e5 (Pawn to e5)
-📜 Moves: 1. e2e4 e7e5
-</span>
+<span class="output">💻 Computer is thinking...</span>
+<span class="output">💻 Computer move: e7e5 (Pawn to e5)</span>
+<span class="output">📜 Moves: 1. e2e4 e7e5</span>
+
 <span class="prompt">Your move (white) &gt;</span> <span style="color: #dcdcaa;">help</span>
-<span class="output">
-COMMANDS:
+
+<span class="output">COMMANDS:
   show/s      - 👀 Show the board (peeking!)
   yolo        - 🎲 Let Copilot make a move for you
   analyze/a   - Analyze current position
   help/h/?    - Show this help
-  ...</span>
-                </div>
+  level/l     - Change difficulty level
+  new         - Start new game
+  quit/q      - Exit</span>
+
+<span class="prompt">Your move (white) &gt;</span> <span style="color: #dcdcaa;">yolo</span>
+
+<span class="output">🎲 YOLO! Asking Copilot to make a move for you...</span>
+<span class="success">✓ Copilot played: Nf3 (Knight to f3)</span></div>
             </div>
         </div>
 
