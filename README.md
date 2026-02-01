@@ -95,6 +95,13 @@ irm https://raw.githubusercontent.com/bertt/blindfoldchess/main/install.ps1 | ie
 
 ## Quick Start
 
+Run the application:
+```bash
+blindfoldchess              # Start the game
+blindfoldchess --help       # Show help
+blindfoldchess --version    # Show version info
+```
+
 You play **WHITE** (♟), computer plays **BLACK** (♙). Enter moves in algebraic notation:
 
 ```

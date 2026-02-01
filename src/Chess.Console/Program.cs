@@ -10,6 +10,31 @@ class Program
     static async Task Main(string[] args)
     {
         System.Console.OutputEncoding = System.Text.Encoding.UTF8;
+        
+        // Handle command-line arguments
+        if (args.Length > 0)
+        {
+            var arg = args[0].ToLower();
+            
+            if (arg == "--help" || arg == "-h")
+            {
+                ShowCommandLineHelp();
+                return;
+            }
+            
+            if (arg == "--version" || arg == "-v")
+            {
+                ShowCommandLineVersion();
+                return;
+            }
+            
+            // Unknown argument
+            System.Console.WriteLine($"Unknown argument: {args[0]}");
+            System.Console.WriteLine("Use --help for usage information");
+            return;
+        }
+        
+        // Normal startup
         System.Console.WriteLine("╔════════════════════════════════════════════╗");
         System.Console.WriteLine("║   Blindfold Chess - Train Your Vision      ║");
         System.Console.WriteLine($"║              Version {Version,-22} ║");
@@ -25,6 +50,45 @@ class Program
 
         var game = new ChessGame();
         await game.Run();
+    }
+    
+    static void ShowCommandLineHelp()
+    {
+        System.Console.WriteLine("Blindfold Chess - Console Training Application");
+        System.Console.WriteLine($"Version {Version}");
+        System.Console.WriteLine();
+        System.Console.WriteLine("A C# console application for learning blindfold chess.");
+        System.Console.WriteLine("Play against AI without seeing the board - train your visualization!");
+        System.Console.WriteLine();
+        System.Console.WriteLine("USAGE:");
+        System.Console.WriteLine("  blindfoldchess              Start the game");
+        System.Console.WriteLine("  blindfoldchess --help       Show this help");
+        System.Console.WriteLine("  blindfoldchess --version    Show version information");
+        System.Console.WriteLine();
+        System.Console.WriteLine("REQUIREMENTS:");
+        System.Console.WriteLine("  - GitHub Copilot CLI: npm install -g copilot");
+        System.Console.WriteLine("  - Active GitHub Copilot subscription");
+        System.Console.WriteLine("    https://github.com/settings/copilot");
+        System.Console.WriteLine();
+        System.Console.WriteLine("QUICK START:");
+        System.Console.WriteLine("  1. Install GitHub Copilot CLI: npm install -g copilot");
+        System.Console.WriteLine("  2. Run: blindfoldchess");
+        System.Console.WriteLine("  3. Make moves in algebraic notation (e.g., e2e4)");
+        System.Console.WriteLine("  4. Type 'help' in-game for all commands");
+        System.Console.WriteLine();
+        System.Console.WriteLine("PROJECT:");
+        System.Console.WriteLine("  GitHub: https://github.com/bertt/blindfoldchess");
+        System.Console.WriteLine();
+    }
+    
+    static void ShowCommandLineVersion()
+    {
+        System.Console.WriteLine($"Blindfold Chess v{Version}");
+        System.Console.WriteLine($".NET Runtime: {System.Runtime.InteropServices.RuntimeInformation.FrameworkDescription}");
+        System.Console.WriteLine($"OS: {System.Runtime.InteropServices.RuntimeInformation.OSDescription}");
+        System.Console.WriteLine($"Architecture: {System.Runtime.InteropServices.RuntimeInformation.ProcessArchitecture}");
+        System.Console.WriteLine();
+        System.Console.WriteLine("GitHub: https://github.com/bertt/blindfoldchess");
     }
 
     static async Task CheckCopilotStatus()
