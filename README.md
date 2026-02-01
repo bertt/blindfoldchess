@@ -2,6 +2,8 @@
 
 A C# console application for learning **blindfold chess**. Play against AI without seeing the board - train your visualization skills!
 
+Homepage see https://bertt.github.io/blindfoldchess/
+
 ## Features
 
 ✨ **Blindfold Mode** - Board hidden by default, visualize in your head  
