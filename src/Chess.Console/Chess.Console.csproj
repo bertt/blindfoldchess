@@ -17,4 +17,10 @@
     <ProjectReference Include="..\Chess.AI\Chess.AI.csproj" />
   </ItemGroup>
 
+  <ItemGroup>
+    <PackageReference Include="Gera.Chess" Version="1.2.0">
+      <Aliases>GeraChess</Aliases>
+    </PackageReference>
+  </ItemGroup>
+
 </Project>

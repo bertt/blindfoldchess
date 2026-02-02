@@ -528,7 +528,7 @@ class ChessGame
 
     private void ShowBoard()
     {
-        System.Console.WriteLine(_board.ToDisplayString());
+        System.Console.WriteLine(BoardDisplayHelper.GetAsciiBoard(_board));
     }
 
     private void ShowAnalysis(AnalysisResult analysis)

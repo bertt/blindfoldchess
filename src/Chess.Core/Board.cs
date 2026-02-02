@@ -539,27 +539,6 @@ public class Board
         return value;
     }
 
-    public string ToDisplayString()
-    {
-        var sb = new System.Text.StringBuilder();
-        sb.AppendLine("  a b c d e f g h");
-        
-        for (int row = 7; row >= 0; row--)
-        {
-            sb.Append($"{row + 1} ");
-            for (int col = 0; col < 8; col++)
-            {
-                var piece = GetPiece(row, col);
-                sb.Append(piece?.ToUnicode() ?? '.');
-                sb.Append(' ');
-            }
-            sb.AppendLine($"{row + 1}");
-        }
-        
-        sb.AppendLine("  a b c d e f g h");
-        return sb.ToString();
-    }
-
     public string GetMoveSAN(Move move)
     {
         // Get the base SAN
