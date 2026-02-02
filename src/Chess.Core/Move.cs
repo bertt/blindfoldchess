@@ -268,8 +268,17 @@ public class Move
                 return false;
             if (fromRank.HasValue && m.From.Row != fromRank.Value)
                 return false;
-            if (isCapture && m.CapturedPiece == null && !m.IsEnPassant)
-                return false;
+            
+            // Check if capture notation matches actual capture
+            if (isCapture)
+            {
+                // It's a capture if there's a piece at destination or it's en passant
+                var targetPiece = board.GetPiece(m.To);
+                bool isActualCapture = targetPiece != null || m.IsEnPassant;
+                if (!isActualCapture)
+                    return false;
+            }
+            
             return true;
         }).ToList();
 
