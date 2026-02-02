@@ -327,6 +327,85 @@ class ChessGame
         }
     }
 
+    private async Task MakeStockfishMoveForWhite()
+    {
+        if (_board.CurrentTurn != PieceColor.White)
+        {
+            System.Console.WriteLine("❌ It's not your turn! (Wait for computer to move)");
+            return;
+        }
+
+        if (_board.IsInCheck(PieceColor.White))
+        {
+            System.Console.WriteLine("⚠️  You are in CHECK! Stockfish will try to help...");
+        }
+
+        System.Console.WriteLine("\n🎲 YOLO! Asking Stockfish to make a move for you...");
+        
+        try
+        {
+            var move = await _analyzer.GetBestMove(_board, PieceColor.White);
+            
+            if (move != null)
+            {
+                string sanMove = _board.GetMoveSAN(move);
+                
+                _board.MakeMove(move);
+                var piece = _board.GetPiece(move.To);
+                string pieceName = piece?.GetName() ?? "?";
+                
+                System.Console.WriteLine($"✓ Stockfish played: {sanMove} ({pieceName} to {move.To.ToAlgebraic()})");
+                
+                if (_showAnalytics)
+                {
+                    if (move.CapturedPiece != null)
+                    {
+                        System.Console.ForegroundColor = ConsoleColor.Green;
+                        System.Console.WriteLine($"  ⚔️  Captured: {move.CapturedPiece.GetName()} (gained {GetPieceValue(move.CapturedPiece.Type)} points)");
+                        System.Console.ResetColor();
+                    }
+
+                    if (move.PromotionPiece != null)
+                    {
+                        System.Console.ForegroundColor = ConsoleColor.Yellow;
+                        System.Console.WriteLine($"  👑 Promoted to: {move.PromotionPiece.Value}");
+                        System.Console.ResetColor();
+                    }
+
+                    if (move.IsCastling)
+                    {
+                        System.Console.ForegroundColor = ConsoleColor.Cyan;
+                        System.Console.WriteLine($"  🏰 Castled - King is safer now!");
+                        System.Console.ResetColor();
+                    }
+
+                    if (_board.IsInCheck(PieceColor.Black))
+                    {
+                        System.Console.ForegroundColor = ConsoleColor.Yellow;
+                        System.Console.WriteLine($"  ✨ Stockfish put BLACK in check!");
+                        System.Console.ResetColor();
+                    }
+
+                    var analysis = await _analyzer.AnalyzePosition(_board);
+                    ShowAnalysis(analysis);
+                    ShowPositionInfo();
+                    ShowMoveHistory();
+                }
+            }
+            else
+            {
+                System.Console.WriteLine("❌ Stockfish couldn't find a valid move!");
+            }
+        }
+        catch (Exception ex)
+        {
+            System.Console.ForegroundColor = ConsoleColor.Red;
+            System.Console.WriteLine($"\n❌ ERROR: {ex.Message}");
+            System.Console.ResetColor();
+            System.Console.WriteLine("   Stockfish engine could not make a move. You'll need to play manually.");
+        }
+    }
+
     private async Task<bool> HandleCommand(string input)
     {
         switch (input)
@@ -420,6 +499,10 @@ class ChessGame
                 System.Console.WriteLine("\n✓ New game started!");
                 System.Console.WriteLine($"Difficulty: {_analyzer.Difficulty}");
                 System.Console.WriteLine($"Analytics: {(_showAnalytics ? "ON" : "OFF")}");
+                return true;
+
+            case "yolo":
+                await MakeStockfishMoveForWhite();
                 return true;
 
             default:
@@ -677,6 +760,7 @@ class ChessGame
         System.Console.WriteLine("  analytics   - 📊 Toggle move analytics ON/OFF");
         System.Console.WriteLine("  debug/d     - 🔍 Show last API request & response");
         System.Console.WriteLine("  level/l     - Change difficulty level");
+        System.Console.WriteLine("  yolo        - 🎲 Let Stockfish make a move for you");
         System.Console.WriteLine("  version/v   - Show version information");
         System.Console.WriteLine("  update      - 🔄 Check for updates");
         System.Console.WriteLine("  new         - Start new game");
