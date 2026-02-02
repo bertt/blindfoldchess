@@ -84,20 +84,37 @@ public class ChessApiAnalyzer : IAsyncDisposable
             
             if (apiResponse != null)
             {
-                // Use API's text evaluation if available
-                if (!string.IsNullOrEmpty(apiResponse.Text))
-                {
-                    result.Description = apiResponse.Text;
-                }
-                
-                // Use API's eval score if available
+                // Use API's eval score
                 if (apiResponse.Eval.HasValue)
                 {
                     result.Evaluation = apiResponse.Eval.Value;
+                    
+                    // Create our own description based on eval and depth
+                    double eval = apiResponse.Eval.Value;
+                    int responseDepth = apiResponse.Depth ?? depth;
+                    
+                    string positionAssessment;
+                    if (Math.Abs(eval) < 0.5)
+                        positionAssessment = "The game is balanced";
+                    else if (eval > 3.0)
+                        positionAssessment = "White is winning";
+                    else if (eval > 1.0)
+                        positionAssessment = "White has a clear advantage";
+                    else if (eval > 0.5)
+                        positionAssessment = "White has a slight advantage";
+                    else if (eval < -3.0)
+                        positionAssessment = "Black is winning";
+                    else if (eval < -1.0)
+                        positionAssessment = "Black has a clear advantage";
+                    else
+                        positionAssessment = "Black has a slight advantage";
+                    
+                    result.Description = $"{positionAssessment}. Eval: [{eval:F2}], Depth: {responseDepth}";
                 }
                 else
                 {
                     result.Evaluation = materialDiff;
+                    result.Description = GetMaterialDescription(materialDiff);
                 }
             }
             else
