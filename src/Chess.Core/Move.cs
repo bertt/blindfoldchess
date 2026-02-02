@@ -201,21 +201,25 @@ public class Move
             };
         }
 
-        // Determine piece type
+        // Determine piece type (accept both uppercase and lowercase)
         PieceType pieceType = PieceType.Pawn;
         int startIndex = 0;
-        if (char.IsUpper(san[0]))
+        if (char.IsLetter(san[0]) && !char.IsLower(san[0]) || "nbrqk".Contains(char.ToLower(san[0])))
         {
-            pieceType = san[0] switch
+            char firstChar = char.ToUpper(san[0]);
+            if (firstChar == 'K' || firstChar == 'Q' || firstChar == 'R' || firstChar == 'B' || firstChar == 'N')
             {
-                'K' => PieceType.King,
-                'Q' => PieceType.Queen,
-                'R' => PieceType.Rook,
-                'B' => PieceType.Bishop,
-                'N' => PieceType.Knight,
-                _ => PieceType.Pawn
-            };
-            startIndex = 1;
+                pieceType = firstChar switch
+                {
+                    'K' => PieceType.King,
+                    'Q' => PieceType.Queen,
+                    'R' => PieceType.Rook,
+                    'B' => PieceType.Bishop,
+                    'N' => PieceType.Knight,
+                    _ => PieceType.Pawn
+                };
+                startIndex = 1;
+            }
         }
 
         // Remove capture symbol

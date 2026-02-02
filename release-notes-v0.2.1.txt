@@ -1,0 +1,35 @@
+## What's New in v0.2.1
+
+### New Features
+- �� **YOLO Command** - Let Stockfish make a move for you! Great for learning optimal moves or getting unstuck
+  - Just type `yolo` and Stockfish will play the best move for white
+  - Helpful for training and seeing what a strong chess engine would do
+
+### What's New Since v0.1.4
+This release marks a major transition from GitHub Copilot to **Stockfish 17**:
+
+- ♟️ **Stockfish 17 Engine** - Professional-grade chess opponent via Chess-API.com
+  - Beginner: ~1000 ELO (depth 10)
+  - Intermediate: ~1800 ELO (depth 12)  
+  - Advanced: ~2400 ELO (depth 15)
+- 🚀 **Zero Dependencies** - No npm, Node.js, or GitHub subscription required
+- 🎯 **Simplified Codebase** - Removed model/timeout complexity
+- 📊 **Enhanced Analysis** - Stockfish evaluation in every position
+- 🎲 **YOLO Mode** - Let the engine make moves for you
+
+### Installation
+Download the appropriate executable for your platform and run it. No installation required!
+
+**Windows:** `blindfoldchess.exe`  
+**Linux/macOS:** `blindfoldchess` (requires .NET 8.0)
+
+Or build from source:
+```bash
+dotnet build
+cd src/Chess.Console
+dotnet run
+```
+
+### Credits
+- Chess engine: [Stockfish 17](https://stockfishchess.org/)
+- Chess API: [chess-api.com](https://chess-api.com/)

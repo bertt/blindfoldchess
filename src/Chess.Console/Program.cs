@@ -153,13 +153,13 @@ class ChessGame
         }
 
         System.Console.Write("\nYour move (white) > ");
-        var input = System.Console.ReadLine()?.Trim().ToLower();
+        var input = System.Console.ReadLine()?.Trim();
 
         if (string.IsNullOrEmpty(input))
             return;
 
-        // Handle commands
-        if (await HandleCommand(input))
+        // Handle commands (case-insensitive)
+        if (await HandleCommand(input.ToLower()))
             return;
 
         // Try to parse and make move
