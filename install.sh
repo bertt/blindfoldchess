@@ -144,6 +144,3 @@ else
 fi
 
 echo ""
-echo "📚 GitHub Copilot CLI is also required:"
-echo "   npm install -g copilot"
-echo ""

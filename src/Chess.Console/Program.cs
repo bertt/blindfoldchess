@@ -44,8 +44,7 @@ class Program
         System.Console.WriteLine("Type 'help' for commands, 'show' to see the board.");
         System.Console.WriteLine();
 
-        // Check Copilot CLI status
-        await CheckCopilotStatus();
+        // No dependencies needed - ready to play!
         System.Console.WriteLine();
 
         var game = new ChessGame();
@@ -65,16 +64,10 @@ class Program
         System.Console.WriteLine("  blindfoldchess --help       Show this help");
         System.Console.WriteLine("  blindfoldchess --version    Show version information");
         System.Console.WriteLine();
-        System.Console.WriteLine("REQUIREMENTS:");
-        System.Console.WriteLine("  - GitHub Copilot CLI: npm install -g copilot");
-        System.Console.WriteLine("  - Active GitHub Copilot subscription");
-        System.Console.WriteLine("    https://github.com/settings/copilot");
-        System.Console.WriteLine();
         System.Console.WriteLine("QUICK START:");
-        System.Console.WriteLine("  1. Install GitHub Copilot CLI: npm install -g copilot");
-        System.Console.WriteLine("  2. Run: blindfoldchess");
-        System.Console.WriteLine("  3. Make moves in standard algebraic notation (e.g., e4, Nf3, Bxc4)");
-        System.Console.WriteLine("  4. Type 'help' in-game for all commands");
+        System.Console.WriteLine("  1. Run: blindfoldchess");
+        System.Console.WriteLine("  2. Make moves in standard algebraic notation (e.g., e4, Nf3, Bxc4)");
+        System.Console.WriteLine("  3. Type 'help' in-game for all commands");
         System.Console.WriteLine();
         System.Console.WriteLine("PROJECT:");
         System.Console.WriteLine("  GitHub: https://github.com/bertt/blindfoldchess");
@@ -90,76 +83,19 @@ class Program
         System.Console.WriteLine();
         System.Console.WriteLine("GitHub: https://github.com/bertt/blindfoldchess");
     }
-
-    static async Task CheckCopilotStatus()
-    {
-        System.Console.Write("Checking GitHub Copilot CLI... ");
-        
-        try
-        {
-            // On Windows, try both copilot and copilot.cmd
-            var fileName = System.Runtime.InteropServices.RuntimeInformation.IsOSPlatform(
-                System.Runtime.InteropServices.OSPlatform.Windows) ? "copilot.cmd" : "copilot";
-            
-            var process = new System.Diagnostics.Process
-            {
-                StartInfo = new System.Diagnostics.ProcessStartInfo
-                {
-                    FileName = fileName,
-                    Arguments = "--version",
-                    RedirectStandardOutput = true,
-                    RedirectStandardError = true,
-                    UseShellExecute = false,
-                    CreateNoWindow = true
-                }
-            };
-
-            process.Start();
-            string output = await process.StandardOutput.ReadToEndAsync();
-            string error = await process.StandardError.ReadToEndAsync();
-            await process.WaitForExitAsync();
-
-            if (process.ExitCode == 0 && !string.IsNullOrEmpty(output))
-            {
-                var version = output.Trim().Split('\n')[0].Trim();
-                System.Console.ForegroundColor = ConsoleColor.Green;
-                System.Console.WriteLine($"✓ Installed ({version})");
-                System.Console.ResetColor();
-            }
-            else
-            {
-                System.Console.ForegroundColor = ConsoleColor.Yellow;
-                System.Console.WriteLine("⚠ Not responding correctly");
-                System.Console.ResetColor();
-                System.Console.WriteLine("  Ensure you have an active GitHub Copilot subscription:");
-                System.Console.WriteLine("  https://github.com/settings/copilot");
-                System.Console.WriteLine("  The app will use basic material evaluation as fallback.");
-            }
-        }
-        catch (Exception)
-        {
-            System.Console.ForegroundColor = ConsoleColor.Yellow;
-            System.Console.WriteLine("⚠ Not found");
-            System.Console.ResetColor();
-            System.Console.WriteLine("  Install with: npm install -g copilot");
-            System.Console.WriteLine("  Requires active GitHub Copilot subscription:");
-            System.Console.WriteLine("  https://github.com/settings/copilot");
-            System.Console.WriteLine("  The app will use basic material evaluation as fallback.");
-        }
-    }
 }
 
 class ChessGame
 {
     private Board _board;
-    private CopilotChessAnalyzer _analyzer;
+    private ChessApiAnalyzer _analyzer;
     private bool _isRunning = true;
     private bool _showAnalytics = true;
 
     public ChessGame()
     {
         _board = new Board();
-        _analyzer = new CopilotChessAnalyzer();
+        _analyzer = new ChessApiAnalyzer();
     }
 
     public async Task Run()
@@ -168,8 +104,6 @@ class ChessGame
         {
             System.Console.WriteLine($"New game started! You play WHITE (♟), computer plays BLACK (♙)");
             System.Console.WriteLine($"Difficulty: {_analyzer.Difficulty}");
-            System.Console.WriteLine($"AI Model: {_analyzer.Model}");
-            System.Console.WriteLine($"Timeout: {(_analyzer.TimeoutSeconds == 0 ? "Infinite" : $"{_analyzer.TimeoutSeconds} seconds")}");
             System.Console.WriteLine();
 
             while (_isRunning)
@@ -371,17 +305,13 @@ class ChessGame
                 _isRunning = false;
             }
         }
-        catch (TimeoutException)
+        catch (Exception ex)
         {
             System.Console.ForegroundColor = ConsoleColor.Red;
-            System.Console.WriteLine("\n❌ ERROR: GitHub Copilot timeout!");
+            System.Console.WriteLine($"\n❌ ERROR: {ex.Message}");
             System.Console.ResetColor();
-            System.Console.WriteLine($"   Copilot did not respond within {_analyzer.TimeoutSeconds} seconds.");
-            System.Console.WriteLine("   Please check:");
-            System.Console.WriteLine("   1. Your internet connection");
-            System.Console.WriteLine("   2. Copilot CLI is running: copilot --version");
-            System.Console.WriteLine("   3. You have an active GitHub Copilot subscription");
-            System.Console.WriteLine("      https://github.com/settings/copilot");
+            System.Console.WriteLine("   Chess API is not responding correctly.");
+            System.Console.WriteLine("   Please check your internet connection.");
             System.Console.WriteLine();
             System.Console.Write("   Retry? (y/n): ");
             
@@ -394,117 +324,6 @@ class ChessGame
             {
                 System.Console.WriteLine("   Game paused. Type 'quit' to exit or make your move to continue.");
             }
-        }
-        catch (Exception ex)
-        {
-            System.Console.ForegroundColor = ConsoleColor.Red;
-            System.Console.WriteLine($"\n❌ ERROR: {ex.Message}");
-            System.Console.ResetColor();
-            System.Console.WriteLine("   GitHub Copilot is not working correctly.");
-            System.Console.WriteLine("   Please check:");
-            System.Console.WriteLine("   1. Copilot CLI is installed: npm install -g copilot");
-            System.Console.WriteLine("   2. You have an active GitHub Copilot subscription");
-            System.Console.WriteLine("      https://github.com/settings/copilot");
-            System.Console.WriteLine("   3. Your internet connection is working");
-            System.Console.WriteLine();
-            System.Console.Write("   Retry? (y/n): ");
-            
-            var retry = System.Console.ReadLine()?.Trim().ToLower();
-            if (retry == "y" || retry == "yes")
-            {
-                await ComputerTurn(); // Retry
-            }
-            else
-            {
-                System.Console.WriteLine("   Game paused. Type 'quit' to exit or make your move to continue.");
-            }
-        }
-    }
-
-    private async Task MakeCopilotMoveForWhite()
-    {
-        if (_board.CurrentTurn != PieceColor.White)
-        {
-            System.Console.WriteLine("❌ It's not your turn! (Wait for computer to move)");
-            return;
-        }
-
-        if (_board.IsInCheck(PieceColor.White))
-        {
-            System.Console.WriteLine("⚠️  You are in CHECK! Copilot will try to help...");
-        }
-
-        System.Console.WriteLine("\n🎲 YOLO! Asking Copilot to make a move for you...");
-        
-        try
-        {
-            var move = await _analyzer.GetBestMove(_board, PieceColor.White);
-            
-            if (move != null)
-            {
-                string sanMove = _board.GetMoveSAN(move);
-                
-                _board.MakeMove(move);
-                var piece = _board.GetPiece(move.To);
-                string pieceName = piece?.GetName() ?? "?";
-                
-                System.Console.WriteLine($"✓ Copilot played: {sanMove} ({pieceName} to {move.To.ToAlgebraic()})");
-                
-                if (_showAnalytics)
-                {
-                    if (move.CapturedPiece != null)
-                    {
-                        System.Console.ForegroundColor = ConsoleColor.Green;
-                        System.Console.WriteLine($"  ⚔️  Captured: {move.CapturedPiece.GetName()} (gained {GetPieceValue(move.CapturedPiece.Type)} points)");
-                        System.Console.ResetColor();
-                    }
-
-                    if (move.PromotionPiece != null)
-                    {
-                        System.Console.ForegroundColor = ConsoleColor.Yellow;
-                        System.Console.WriteLine($"  👑 Promoted to: {move.PromotionPiece.Value}");
-                        System.Console.ResetColor();
-                    }
-
-                    if (move.IsCastling)
-                    {
-                        System.Console.ForegroundColor = ConsoleColor.Cyan;
-                        System.Console.WriteLine($"  🏰 Castled - King is safer now!");
-                        System.Console.ResetColor();
-                    }
-
-                    if (_board.IsInCheck(PieceColor.Black))
-                    {
-                        System.Console.ForegroundColor = ConsoleColor.Yellow;
-                        System.Console.WriteLine($"  ✨ Copilot put BLACK in check!");
-                        System.Console.ResetColor();
-                    }
-
-                    var analysis = await _analyzer.AnalyzePosition(_board);
-                    ShowAnalysis(analysis);
-                    ShowPositionInfo();
-                    ShowMoveHistory();
-                }
-            }
-            else
-            {
-                System.Console.WriteLine("❌ Copilot couldn't find a valid move!");
-            }
-        }
-        catch (TimeoutException)
-        {
-            System.Console.ForegroundColor = ConsoleColor.Red;
-            System.Console.WriteLine("\n❌ ERROR: GitHub Copilot timeout!");
-            System.Console.ResetColor();
-            System.Console.WriteLine($"   Copilot did not respond within {_analyzer.TimeoutSeconds} seconds.");
-            System.Console.WriteLine("   Try increasing timeout with 'timeout' command or make the move yourself.");
-        }
-        catch (Exception ex)
-        {
-            System.Console.ForegroundColor = ConsoleColor.Red;
-            System.Console.WriteLine($"\n❌ ERROR: {ex.Message}");
-            System.Console.ResetColor();
-            System.Console.WriteLine("   Copilot could not make a move. You'll need to play manually.");
         }
     }
 
@@ -565,16 +384,6 @@ class ChessGame
                 System.Console.WriteLine("✓ Difficulty set to: Advanced (strategic depth)");
                 return true;
 
-            case "model":
-            case "m":
-                await ShowModelMenu();
-                return true;
-
-            case "timeout":
-            case "t":
-                ShowTimeoutMenu();
-                return true;
-
             case "analytics":
             case "stats":
                 _showAnalytics = !_showAnalytics;
@@ -613,10 +422,6 @@ class ChessGame
                 System.Console.WriteLine($"Analytics: {(_showAnalytics ? "ON" : "OFF")}");
                 return true;
 
-            case "yolo":
-                await MakeCopilotMoveForWhite();
-                return true;
-
             default:
                 return false;
         }
@@ -635,75 +440,6 @@ class ChessGame
         System.Console.WriteLine("3. Advanced     - Strategic depth (3-ply minimax)");
         System.Console.WriteLine();
         System.Console.WriteLine("Type: beginner, intermediate, or advanced (or 1/2/3)");
-        System.Console.WriteLine();
-    }
-
-    private async Task ShowModelMenu()
-    {
-        System.Console.WriteLine("\n╔════════════════════════════════════════════╗");
-        System.Console.WriteLine("║           AI MODEL SELECTION               ║");
-        System.Console.WriteLine("╚════════════════════════════════════════════╝");
-        System.Console.WriteLine();
-        System.Console.WriteLine($"Current: {_analyzer.Model}");
-        System.Console.WriteLine();
-        System.Console.WriteLine("AVAILABLE MODELS:");
-        System.Console.WriteLine();
-        System.Console.WriteLine("1. gpt-4o-mini (Default)");
-        System.Console.WriteLine("   ⚡ Fastest | 💰 Cheapest | 🎯 Good chess strength");
-        System.Console.WriteLine("   Best for: Quick games, practice, blindfold training");
-        System.Console.WriteLine();
-        System.Console.WriteLine("2. gpt-4o");
-        System.Console.WriteLine("   ⚖️  Balanced | 💰💰 Moderate cost | 🎯🎯 Strong chess");
-        System.Console.WriteLine("   Best for: Challenging games, learning tactics");
-        System.Console.WriteLine();
-        System.Console.WriteLine("3. claude-sonnet-4.5");
-        System.Console.WriteLine("   🧠 Strategic | 💰💰 Moderate cost | 🎯🎯 Creative play");
-        System.Console.WriteLine("   Best for: Positional chess, varied openings");
-        System.Console.WriteLine();
-        System.Console.WriteLine("4. gpt-4.1");
-        System.Console.WriteLine("   🚀 Fast | 💰 Low cost | 🎯 Decent strength");
-        System.Console.WriteLine("   Best for: Quick practice games");
-        System.Console.WriteLine();
-        System.Console.WriteLine("COST/BENEFIT SUMMARY:");
-        System.Console.WriteLine("  Speed:    4.1 > 4o-mini > 4o ≈ claude");
-        System.Console.WriteLine("  Cost:     4.1 < 4o-mini < 4o ≈ claude");
-        System.Console.WriteLine("  Strength: 4o > claude > 4o-mini > 4.1");
-        System.Console.WriteLine();
-        System.Console.Write("Enter model number (1-4) or name: ");
-        
-        var input = System.Console.ReadLine()?.Trim().ToLower();
-        
-        string? newModel = input switch
-        {
-            "1" or "gpt-4o-mini" or "mini" => "gpt-4o-mini",
-            "2" or "gpt-4o" or "4o" => "gpt-4o",
-            "3" or "claude-sonnet-4.5" or "claude" or "sonnet" => "claude-sonnet-4.5",
-            "4" or "gpt-4.1" or "4.1" => "gpt-4.1",
-            _ => null
-        };
-
-        if (newModel != null)
-        {
-            System.Console.Write($"\n⏳ Switching to {newModel}... ");
-            try
-            {
-                await _analyzer.ChangeModelAsync(newModel);
-                System.Console.ForegroundColor = ConsoleColor.Green;
-                System.Console.WriteLine("✓ Success!");
-                System.Console.ResetColor();
-                System.Console.WriteLine($"Now using: {_analyzer.Model}");
-            }
-            catch (Exception ex)
-            {
-                System.Console.ForegroundColor = ConsoleColor.Red;
-                System.Console.WriteLine($"✗ Failed: {ex.Message}");
-                System.Console.ResetColor();
-            }
-        }
-        else
-        {
-            System.Console.WriteLine("❌ Invalid selection. Model unchanged.");
-        }
         System.Console.WriteLine();
     }
 
@@ -803,19 +539,19 @@ class ChessGame
 
     private void ShowDebugInfo()
     {
-        System.Console.WriteLine("\n🔍 DEBUG - Last Copilot Interaction:");
+        System.Console.WriteLine("\n🔍 DEBUG - Last Chess API Interaction:");
         System.Console.WriteLine("═══════════════════════════════════════════");
         
-        if (string.IsNullOrEmpty(_analyzer.LastPrompt))
+        if (string.IsNullOrEmpty(_analyzer.LastRequest))
         {
-            System.Console.WriteLine("No Copilot interaction yet.");
+            System.Console.WriteLine("No Chess API interaction yet.");
             return;
         }
 
-        System.Console.WriteLine("\n📤 PROMPT:");
+        System.Console.WriteLine("\n📤 REQUEST:");
         System.Console.WriteLine("-------------------------------------------");
         System.Console.ForegroundColor = ConsoleColor.Cyan;
-        System.Console.WriteLine(_analyzer.LastPrompt);
+        System.Console.WriteLine(_analyzer.LastRequest);
         System.Console.ResetColor();
         
         System.Console.WriteLine("\n📥 RESPONSE:");
@@ -824,40 +560,6 @@ class ChessGame
         System.Console.WriteLine(_analyzer.LastResponse ?? "(no response)");
         System.Console.ResetColor();
         System.Console.WriteLine("═══════════════════════════════════════════");
-    }
-
-    private void ShowTimeoutMenu()
-    {
-        System.Console.WriteLine("\n╔════════════════════════════════════════════╗");
-        System.Console.WriteLine("║        COPILOT TIMEOUT SETTING             ║");
-        System.Console.WriteLine("╚════════════════════════════════════════════╝");
-        System.Console.WriteLine();
-        System.Console.WriteLine($"Current: {(_analyzer.TimeoutSeconds == 0 ? "Infinite (no timeout)" : $"{_analyzer.TimeoutSeconds} seconds")}");
-        System.Console.WriteLine();
-        System.Console.WriteLine("Set the maximum time to wait for Copilot responses:");
-        System.Console.WriteLine();
-        System.Console.WriteLine("  • Enter number of seconds (e.g., 30, 60, 120)");
-        System.Console.WriteLine("  • Enter 0 for infinite timeout (wait indefinitely)");
-        System.Console.WriteLine();
-        System.Console.WriteLine("Recommended: 30-60 seconds");
-        System.Console.WriteLine("Use infinite timeout only if you have slow internet");
-        System.Console.WriteLine();
-        System.Console.Write("Enter timeout (seconds): ");
-        
-        var input = System.Console.ReadLine()?.Trim();
-        
-        if (int.TryParse(input, out int seconds) && seconds >= 0)
-        {
-            _analyzer.TimeoutSeconds = seconds;
-            System.Console.ForegroundColor = ConsoleColor.Green;
-            System.Console.WriteLine($"\n✓ Timeout set to: {(seconds == 0 ? "Infinite" : $"{seconds} seconds")}");
-            System.Console.ResetColor();
-        }
-        else
-        {
-            System.Console.WriteLine("❌ Invalid input. Timeout unchanged.");
-        }
-        System.Console.WriteLine();
     }
 
     private void ShowVersion()
@@ -869,10 +571,8 @@ class ChessGame
         System.Console.WriteLine($"  Blindfold Chess v{Program.Version}");
         System.Console.WriteLine($"  .NET Runtime: {System.Runtime.InteropServices.RuntimeInformation.FrameworkDescription}");
         System.Console.WriteLine($"  OS: {System.Runtime.InteropServices.RuntimeInformation.OSDescription}");
-        System.Console.WriteLine($"  AI Model: {_analyzer.Model}");
         System.Console.WriteLine($"  Difficulty: {_analyzer.Difficulty}");
         System.Console.WriteLine($"  Analytics: {(_showAnalytics ? "ON" : "OFF")}");
-        System.Console.WriteLine($"  Timeout: {(_analyzer.TimeoutSeconds == 0 ? "Infinite" : $"{_analyzer.TimeoutSeconds} seconds")}");
         System.Console.WriteLine();
         System.Console.WriteLine("  GitHub: https://github.com/bertt/blindfoldchess");
         System.Console.WriteLine("  Update: Type 'update' to check for new versions");
@@ -975,13 +675,10 @@ class ChessGame
         System.Console.WriteLine("  moves       - Show move history");
         System.Console.WriteLine("  analyze/a   - Analyze current position");
         System.Console.WriteLine("  analytics   - 📊 Toggle move analytics ON/OFF");
-        System.Console.WriteLine("  debug/d     - 🔍 Show last AI prompt & response");
+        System.Console.WriteLine("  debug/d     - 🔍 Show last API request & response");
         System.Console.WriteLine("  level/l     - Change difficulty level");
-        System.Console.WriteLine("  model/m     - 🤖 Change AI model");
-        System.Console.WriteLine("  timeout/t   - ⏱️  Set Copilot timeout");
         System.Console.WriteLine("  version/v   - Show version information");
         System.Console.WriteLine("  update      - 🔄 Check for updates");
-        System.Console.WriteLine("  yolo        - 🎲 Let Copilot make a move for you");
         System.Console.WriteLine("  new         - Start new game");
         System.Console.WriteLine("  quit/q      - Exit");
         System.Console.WriteLine();

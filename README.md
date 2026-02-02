@@ -8,16 +8,14 @@ Homepage see https://bertt.github.io/blindfoldchess/
 
 ✨ **Blindfold Mode** - Board hidden by default, visualize in your head  
 ♟️ **Complete Chess Rules** - Castling, en passant, promotion, check/checkmate/stalemate  
-🤖 **AI Opponent** - Powered by GitHub Copilot CLI with multiple AI models  
-🎯 **3 Difficulty Levels** - Beginner (~800), Intermediate (~1500), Advanced (~2200)  
+🤖 **AI Opponent** - Powered by Stockfish 17 NNUE chess engine  
+🎯 **3 Difficulty Levels** - Beginner (~1000 ELO, Depth 10), Intermediate (~1800 ELO, Depth 12), Advanced (~2400 ELO, Depth 15)  
 📊 **Position Analysis** - Real-time material and strategic evaluation  
 👀 **Peek Function** - Type 'show' when stuck (but resist!)  
-🔍 **Debug Mode** - View AI prompts/responses for learning
+🔍 **Debug Mode** - View API requests/responses
 
 ## Requirements
 
-- **GitHub Copilot CLI** (REQUIRED): `npm install -g copilot`
-- **Active GitHub Copilot subscription** (REQUIRED): [Subscribe here](https://github.com/settings/copilot)
 - **For installation script**: No .NET needed (self-contained executables)
 - **For building from source**: [.NET 8.0 SDK](https://dotnet.microsoft.com/download/dotnet/8.0)
 
@@ -40,14 +38,6 @@ The script will:
 - ✅ Download the latest release
 - ✅ Install to `~/.local/bin` (Linux/macOS) or `%LOCALAPPDATA%\blindfoldchess` (Windows)
 - ✅ Add to PATH automatically (Windows) or show instructions (Linux/macOS)
-
-Then install GitHub Copilot CLI:
-```bash
-npm install -g copilot
-```
-- Requires [Node.js](https://nodejs.org/) (includes npm)
-- On first run, browser opens for GitHub authentication - sign in and authorize
-- Requires active [GitHub Copilot subscription](https://github.com/settings/copilot)
 
 ### Manual Installation
 
@@ -157,31 +147,33 @@ o-o-o       Queenside castling
 | `moves` | `history` | Show move history |
 | `analyze` | `a` | Analyze position |
 | `analytics` | `stats` | Toggle move analytics ON/OFF (default: ON) |
-| `debug` | `d` | Show AI prompt/response |
+| `debug` | `d` | Show API requests/responses |
 | `level` | `l` | Change difficulty |
-| `model` | `m` | Change AI model |
-| `timeout` | `t` | Set timeout (default: 30s, 0=infinite) |
-| `yolo` | - | Let Copilot make a move for you |
 | `version` | `v` | Version info |
 | `update` | - | Check for updates |
 | `new` | - | New game |
 | `quit` | `q`, `exit` | Exit |
 
 ### Difficulty Shortcuts
-- `beginner` or `1` - Simple moves (~800 rating)
-- `intermediate` or `2` - Tactical play (~1500 rating, default)
-- `advanced` or `3` - Strategic depth (~2200 rating)
+- `beginner` or `1` - Simple tactical moves (~1000 rating)
+- `intermediate` or `2` - Solid play with tactics (~1800 rating, default)
+- `advanced` or `3` - Strong strategic play, master level (~2400 rating)
 
-## AI Models
+## Stockfish 17 Engine
 
-Change with `model` command:
+The AI opponent uses **Stockfish 17 NNUE** - one of the strongest chess engines in the world.
 
-| Model | Speed | Cost | Strength | Best For |
-|-------|-------|------|----------|----------|
-| **gpt-4o-mini** | ⚡⚡⚡ | 💰 | 🎯🎯 | Daily practice (default) |
-| **gpt-4o** | ⚡⚡ | 💰💰 | 🎯🎯🎯 | Challenging games |
-| **claude-sonnet-4.5** | ⚡⚡ | 💰💰 | 🎯🎯🎯 | Positional/creative play |
-| **gpt-4.1** | ⚡⚡⚡ | 💰 | 🎯 | Quick practice |
+| Difficulty | Depth | Estimated Rating | Description |
+|------------|-------|------------------|-------------|
+| **Beginner** | 10 | ~1000 | Simple tactical moves, good for learning |
+| **Intermediate** | 12 | ~1800 | Solid play with tactics (default) |
+| **Advanced** | 15 | ~2400 | Strong strategic play, master level |
+
+**About Stockfish:**
+- Open source chess engine, consistently rated 3500+ ELO
+- Uses NNUE (Efficiently Updatable Neural Network) for evaluation
+- World Computer Chess Champion
+- Powers analysis on chess.com, lichess.org and other platforms
 
 ## Chess Pieces
 
@@ -207,16 +199,6 @@ Files: a-h (left to right), Ranks: 1-8 (bottom to top)
 
 ## Troubleshooting
 
-**Timeout errors:**
-- Default: 30 seconds
-- Change: `timeout` command (try 60s or 0 for infinite)
-- Switch to faster model: `gpt-4o-mini` or `gpt-4.1`
-
-**Authentication issues:**
-- Verify: `copilot --version`
-- Check [subscription status](https://github.com/settings/copilot)
-- Restart app to re-authenticate
-
 **Invalid move:**
 - Use standard algebraic notation: `e4`, `Nf3`, `Bxc4`, `O-O`
 - Or coordinate notation: `e2e4`, `g1f3`
@@ -236,7 +218,7 @@ Files: a-h (left to right), Ranks: 1-8 (bottom to top)
 ## Architecture
 
 - **Chess.Core** - Board, pieces, positions, moves, validation, check/checkmate
-- **Chess.AI** - Copilot integration, position analysis, difficulty levels
+- **Chess.AI** - Stockfish 17 integration via Chess-API.com, position analysis, difficulty levels
 - **Chess.Console** - User interface, blindfold mode, command handling
 
 ## Development
@@ -257,7 +239,8 @@ Educational project for learning blindfold chess.
 ## Credits
 
 - .NET 8.0
-- GitHub Copilot SDK 0.1.20
+- **Stockfish 17** - Open source chess engine
+- **Chess-API.com** - Free Stockfish API by ChrisC
 - C# and love for chess ♟️
 
 ---

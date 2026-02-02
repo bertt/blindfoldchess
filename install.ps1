@@ -109,6 +109,3 @@ if ($currentPath -notlike "*$INSTALL_DIR*") {
 }
 
 Write-Host ""
-Write-Host "📚 GitHub Copilot CLI is also required:"
-Write-Host "   npm install -g copilot"
-Write-Host ""

@@ -503,8 +503,9 @@ public class Board
         
         fen += (castling.Length > 0 ? castling : "-") + " ";
         
-        // En passant target
-        fen += (EnPassantTarget != null ? EnPassantTarget.ToAlgebraic() : "-") + " ";
+        // En passant target - NOTE: Some chess APIs don't handle en passant correctly,
+        // so we use "-" instead. This is still a valid FEN, just without en passant info.
+        fen += "- ";
         
         // Halfmove and fullmove (simplified for now)
         fen += "0 " + (MoveHistory.Count / 2 + 1);

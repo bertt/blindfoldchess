@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <meta name="description" content="Blindfold Chess - Train your chess visualization skills by playing without seeing the board. AI-powered console application.">
+    <meta name="description" content="Blindfold Chess - Train your chess visualization skills by playing without seeing the board. Stockfish 17 powered console application.">
     <meta name="keywords" content="chess, blindfold chess, chess training, visualization, AI chess">
     <title>Blindfold Chess - Train Your Vision</title>
     <style>
@@ -349,7 +349,7 @@
             <h1>♟️ Blindfold Chess</h1>
             <p class="tagline">Train Your Chess Visualization Skills</p>
             <div>
-                <span class="badge">🤖 AI-Powered</span>
+                <span class="badge">🤖 Stockfish 17 Powered</span>
                 <span class="badge">🎯 3 Difficulty Levels</span>
                 <span class="badge">🆓 Free & Open Source</span>
                 <span class="badge">⚡ No GUI Required</span>
@@ -363,7 +363,7 @@
             <p style="font-size: 1.1rem; color: #555; margin-bottom: 20px;">
                 A console application that helps you master the ancient skill of playing chess without seeing the board. 
                 Visualize positions in your mind, make moves in standard algebraic notation, and sharpen your tactical vision 
-                against an AI opponent powered by GitHub Copilot.
+                against Stockfish 17, one of the world's strongest chess engines.
             </p>
             <p style="font-size: 1.1rem; color: #555;">
                 Perfect for serious chess players who want to develop their board visualization skills, 
@@ -389,7 +389,6 @@
 
 New game started! You play WHITE (♟), computer plays BLACK (♙)
 Difficulty: Intermediate
-AI Model: gpt-4o-mini
 
 <span class="prompt">Your move (white) &gt;</span> e4
 <span class="success">✓ Move played: e4 (Pawn to e4)</span>
@@ -403,17 +402,11 @@ AI Model: gpt-4o-mini
 
 <span class="output">COMMANDS:
   show/s      - 👀 Show the board (peeking!)
-  yolo        - 🎲 Let Copilot make a move for you
   analyze/a   - Analyze current position
   help/h/?    - Show this help
   level/l     - Change difficulty level
   new         - Start new game
-  quit/q      - Exit</span>
-
-<span class="prompt">Your move (white) &gt;</span> <span style="color: #dcdcaa;">yolo</span>
-
-<span class="output">🎲 YOLO! Asking Copilot to make a move for you...</span>
-<span class="success">✓ Copilot played: Nf3 (Knight to f3)</span></div>
+  quit/q      - Exit</span></div>
             </div>
         </div>
 
@@ -427,13 +420,13 @@ AI Model: gpt-4o-mini
             <div class="feature-card">
                 <div class="feature-icon">🤖</div>
                 <h3>AI Opponent</h3>
-                <p>Powered by GitHub Copilot with multiple AI models. Choose from gpt-4o-mini, gpt-4o, claude-sonnet-4.5, and more.</p>
+                <p>Powered by Stockfish 17 NNUE chess engine with configurable depth levels for different skill ratings.</p>
             </div>
 
             <div class="feature-card">
                 <div class="feature-icon">🎯</div>
                 <h3>3 Difficulty Levels</h3>
-                <p>Beginner (~800), Intermediate (~1500), and Advanced (~2200) difficulty levels to match your skill.</p>
+                <p>Beginner (~1000), Intermediate (~1800), and Advanced (~2400) difficulty levels to match your skill.</p>
             </div>
 
             <div class="feature-card">
@@ -448,11 +441,7 @@ AI Model: gpt-4o-mini
                 <p>Real-time material evaluation and strategic analysis after each move. Toggle analytics on/off as needed.</p>
             </div>
 
-            <div class="feature-card">
-                <div class="feature-icon">🎲</div>
-                <h3>YOLO Command</h3>
-                <p>Stuck? Let Copilot suggest and play a move for you with the 'yolo' command. Great for learning!</p>
-            </div>
+
         </div>
 
         <div class="install-section">
@@ -471,15 +460,6 @@ AI Model: gpt-4o-mini
                     <button class="copy-btn" onclick="copyCode(this)">Copy</button>
                     <code>curl -fsSL https://raw.githubusercontent.com/bertt/blindfoldchess/main/install.sh | bash</code>
                 </div>
-                <p style="margin-top: 20px;">Then install GitHub Copilot CLI:</p>
-                <div class="code-block" data-lang="bash" style="position: relative;">
-                    <button class="copy-btn" onclick="copyCode(this)">Copy</button>
-                    <code>npm install -g copilot</code>
-                </div>
-                <p style="margin-top: 15px; color: #666;">
-                    ⚠️ Requires <a href="https://nodejs.org/" style="color: #667eea;">Node.js</a> and an active 
-                    <a href="https://github.com/settings/copilot" style="color: #667eea;">GitHub Copilot subscription</a>
-                </p>
             </div>
 
             <div id="macos" class="install-content">
@@ -488,15 +468,6 @@ AI Model: gpt-4o-mini
                     <button class="copy-btn" onclick="copyCode(this)">Copy</button>
                     <code>curl -fsSL https://raw.githubusercontent.com/bertt/blindfoldchess/main/install.sh | bash</code>
                 </div>
-                <p style="margin-top: 20px;">Then install GitHub Copilot CLI:</p>
-                <div class="code-block" data-lang="bash" style="position: relative;">
-                    <button class="copy-btn" onclick="copyCode(this)">Copy</button>
-                    <code>npm install -g copilot</code>
-                </div>
-                <p style="margin-top: 15px; color: #666;">
-                    ⚠️ Requires <a href="https://nodejs.org/" style="color: #667eea;">Node.js</a> and an active 
-                    <a href="https://github.com/settings/copilot" style="color: #667eea;">GitHub Copilot subscription</a>
-                </p>
             </div>
 
             <div id="windows" class="install-content">
@@ -505,15 +476,6 @@ AI Model: gpt-4o-mini
                     <button class="copy-btn" onclick="copyCode(this)">Copy</button>
                     <code>irm https://raw.githubusercontent.com/bertt/blindfoldchess/main/install.ps1 | iex</code>
                 </div>
-                <p style="margin-top: 20px;">Then install GitHub Copilot CLI:</p>
-                <div class="code-block" data-lang="powershell" style="position: relative;">
-                    <button class="copy-btn" onclick="copyCode(this)">Copy</button>
-                    <code>npm install -g copilot</code>
-                </div>
-                <p style="margin-top: 15px; color: #666;">
-                    ⚠️ Requires <a href="https://nodejs.org/" style="color: #667eea;">Node.js</a> and an active 
-                    <a href="https://github.com/settings/copilot" style="color: #667eea;">GitHub Copilot subscription</a>
-                </p>
             </div>
 
             <div id="source" class="install-content">
@@ -534,9 +496,7 @@ dotnet run</code>
                 <h3 style="color: #667eea; margin-bottom: 10px;">📚 First Time Setup</h3>
                 <ol style="margin-left: 20px; color: #555;">
                     <li style="margin: 8px 0;">Install the application using one of the methods above</li>
-                    <li style="margin: 8px 0;">Install GitHub Copilot CLI: <code style="background: #e0e0e0; padding: 2px 6px; border-radius: 3px;">npm install -g copilot</code></li>
                     <li style="margin: 8px 0;">Run <code style="background: #e0e0e0; padding: 2px 6px; border-radius: 3px;">blindfoldchess</code> to start</li>
-                    <li style="margin: 8px 0;">On first run, authenticate with your GitHub account</li>
                     <li style="margin: 8px 0;">Type <code style="background: #e0e0e0; padding: 2px 6px; border-radius: 3px;">help</code> in-game to see all commands</li>
                 </ol>
             </div>
@@ -564,7 +524,7 @@ dotnet run</code>
                 <a href="https://github.com/bertt/blindfoldchess/issues">Report Issues</a>
             </p>
             <p style="margin-top: 10px; font-size: 0.9rem; opacity: 0.8;">
-                Powered by .NET 8.0 & GitHub Copilot SDK
+                Powered by .NET 8.0 & Stockfish 17
             </p>
         </div>
     </footer>
