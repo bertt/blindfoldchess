@@ -109,10 +109,17 @@ Your move (white) > Nf3
 
 Your move (white) > show
 👀 PEEKING - Current board position:
-  a b c d e f g h
-8 ♜ ♞ ♝ ♛ ♚ ♝ ♞ ♜ 8
-7 ♟ ♟ ♟ ♟ . ♟ ♟ ♟ 7
-...
+  ┌────────────────────────┐
+8 │ r  n  b  q  k  b  n  r │
+7 │ p  p  p  p  .  p  p  p │
+6 │ .  .  .  .  .  .  .  . │
+5 │ .  .  .  .  p  .  .  . │
+4 │ .  .  .  .  P  .  .  . │
+3 │ .  .  .  .  .  N  .  . │
+2 │ P  P  P  P  .  P  P  P │
+1 │ R  N  B  Q  K  B  .  R │
+  └────────────────────────┘
+    a  b  c  d  e  f  g  h
 ```
 
 Type `help` for all commands.
@@ -177,22 +184,23 @@ The AI opponent uses **Stockfish 17 NNUE** - one of the strongest chess engines 
 
 ## Chess Pieces
 
-**White** (filled): ♚ King, ♛ Queen, ♜ Rook, ♝ Bishop, ♞ Knight, ♟ Pawn  
-**Black** (outline): ♔ King, ♕ Queen, ♖ Rook, ♗ Bishop, ♘ Knight, ♙ Pawn
+**White** (uppercase): K King, Q Queen, R Rook, B Bishop, N Knight, P Pawn  
+**Black** (lowercase): k king, q queen, r rook, b bishop, n knight, p pawn
 
 ## Coordinates
 
 ```
-  a b c d e f g h
-8 ♜ ♞ ♝ ♛ ♚ ♝ ♞ ♜ 8
-7 ♟ ♟ ♟ ♟ ♟ ♟ ♟ ♟ 7
-6 . . . . . . . . 6
-5 . . . . . . . . 5
-4 . . . . . . . . 4
-3 . . . . . . . . 3
-2 ♙ ♙ ♙ ♙ ♙ ♙ ♙ ♙ 2
-1 ♖ ♘ ♗ ♕ ♔ ♗ ♘ ♖ 1
-  a b c d e f g h
+  ┌────────────────────────┐
+8 │ r  n  b  q  k  b  n  r │
+7 │ p  p  p  p  p  p  p  p │
+6 │ .  .  .  .  .  .  .  . │
+5 │ .  .  .  .  .  .  .  . │
+4 │ .  .  .  .  .  .  .  . │
+3 │ .  .  .  .  .  .  .  . │
+2 │ P  P  P  P  P  P  P  P │
+1 │ R  N  B  Q  K  B  N  R │
+  └────────────────────────┘
+    a  b  c  d  e  f  g  h
 ```
 
 Files: a-h (left to right), Ranks: 1-8 (bottom to top)
