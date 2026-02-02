@@ -73,7 +73,7 @@ class Program
         System.Console.WriteLine("QUICK START:");
         System.Console.WriteLine("  1. Install GitHub Copilot CLI: npm install -g copilot");
         System.Console.WriteLine("  2. Run: blindfoldchess");
-        System.Console.WriteLine("  3. Make moves in algebraic notation (e.g., e2e4)");
+        System.Console.WriteLine("  3. Make moves in standard algebraic notation (e.g., e4, Nf3, Bxc4)");
         System.Console.WriteLine("  4. Type 'help' in-game for all commands");
         System.Console.WriteLine();
         System.Console.WriteLine("PROJECT:");
@@ -231,21 +231,48 @@ class ChessGame
         // Try to parse and make move
         try
         {
-            var move = new Move(input);
+            Move? move = null;
             
-            // Adjust castling for white
-            if (move.IsCastling)
+            // First try to parse as SAN
+            move = Move.ParseSAN(input, _board);
+            
+            // If SAN parsing failed, try long algebraic notation
+            if (move == null)
             {
-                move.From = new Position(0, 4);
-                move.To = new Position(0, move.To.Col == 6 ? 6 : 2);
+                try
+                {
+                    move = new Move(input);
+                    
+                    // Adjust castling for white
+                    if (move.IsCastling)
+                    {
+                        move.From = new Position(0, 4);
+                        move.To = new Position(0, move.To.Col == 6 ? 6 : 2);
+                    }
+                }
+                catch
+                {
+                    System.Console.WriteLine($"❌ Invalid move: {input}");
+                    System.Console.WriteLine("Use algebraic notation (e.g., e4, Nf3, Bxc4) or coordinate notation (e.g., e2e4)");
+                    return;
+                }
+            }
+            
+            if (move == null)
+            {
+                System.Console.WriteLine($"❌ Invalid move: {input}");
+                return;
             }
 
+            // Get SAN before making the move (need board state)
+            string sanMove = _board.GetMoveSAN(move);
+            
             if (_board.MakeMove(move))
             {
                 var piece = _board.GetPiece(move.To);
                 string pieceName = piece?.GetName() ?? "?";
                 
-                System.Console.WriteLine($"✓ Move played: {move.ToAlgebraic()} ({pieceName} to {move.To.ToAlgebraic()})");
+                System.Console.WriteLine($"✓ Move played: {sanMove} ({pieceName} to {move.To.ToAlgebraic()})");
                 
                 if (_showAnalytics)
                 {
@@ -291,7 +318,8 @@ class ChessGame
             else
             {
                 System.Console.WriteLine("❌ Invalid move! Try again.");
-                System.Console.WriteLine("   Use: e2e4, e7e8q (promotion), o-o (kingside castle), o-o-o (queenside castle)");
+                System.Console.WriteLine("   Examples: e4, Nf3, Bxc4, O-O, e8=Q");
+                System.Console.WriteLine("   Or use coordinate notation: e2e4, g1f3");
             }
         }
         catch (Exception ex)
@@ -316,11 +344,13 @@ class ChessGame
             
             if (move != null)
             {
+                string sanMove = _board.GetMoveSAN(move);
+                
                 _board.MakeMove(move);
                 var piece = _board.GetPiece(move.To);
                 string pieceName = piece?.GetName() ?? "?";
                 
-                System.Console.WriteLine($"💻 Computer move: {move.ToAlgebraic()} ({pieceName} to {move.To.ToAlgebraic()})");
+                System.Console.WriteLine($"💻 Computer move: {sanMove} ({pieceName} to {move.To.ToAlgebraic()})");
                 
                 if (_showAnalytics)
                 {
@@ -412,11 +442,13 @@ class ChessGame
             
             if (move != null)
             {
+                string sanMove = _board.GetMoveSAN(move);
+                
                 _board.MakeMove(move);
                 var piece = _board.GetPiece(move.To);
                 string pieceName = piece?.GetName() ?? "?";
                 
-                System.Console.WriteLine($"✓ Copilot played: {move.ToAlgebraic()} ({pieceName} to {move.To.ToAlgebraic()})");
+                System.Console.WriteLine($"✓ Copilot played: {sanMove} ({pieceName} to {move.To.ToAlgebraic()})");
                 
                 if (_showAnalytics)
                 {
@@ -925,11 +957,17 @@ class ChessGame
         System.Console.WriteLine("║              COMMANDS                      ║");
         System.Console.WriteLine("╚════════════════════════════════════════════╝");
         System.Console.WriteLine();
-        System.Console.WriteLine("MOVES:");
-        System.Console.WriteLine("  e2e4        - Move piece from e2 to e4");
-        System.Console.WriteLine("  e7e8q       - Pawn promotion to Queen");
-        System.Console.WriteLine("  o-o         - Kingside castling");
-        System.Console.WriteLine("  o-o-o       - Queenside castling");
+        System.Console.WriteLine("MOVES (Standard Algebraic Notation):");
+        System.Console.WriteLine("  e4          - Pawn to e4");
+        System.Console.WriteLine("  Nf3         - Knight to f3");
+        System.Console.WriteLine("  Bxc4        - Bishop captures on c4");
+        System.Console.WriteLine("  exd5        - Pawn on e-file captures on d5");
+        System.Console.WriteLine("  O-O         - Kingside castling");
+        System.Console.WriteLine("  O-O-O       - Queenside castling");
+        System.Console.WriteLine("  e8=Q        - Pawn promotion to Queen");
+        System.Console.WriteLine("  Nbd2        - Knight from b-file to d2 (disambiguation)");
+        System.Console.WriteLine();
+        System.Console.WriteLine("  (Also accepts coordinate notation: e2e4, g1f3, e7e8q)");
         System.Console.WriteLine();
         System.Console.WriteLine("COMMANDS:");
         System.Console.WriteLine("  show/s      - 👀 Show the board (peeking!)");

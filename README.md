@@ -102,15 +102,18 @@ blindfoldchess --help       # Show help
 blindfoldchess --version    # Show version info
 ```
 
-You play **WHITE** (♟), computer plays **BLACK** (♙). Enter moves in algebraic notation:
+You play **WHITE** (♟), computer plays **BLACK** (♙). Enter moves in standard algebraic notation:
 
 ```
-Your move (white) > e2e4
-✓ Move played: e2e4 (Pawn to e4)
+Your move (white) > e4
+✓ Move played: e4 (Pawn to e4)
 📊 Analysis: Material: White 39 - Black 39 (difference: +0)
 
-💻 Computer move: e7e5 (Pawn to e5)
+💻 Computer move: e5 (Pawn to e5)
 📜 Moves: 1. e2e4 e7e5
+
+Your move (white) > Nf3
+✓ Move played: Nf3 (Knight to f3)
 
 Your move (white) > show
 👀 PEEKING - Current board position:
@@ -124,7 +127,19 @@ Type `help` for all commands.
 
 ## Commands
 
-### Moves
+### Moves (Standard Algebraic Notation)
+```
+e4          Pawn to e4
+Nf3         Knight to f3
+Bxc4        Bishop captures on c4
+exd5        Pawn on e-file captures on d5
+O-O         Kingside castling
+O-O-O       Queenside castling
+e8=Q        Pawn promotion to Queen
+Nbd2        Knight from b-file to d2 (when disambiguation needed)
+```
+
+Also accepts **coordinate notation** for compatibility:
 ```
 e2e4        Move from e2 to e4
 e7e8q       Pawn promotion (q=Queen, r=Rook, b=Bishop, n=Knight)
@@ -201,8 +216,9 @@ Files: a-h (left to right), Ranks: 1-8 (bottom to top)
 - Restart app to re-authenticate
 
 **Invalid move:**
-- Use exact coordinates: `e2e4` (not just `e4`)
-- No spaces, lowercase letters
+- Use standard algebraic notation: `e4`, `Nf3`, `Bxc4`, `O-O`
+- Or coordinate notation: `e2e4`, `g1f3`
+- No spaces, check piece symbols (K=King, Q=Queen, R=Rook, B=Bishop, N=Knight)
 - Check if move is legal (doesn't put king in check)
 
 ## Tips for Blindfold Chess

@@ -558,4 +558,52 @@ public class Board
         sb.AppendLine("  a b c d e f g h");
         return sb.ToString();
     }
+
+    public string GetMoveSAN(Move move)
+    {
+        // Get the base SAN
+        string san = move.ToSAN(this);
+
+        // Make a temporary move to check if it results in check/checkmate
+        var tempBoard = CloneForSimulation();
+        tempBoard.MakeMove(new Move(move.From, move.To) 
+        { 
+            CapturedPiece = move.CapturedPiece,
+            IsCastling = move.IsCastling,
+            IsEnPassant = move.IsEnPassant,
+            PromotionPiece = move.PromotionPiece
+        });
+
+        var opponentColor = CurrentTurn == PieceColor.White ? PieceColor.Black : PieceColor.White;
+        
+        if (tempBoard.IsCheckmate(opponentColor))
+            san += "#";
+        else if (tempBoard.IsInCheck(opponentColor))
+            san += "+";
+
+        return san;
+    }
+
+    private Board CloneForSimulation()
+    {
+        var clone = new Board();
+        for (int row = 0; row < 8; row++)
+        {
+            for (int col = 0; col < 8; col++)
+            {
+                var piece = GetPiece(row, col);
+                if (piece != null)
+                {
+                    clone._squares[row, col] = new Piece(piece.Type, piece.Color) { HasMoved = piece.HasMoved };
+                }
+                else
+                {
+                    clone._squares[row, col] = null;
+                }
+            }
+        }
+        clone.CurrentTurn = CurrentTurn;
+        clone.EnPassantTarget = EnPassantTarget;
+        return clone;
+    }
 }
