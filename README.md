@@ -172,7 +172,7 @@ o-o-o       Queenside castling
 
 ## Stockfish 17 Engine
 
-The AI opponent uses **Stockfish 17 NNUE** - one of the strongest chess engines in the world.
+The AI opponent uses **Stockfish 17 NNUE** - one of the strongest chess engines in the world. Position analysis and evaluations are provided directly by the Stockfish API.
 
 | Difficulty | Depth | Estimated Rating | Description |
 |------------|-------|------------------|-------------|

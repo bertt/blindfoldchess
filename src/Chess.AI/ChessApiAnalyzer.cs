@@ -59,17 +59,72 @@ public class ChessApiAnalyzer : IAsyncDisposable
             result.Details["Check"] = "Yes";
         }
 
-        // Simple evaluation based on material
-        if (Math.Abs(materialDiff) < 2)
-            result.Description = "Equal position";
-        else if (materialDiff > 0)
-            result.Description = materialDiff > 5 ? "Large advantage White" : "Slight advantage White";
-        else
-            result.Description = materialDiff < -5 ? "Large advantage Black" : "Slight advantage Black";
-        
-        result.Evaluation = materialDiff;
+        // Get evaluation from Chess API
+        try
+        {
+            string fen = board.ToFen();
+            int depth = GetDepthForDifficulty();
+
+            var request = new ChessApiRequest
+            {
+                Fen = fen,
+                Depth = depth,
+                MaxThinkingTime = 50
+            };
+
+            var response = await _httpClient.PostAsJsonAsync(ApiUrl, request);
+            response.EnsureSuccessStatusCode();
+
+            var options = new System.Text.Json.JsonSerializerOptions
+            {
+                PropertyNameCaseInsensitive = true
+            };
+
+            var apiResponse = await response.Content.ReadFromJsonAsync<ChessApiResponse>(options);
+            
+            if (apiResponse != null)
+            {
+                // Use API's text evaluation if available
+                if (!string.IsNullOrEmpty(apiResponse.Text))
+                {
+                    result.Description = apiResponse.Text;
+                }
+                
+                // Use API's eval score if available
+                if (apiResponse.Eval.HasValue)
+                {
+                    result.Evaluation = apiResponse.Eval.Value;
+                }
+                else
+                {
+                    result.Evaluation = materialDiff;
+                }
+            }
+            else
+            {
+                // Fallback to material-based evaluation
+                result.Description = GetMaterialDescription(materialDiff);
+                result.Evaluation = materialDiff;
+            }
+        }
+        catch
+        {
+            // Fallback to material-based evaluation if API fails
+            result.Description = GetMaterialDescription(materialDiff);
+            result.Evaluation = materialDiff;
+        }
 
         return result;
+    }
+
+    private string GetMaterialDescription(int materialDiff)
+    {
+        if (Math.Abs(materialDiff) < 2)
+            return "Equal position";
+        else if (materialDiff > 0)
+            return materialDiff > 5 ? "Large advantage White" : "Slight advantage White";
+        else
+            return materialDiff < -5 ? "Large advantage Black" : "Slight advantage Black";
     }
 
     public async Task<Move?> GetBestMove(Board board, PieceColor color)
