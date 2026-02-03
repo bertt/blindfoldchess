@@ -18,7 +18,7 @@ Homepage see https://bertt.github.io/blindfoldchess/
 ## Requirements
 
 - **For installation script**: No .NET needed (self-contained executables)
-- **For building from source**: [.NET 8.0 SDK](https://dotnet.microsoft.com/download/dotnet/8.0)
+- **For building from source**: [.NET 10.0 SDK](https://dotnet.microsoft.com/download/dotnet/10.0)
 
 ## Installation & Setup
 
@@ -61,7 +61,7 @@ The script will:
 #### Option 2: Build from Source
 
 ```bash
-# Install .NET 8.0 SDK from https://dotnet.microsoft.com/download/dotnet/8.0
+# Install .NET 10.0 SDK from https://dotnet.microsoft.com/download/dotnet/10.0
 git clone https://github.com/bertt/blindfoldchess.git
 cd blindfoldchess
 dotnet restore
@@ -258,7 +258,7 @@ Educational project for learning blindfold chess.
 
 ## Credits
 
-- .NET 8.0
+- .NET 10.0
 - **Stockfish 17** - Open source chess engine
 - **Chess-API.com** - Free Stockfish API by ChrisC
 - C# and love for chess ♟️

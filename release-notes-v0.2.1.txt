@@ -21,7 +21,7 @@ This release marks a major transition from GitHub Copilot to **Stockfish 17**:
 Download the appropriate executable for your platform and run it. No installation required!
 
 **Windows:** `blindfoldchess.exe`  
-**Linux/macOS:** `blindfoldchess` (requires .NET 8.0)
+**Linux/macOS:** `blindfoldchess` (requires .NET 10.0)
 
 Or build from source:
 ```bash
