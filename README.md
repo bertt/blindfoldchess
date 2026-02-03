@@ -1,6 +1,6 @@
 # Blindfold Chess - Console Training Application
 
-A C# console application for learning **blindfold chess**. Play against AI without seeing the board - train your visualization skills!
+A console application for learning **blindfold chess**. Play against the computer without seeing the board - train your visualization skills!
 
 Homepage see https://bertt.github.io/blindfoldchess/
 
@@ -8,7 +8,7 @@ Homepage see https://bertt.github.io/blindfoldchess/
 
 ✨ **Blindfold Mode** - Board hidden by default, visualize in your head  
 ♟️ **Complete Chess Rules** - Castling, en passant, promotion, check/checkmate/stalemate  
-🤖 **AI Opponent** - Powered by Stockfish 17 NNUE chess engine  
+🤖 **Stockfish** - Powered by Stockfish 17 NNUE chess engine  
 🎯 **3 Difficulty Levels** - Beginner (~1000 ELO, Depth 10), Intermediate (~1800 ELO, Depth 12), Advanced (~2400 ELO, Depth 15)  
 📊 **Position Analysis** - Real-time material and strategic evaluation  
 👀 **Peek Function** - Type 'show' when stuck (but resist!)  
@@ -172,7 +172,7 @@ o-o-o       Queenside castling
 
 ## Stockfish 17 Engine
 
-The AI opponent uses **Stockfish 17 NNUE** - one of the strongest chess engines in the world. Position analysis and evaluations are provided directly by the Stockfish API.
+The opponent uses **Stockfish 17 NNUE** - one of the strongest chess engines in the world. Position analysis and evaluations are provided directly by the Stockfish API.
 
 | Difficulty | Depth | Estimated Rating | Description |
 |------------|-------|------------------|-------------|

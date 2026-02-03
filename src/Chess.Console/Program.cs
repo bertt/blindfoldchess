@@ -57,7 +57,7 @@ class Program
         System.Console.WriteLine($"Version {Version}");
         System.Console.WriteLine();
         System.Console.WriteLine("A C# console application for learning blindfold chess.");
-        System.Console.WriteLine("Play against AI without seeing the board - train your visualization!");
+        System.Console.WriteLine("Play against Stockfish without seeing the board - train your visualization!");
         System.Console.WriteLine();
         System.Console.WriteLine("USAGE:");
         System.Console.WriteLine("  blindfoldchess              Start the game");

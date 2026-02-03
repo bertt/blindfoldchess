@@ -75,7 +75,7 @@ jobs:
           Blindfold Chess v${VERSION}
           =============================================
           
-          Console application for learning blindfold chess with AI opponent.
+          Console application for learning blindfold chess with Stockfish opponent.
           
           REQUIREMENTS:
           - GitHub Copilot CLI (REQUIRED)
@@ -147,7 +147,7 @@ jobs:
           body: |
             ## Blindfold Chess ${{ github.ref_name }}
             
-            Console application for learning blindfold chess with AI opponent powered by GitHub Copilot SDK.
+            Console application for learning blindfold chess with Stockfish opponent powered by GitHub Copilot SDK.
             
             ### 📦 Downloads
             Download the appropriate build for your platform below and extract the archive:
@@ -176,8 +176,7 @@ jobs:
             
             ### 🎯 Features
             - Blindfold chess training mode
-            - AI opponent with 3 difficulty levels
-            - 4 AI models to choose from
+            - Stockfish opponent with 3 difficulty levels
             - Complete chess rules (castling, en passant, promotion, etc.)
             - Position analysis and move history
         env:
