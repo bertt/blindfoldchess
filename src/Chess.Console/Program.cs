@@ -105,7 +105,7 @@ class ChessGame
             System.Console.WriteLine($"New game started! You play WHITE, computer plays BLACK");
             System.Console.WriteLine($"Difficulty: {_analyzer.Difficulty}");
             System.Console.WriteLine();
-
+            
             while (_isRunning && !_board.IsEndGame)
             {
                 if (_board.Turn == PieceColor.White)
@@ -185,6 +185,10 @@ class ChessGame
             
             if (_showAnalytics)
             {
+                // Show thinking indicator while analyzing
+                System.Console.Write("💭 Analyzing position...");
+                System.Console.Out.Flush();
+                
                 if (move.CapturedPiece != null)
                 {
                     System.Console.ForegroundColor = ConsoleColor.Green;
@@ -218,6 +222,10 @@ class ChessGame
 
                 // Show analysis
                 var analysis = await _analyzer.AnalyzePosition(_board);
+                
+                // Clear the "thinking" line
+                System.Console.Write("\r" + new string(' ', 50) + "\r");
+                
                 ShowAnalysis(analysis);
                 
                 // Show additional position info
@@ -654,11 +662,18 @@ class ChessGame
 
         // If it starts with a lowercase piece letter (n, b, r, q, k), capitalize it
         // This allows users to type "nc3" instead of "Nc3"
-        // Don't change coordinate notation (e2e4) or pawn moves (e4)
-        if (move.Length > 0)
+        // BUT: Only if it's NOT a pawn move (e.g., "b4" is a pawn move, not a bishop move)
+        // Pawn moves: single letter followed by a digit (e.g., "b4", "e4")
+        // Piece moves: piece letter followed by destination or file/rank disambiguator
+        if (move.Length >= 2)
         {
             char first = move[0];
-            if (first == 'n' || first == 'b' || first == 'r' || first == 'q' || first == 'k')
+            char second = move[1];
+            
+            // Only capitalize if it's a piece letter AND the second char is NOT a digit
+            // This way "b4" stays lowercase (pawn move) but "bc4" becomes "Bc4" (bishop move)
+            if ((first == 'n' || first == 'b' || first == 'r' || first == 'q' || first == 'k') 
+                && !char.IsDigit(second))
             {
                 return char.ToUpper(first) + move.Substring(1);
             }

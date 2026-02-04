@@ -6,7 +6,10 @@ namespace Chess.AI;
 
 public class ChessApiAnalyzer : IAsyncDisposable
 {
-    private static readonly HttpClient _httpClient = new();
+    private static readonly HttpClient _httpClient = new()
+    {
+        Timeout = TimeSpan.FromSeconds(30)
+    };
     private const string ApiUrl = "https://chess-api.com/v1";
     
     public DifficultyLevel Difficulty { get; set; } = DifficultyLevel.Intermediate;
@@ -14,7 +17,7 @@ public class ChessApiAnalyzer : IAsyncDisposable
     // Debug information
     public string? LastRequest { get; private set; }
     public string? LastResponse { get; private set; }
-
+    
     private int GetDepthForDifficulty()
     {
         return Difficulty switch
