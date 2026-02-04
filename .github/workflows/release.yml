@@ -78,17 +78,13 @@ jobs:
           Console application for learning blindfold chess with Stockfish opponent.
           
           REQUIREMENTS:
-          - GitHub Copilot CLI (REQUIRED)
-            Install: npm install -g copilot
-          - Active GitHub Copilot subscription
-            https://github.com/settings/copilot
+          - None! Self-contained executable
           
           QUICK START:
-          1. Ensure GitHub Copilot CLI is installed and authenticated
-          2. Run the executable:
+          1. Run the executable:
              - Windows: blindfoldchess.exe
              - Linux/macOS: ./blindfoldchess
-          3. Type 'help' for available commands
+          2. Type 'help' for available commands
           
           DOCUMENTATION:
           https://github.com/bertt/blindfoldchess
@@ -147,7 +143,7 @@ jobs:
           body: |
             ## Blindfold Chess ${{ github.ref_name }}
             
-            Console application for learning blindfold chess with Stockfish opponent powered by GitHub Copilot SDK.
+            Console application for learning blindfold chess with Stockfish opponent.
             
             ### 📦 Downloads
             Download the appropriate build for your platform below and extract the archive:
@@ -158,18 +154,16 @@ jobs:
             - **macOS Apple Silicon**: `blindfoldchess-macos-arm64.zip` (M1/M2/M3)
             
             ### ✅ Requirements
-            - **GitHub Copilot CLI** (REQUIRED): `npm install -g copilot`
-            - **Active GitHub Copilot subscription** (REQUIRED)
+            - None! Self-contained executables include everything needed
             - For building from source: .NET 10.0 SDK
             
             ### 🚀 Quick Start
-            1. Install GitHub Copilot CLI: `npm install -g copilot`
-            2. Ensure you have an active [GitHub Copilot subscription](https://github.com/settings/copilot)
-            3. Extract the downloaded archive
-            4. Run the executable:
+            1. Download the appropriate archive for your platform
+            2. Extract the archive
+            3. Run the executable:
                - Windows: `blindfoldchess.exe`
                - Linux/macOS: `./blindfoldchess`
-            5. Type `help` for available commands
+            4. Type `help` for available commands
             
             ### 📚 Documentation
             See [README.md](https://github.com/bertt/blindfoldchess/blob/main/README.md) for complete documentation.
