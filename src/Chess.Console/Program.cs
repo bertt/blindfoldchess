@@ -1,4 +1,4 @@
-using Chess.Core;
+using Chess;
 using Chess.AI;
 
 namespace Chess.Console;
@@ -87,14 +87,14 @@ class Program
 
 class ChessGame
 {
-    private Board _board;
+    private ChessBoard _board;
     private ChessApiAnalyzer _analyzer;
     private bool _isRunning = true;
     private bool _showAnalytics = true;
 
     public ChessGame()
     {
-        _board = new Board();
+        _board = new ChessBoard();
         _analyzer = new ChessApiAnalyzer();
     }
 
@@ -106,9 +106,9 @@ class ChessGame
             System.Console.WriteLine($"Difficulty: {_analyzer.Difficulty}");
             System.Console.WriteLine();
 
-            while (_isRunning)
+            while (_isRunning && !_board.IsEndGame)
             {
-                if (_board.CurrentTurn == PieceColor.White)
+                if (_board.Turn == PieceColor.White)
                 {
                     await PlayerTurn();
                 }
@@ -118,18 +118,21 @@ class ChessGame
                 }
 
                 // Check game over
-                if (_board.IsCheckmate(_board.CurrentTurn))
+                if (_board.IsEndGame)
                 {
                     System.Console.WriteLine();
-                    System.Console.WriteLine($"═══ CHECKMATE! {(_board.CurrentTurn == PieceColor.White ? "Black" : "White")} wins! ═══");
-                    ShowBoard();
-                    break;
-                }
-
-                if (_board.IsStalemate(_board.CurrentTurn))
-                {
-                    System.Console.WriteLine();
-                    System.Console.WriteLine("═══ STALEMATE! Draw ═══");
+                    if (_board.EndGame?.EndgameType == EndgameType.Checkmate)
+                    {
+                        System.Console.WriteLine($"═══ CHECKMATE! {_board.EndGame.WonSide} wins! ═══");
+                    }
+                    else if (_board.EndGame?.EndgameType == EndgameType.Stalemate)
+                    {
+                        System.Console.WriteLine("═══ STALEMATE! Draw ═══");
+                    }
+                    else
+                    {
+                        System.Console.WriteLine($"═══ GAME OVER! {_board.EndGame?.EndgameType} ═══");
+                    }
                     ShowBoard();
                     break;
                 }
@@ -147,7 +150,7 @@ class ChessGame
 
     private async Task PlayerTurn()
     {
-        if (_board.IsInCheck(PieceColor.White))
+        if (_board.WhiteKingChecked)
         {
             System.Console.WriteLine("⚠️  You are in CHECK!");
         }
@@ -162,110 +165,102 @@ class ChessGame
         if (await HandleCommand(input.ToLower()))
             return;
 
-        // Try to parse and make move
+        // Try to make move using Gera.Chess
         try
         {
-            Move? move = null;
+            // Normalize move notation (allow lowercase piece letters)
+            var normalizedMove = NormalizeMoveNotation(input);
+            _board.Move(normalizedMove);  // Gera.Chess handles SAN, LAN, and more
             
-            // First try to parse as SAN
-            move = Move.ParseSAN(input, _board);
-            
-            // If SAN parsing failed, try long algebraic notation
-            if (move == null)
+            // Get the last executed move
+            if (_board.ExecutedMoves.Count == 0)
             {
-                try
-                {
-                    move = new Move(input);
-                    
-                    // Adjust castling for white
-                    if (move.IsCastling)
-                    {
-                        move.From = new Position(0, 4);
-                        move.To = new Position(0, move.To.Col == 6 ? 6 : 2);
-                    }
-                }
-                catch
-                {
-                    System.Console.WriteLine($"❌ Invalid move: {input}");
-                    System.Console.WriteLine("Use algebraic notation (e.g., e4, Nf3, Bxc4) or coordinate notation (e.g., e2e4)");
-                    return;
-                }
-            }
-            
-            if (move == null)
-            {
-                System.Console.WriteLine($"❌ Invalid move: {input}");
+                System.Console.WriteLine("❌ Move was not executed");
                 return;
             }
-
-            // Get SAN before making the move (need board state)
-            string sanMove = _board.GetMoveSAN(move);
             
-            if (_board.MakeMove(move))
+            var move = _board.ExecutedMoves[_board.ExecutedMoves.Count - 1];
+            
+            System.Console.WriteLine($"✓ Move played: {move.San}");
+            
+            if (_showAnalytics)
             {
-                var piece = _board.GetPiece(move.To);
-                string pieceName = piece?.GetName() ?? "?";
-                
-                System.Console.WriteLine($"✓ Move played: {sanMove} ({pieceName} to {move.To.ToAlgebraic()})");
-                
-                if (_showAnalytics)
+                if (move.CapturedPiece != null)
                 {
-                    if (move.CapturedPiece != null)
-                    {
-                        System.Console.ForegroundColor = ConsoleColor.Green;
-                        System.Console.WriteLine($"  ⚔️  Captured: {move.CapturedPiece.GetName()} (gained {GetPieceValue(move.CapturedPiece.Type)} points)");
-                        System.Console.ResetColor();
-                    }
-
-                    if (move.PromotionPiece != null)
-                    {
-                        System.Console.ForegroundColor = ConsoleColor.Yellow;
-                        System.Console.WriteLine($"  👑 Promoted to: {move.PromotionPiece.Value}");
-                        System.Console.ResetColor();
-                    }
-
-                    if (move.IsCastling)
-                    {
-                        System.Console.ForegroundColor = ConsoleColor.Cyan;
-                        System.Console.WriteLine($"  🏰 Castled - King is safer now!");
-                        System.Console.ResetColor();
-                    }
-
-                    // Check if black is in check after white's move
-                    if (_board.IsInCheck(PieceColor.Black))
-                    {
-                        System.Console.ForegroundColor = ConsoleColor.Yellow;
-                        System.Console.WriteLine($"  ✨ You put BLACK in check!");
-                        System.Console.ResetColor();
-                    }
-
-                    // Show analysis
-                    var analysis = await _analyzer.AnalyzePosition(_board);
-                    ShowAnalysis(analysis);
-                    
-                    // Show additional position info
-                    ShowPositionInfo();
-                    
-                    ShowMoveHistory();
+                    System.Console.ForegroundColor = ConsoleColor.Green;
+                    System.Console.WriteLine($"  ⚔️  Captured: {move.CapturedPiece.Type} (gained {GetPieceValue(move.CapturedPiece.Type)} points)");
+                    System.Console.ResetColor();
                 }
-            }
-            else
-            {
-                System.Console.WriteLine("❌ Invalid move! Try again.");
-                System.Console.WriteLine("   Examples: e4, Nf3, Bxc4, O-O, e8=Q");
-                System.Console.WriteLine("   Or use coordinate notation: e2e4, g1f3");
+
+                // Check for promotion - it's part of the move's SAN notation
+                if (move.San.Contains("="))
+                {
+                    System.Console.ForegroundColor = ConsoleColor.Yellow;
+                    System.Console.WriteLine($"  👑 Pawn promoted!");
+                    System.Console.ResetColor();
+                }
+
+                // Check for castling - it's in the SAN notation
+                if (move.San.Contains("O-O"))
+                {
+                    System.Console.ForegroundColor = ConsoleColor.Cyan;
+                    System.Console.WriteLine($"  🏰 Castled - King is safer now!");
+                    System.Console.ResetColor();
+                }
+
+                // Check if black is in check after white's move
+                if (_board.BlackKingChecked)
+                {
+                    System.Console.ForegroundColor = ConsoleColor.Yellow;
+                    System.Console.WriteLine($"  ✨ You put BLACK in check!");
+                    System.Console.ResetColor();
+                }
+
+                // Show analysis
+                var analysis = await _analyzer.AnalyzePosition(_board);
+                ShowAnalysis(analysis);
+                
+                // Show additional position info
+                ShowPositionInfo();
+                
+                ShowMoveHistory();
             }
         }
         catch (Exception ex)
         {
-            System.Console.WriteLine($"❌ Error: {ex.Message}");
-            System.Console.WriteLine("   Type 'help' for instructions");
+            // Provide clearer error message than the raw regex pattern
+            string errorMsg = ex.Message;
+            
+            // If it's the SAN pattern error from Gera.Chess, simplify it
+            if (errorMsg.Contains("SAN move string should match pattern"))
+            {
+                System.Console.ForegroundColor = ConsoleColor.Red;
+                System.Console.WriteLine($"❌ Invalid move!");
+                System.Console.ResetColor();
+                System.Console.WriteLine("   That move is not legal in the current position.");
+            }
+            else
+            {
+                System.Console.ForegroundColor = ConsoleColor.Red;
+                System.Console.WriteLine($"❌ Error: {errorMsg}");
+                System.Console.ResetColor();
+            }
+            
+            System.Console.WriteLine();
+            System.Console.WriteLine("   Examples of valid moves:");
+            System.Console.WriteLine("   • Pawn moves: e4, d5, exd5 (capture)");
+            System.Console.WriteLine("   • Piece moves: Nf3, Bc4, Qh5, Rd1");
+            System.Console.WriteLine("   • Castling: O-O (kingside), O-O-O (queenside)");
+            System.Console.WriteLine("   • Promotion: e8=Q, e8=N");
+            System.Console.WriteLine("   • Coordinate: e2e4, g1f3, e7e8q");
+            System.Console.WriteLine();
+            System.Console.WriteLine("   Type 'show' to see the board");
         }
     }
 
     private async Task ComputerTurn()
     {
-        if (_board.IsInCheck(PieceColor.Black))
+        if (_board.BlackKingChecked)
         {
             System.Console.WriteLine("\n💻 Computer is in check!");
         }
@@ -274,23 +269,28 @@ class ChessGame
         
         try
         {
-            var move = await _analyzer.GetBestMove(_board, PieceColor.Black);
+            var moveStr = await _analyzer.GetBestMove(_board, PieceColor.Black);
             
-            if (move != null)
+            if (moveStr != null)
             {
-                string sanMove = _board.GetMoveSAN(move);
+                _board.Move(moveStr);
                 
-                _board.MakeMove(move);
-                var piece = _board.GetPiece(move.To);
-                string pieceName = piece?.GetName() ?? "?";
+                if (_board.ExecutedMoves.Count == 0)
+                {
+                    System.Console.WriteLine("❌ Computer move failed!");
+                    _isRunning = false;
+                    return;
+                }
                 
-                System.Console.WriteLine($"💻 Computer move: {sanMove} ({pieceName} to {move.To.ToAlgebraic()})");
+                var move = _board.ExecutedMoves[_board.ExecutedMoves.Count - 1];
+                
+                System.Console.WriteLine($"💻 Computer move: {move.San}");
                 
                 if (_showAnalytics)
                 {
                     if (move.CapturedPiece != null)
                     {
-                        System.Console.WriteLine($"   Captured: {move.CapturedPiece.GetName()}");
+                        System.Console.WriteLine($"   Captured: {move.CapturedPiece.Type}");
                     }
 
                     // Show analysis
@@ -329,13 +329,13 @@ class ChessGame
 
     private async Task MakeStockfishMoveForWhite()
     {
-        if (_board.CurrentTurn != PieceColor.White)
+        if (_board.Turn != PieceColor.White)
         {
             System.Console.WriteLine("❌ It's not your turn! (Wait for computer to move)");
             return;
         }
 
-        if (_board.IsInCheck(PieceColor.White))
+        if (_board.WhiteKingChecked)
         {
             System.Console.WriteLine("⚠️  You are in CHECK! Stockfish will try to help...");
         }
@@ -344,42 +344,46 @@ class ChessGame
         
         try
         {
-            var move = await _analyzer.GetBestMove(_board, PieceColor.White);
+            var moveStr = await _analyzer.GetBestMove(_board, PieceColor.White);
             
-            if (move != null)
+            if (moveStr != null)
             {
-                string sanMove = _board.GetMoveSAN(move);
+                _board.Move(moveStr);
                 
-                _board.MakeMove(move);
-                var piece = _board.GetPiece(move.To);
-                string pieceName = piece?.GetName() ?? "?";
+                if (_board.ExecutedMoves.Count == 0)
+                {
+                    System.Console.WriteLine("❌ Stockfish move failed!");
+                    return;
+                }
                 
-                System.Console.WriteLine($"✓ Stockfish played: {sanMove} ({pieceName} to {move.To.ToAlgebraic()})");
+                var move = _board.ExecutedMoves[_board.ExecutedMoves.Count - 1];
+                
+                System.Console.WriteLine($"✓ Stockfish played: {move.San}");
                 
                 if (_showAnalytics)
                 {
                     if (move.CapturedPiece != null)
                     {
                         System.Console.ForegroundColor = ConsoleColor.Green;
-                        System.Console.WriteLine($"  ⚔️  Captured: {move.CapturedPiece.GetName()} (gained {GetPieceValue(move.CapturedPiece.Type)} points)");
+                        System.Console.WriteLine($"  ⚔️  Captured: {move.CapturedPiece.Type} (gained {GetPieceValue(move.CapturedPiece.Type)} points)");
                         System.Console.ResetColor();
                     }
 
-                    if (move.PromotionPiece != null)
+                    if (move.San.Contains("="))
                     {
                         System.Console.ForegroundColor = ConsoleColor.Yellow;
-                        System.Console.WriteLine($"  👑 Promoted to: {move.PromotionPiece.Value}");
+                        System.Console.WriteLine($"  👑 Pawn promoted!");
                         System.Console.ResetColor();
                     }
 
-                    if (move.IsCastling)
+                    if (move.San.Contains("O-O"))
                     {
                         System.Console.ForegroundColor = ConsoleColor.Cyan;
                         System.Console.WriteLine($"  🏰 Castled - King is safer now!");
                         System.Console.ResetColor();
                     }
 
-                    if (_board.IsInCheck(PieceColor.Black))
+                    if (_board.BlackKingChecked)
                     {
                         System.Console.ForegroundColor = ConsoleColor.Yellow;
                         System.Console.WriteLine($"  ✨ Stockfish put BLACK in check!");
@@ -495,7 +499,7 @@ class ChessGame
                 return true;
 
             case "new":
-                _board = new Board();
+                _board = new ChessBoard();
                 System.Console.WriteLine("\n✓ New game started!");
                 System.Console.WriteLine($"Difficulty: {_analyzer.Difficulty}");
                 System.Console.WriteLine($"Analytics: {(_showAnalytics ? "ON" : "OFF")}");
@@ -574,41 +578,62 @@ class ChessGame
 
     private void ShowPositionInfo()
     {
-        var whiteValidMoves = _board.GetValidMoves(PieceColor.White);
-        var blackValidMoves = _board.GetValidMoves(PieceColor.Black);
+        var moves = _board.Moves();
         
-        System.Console.WriteLine($"   Legal moves: You have {whiteValidMoves.Count}, Computer has {blackValidMoves.Count}");
+        System.Console.WriteLine($"   Legal moves: You have {moves.Length}");
         
         // Show move count
-        int moveNumber = (_board.MoveHistory.Count / 2) + 1;
+        int moveNumber = (_board.ExecutedMoves.Count / 2) + 1;
         System.Console.WriteLine($"   Move #{moveNumber} completed");
+    }
+
+    private string NormalizeMoveNotation(string move)
+    {
+        if (string.IsNullOrEmpty(move))
+            return move;
+
+        // Handle lowercase castling: o-o → O-O, o-o-o → O-O-O
+        if (move.Equals("o-o", StringComparison.OrdinalIgnoreCase))
+            return "O-O";
+        if (move.Equals("o-o-o", StringComparison.OrdinalIgnoreCase))
+            return "O-O-O";
+
+        // If it starts with a lowercase piece letter (n, b, r, q, k), capitalize it
+        // This allows users to type "nc3" instead of "Nc3"
+        // Don't change coordinate notation (e2e4) or pawn moves (e4)
+        if (move.Length > 0)
+        {
+            char first = move[0];
+            if (first == 'n' || first == 'b' || first == 'r' || first == 'q' || first == 'k')
+            {
+                return char.ToUpper(first) + move.Substring(1);
+            }
+        }
+        
+        return move;
     }
 
     private int GetPieceValue(PieceType type)
     {
-        return type switch
-        {
-            PieceType.Pawn => 1,
-            PieceType.Knight => 3,
-            PieceType.Bishop => 3,
-            PieceType.Rook => 5,
-            PieceType.Queen => 9,
-            PieceType.King => 0,
-            _ => 0
-        };
+        if (type == PieceType.Pawn) return 1;
+        if (type == PieceType.Knight) return 3;
+        if (type == PieceType.Bishop) return 3;
+        if (type == PieceType.Rook) return 5;
+        if (type == PieceType.Queen) return 9;
+        return 0;
     }
 
     private void ShowMoveHistory()
     {
-        if (_board.MoveHistory.Count == 0)
+        if (_board.ExecutedMoves.Count == 0)
             return;
 
         System.Console.Write("\n📜 Moves: ");
-        for (int i = 0; i < _board.MoveHistory.Count; i += 2)
+        for (int i = 0; i < _board.ExecutedMoves.Count; i += 2)
         {
             int moveNum = (i / 2) + 1;
-            string white = _board.MoveHistory[i].ToAlgebraic();
-            string black = i + 1 < _board.MoveHistory.Count ? _board.MoveHistory[i + 1].ToAlgebraic() : "";
+            string white = _board.ExecutedMoves[i].San;
+            string black = i + 1 < _board.ExecutedMoves.Count ? _board.ExecutedMoves[i + 1].San : "";
             
             System.Console.Write($"{moveNum}. {white}");
             if (!string.IsNullOrEmpty(black))
@@ -742,11 +767,11 @@ class ChessGame
         System.Console.WriteLine();
         System.Console.WriteLine("MOVES (Standard Algebraic Notation):");
         System.Console.WriteLine("  e4          - Pawn to e4");
-        System.Console.WriteLine("  Nf3         - Knight to f3");
+        System.Console.WriteLine("  Nf3 or nf3  - Knight to f3 (case-insensitive)");
         System.Console.WriteLine("  Bxc4        - Bishop captures on c4");
         System.Console.WriteLine("  exd5        - Pawn on e-file captures on d5");
-        System.Console.WriteLine("  O-O         - Kingside castling");
-        System.Console.WriteLine("  O-O-O       - Queenside castling");
+        System.Console.WriteLine("  O-O or o-o  - Kingside castling");
+        System.Console.WriteLine("  O-O-O       - Queenside castling (also o-o-o)");
         System.Console.WriteLine("  e8=Q        - Pawn promotion to Queen");
         System.Console.WriteLine("  Nbd2        - Knight from b-file to d2 (disambiguation)");
         System.Console.WriteLine();

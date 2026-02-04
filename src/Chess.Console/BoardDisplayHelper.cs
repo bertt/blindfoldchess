@@ -1,5 +1,4 @@
-extern alias GeraChess;
-using Chess.Core;
+using Chess;
 
 namespace Chess.Console;
 
@@ -12,18 +11,12 @@ public static class BoardDisplayHelper
     /// Converts our Board to a beautiful ASCII representation using Gera.Chess
     /// Colors are optimized for colorblind accessibility
     /// </summary>
-    public static string GetAsciiBoard(Chess.Core.Board board)
+    public static string GetAsciiBoard(ChessBoard board)
     {
         try
         {
-            // Convert our board to FEN
-            string fen = board.ToFen();
-            
-            // Load into Gera.Chess board for display using extern alias
-            var geraBoard = GeraChess::Chess.ChessBoard.LoadFromFen(fen);
-            
-            // Get ASCII art and apply colorblind-friendly colors
-            string ascii = geraBoard.ToAscii();
+            // Gera.Chess board already has ToAscii method
+            string ascii = board.ToAscii();
             return ApplyColors(ascii);
         }
         catch (Exception ex)

@@ -1,6 +1,6 @@
 using System.Net.Http.Json;
 using System.Text.Json.Serialization;
-using Chess.Core;
+using Chess;
 
 namespace Chess.AI;
 
@@ -26,13 +26,26 @@ public class ChessApiAnalyzer : IAsyncDisposable
         };
     }
 
-    public async Task<AnalysisResult> AnalyzePosition(Board board)
+    private static string RemoveEnPassantFromFen(string fen)
+    {
+        // chess-api.com doesn't accept en passant targets in FEN
+        // Convert: "rnbqkbnr/pppppppp/8/8/4P3/8/PPPP1PPP/RNBQKBNR b KQkq e3 0 1"
+        // To:      "rnbqkbnr/pppppppp/8/8/4P3/8/PPPP1PPP/RNBQKBNR b KQkq - 0 1"
+        var parts = fen.Split(' ');
+        if (parts.Length >= 4 && parts[3] != "-")
+        {
+            parts[3] = "-";
+        }
+        return string.Join(' ', parts);
+    }
+
+    public async Task<AnalysisResult> AnalyzePosition(ChessBoard board)
     {
         var result = new AnalysisResult();
 
         // Calculate basic metrics
-        int whiteMaterial = board.GetMaterialValue(PieceColor.White);
-        int blackMaterial = board.GetMaterialValue(PieceColor.Black);
+        int whiteMaterial = CalculateMaterial(board, PieceColor.White);
+        int blackMaterial = CalculateMaterial(board, PieceColor.Black);
         int materialDiff = whiteMaterial - blackMaterial;
 
         result.Details["WhiteMaterial"] = whiteMaterial.ToString();
@@ -40,21 +53,24 @@ public class ChessApiAnalyzer : IAsyncDisposable
         result.Details["MaterialDifference"] = materialDiff.ToString();
 
         // Check game state
-        if (board.IsCheckmate(board.CurrentTurn))
+        if (board.IsEndGame)
         {
-            result.Description = $"Checkmate! {(board.CurrentTurn == PieceColor.White ? "Black" : "White")} wins!";
-            result.Evaluation = board.CurrentTurn == PieceColor.White ? -999 : 999;
-            return result;
+            if (board.EndGame?.EndgameType == EndgameType.Checkmate)
+            {
+                result.Description = $"Checkmate! {board.EndGame.WonSide} wins!";
+                result.Evaluation = board.EndGame.WonSide == PieceColor.White ? 999 : -999;
+                return result;
+            }
+            else if (board.EndGame?.EndgameType == EndgameType.Stalemate)
+            {
+                result.Description = "Stalemate! Draw.";
+                result.Evaluation = 0;
+                return result;
+            }
         }
 
-        if (board.IsStalemate(board.CurrentTurn))
-        {
-            result.Description = "Stalemate! Draw.";
-            result.Evaluation = 0;
-            return result;
-        }
-
-        if (board.IsInCheck(board.CurrentTurn))
+        bool isWhiteTurn = board.Turn == PieceColor.White;
+        if ((isWhiteTurn && board.WhiteKingChecked) || (!isWhiteTurn && board.BlackKingChecked))
         {
             result.Details["Check"] = "Yes";
         }
@@ -62,7 +78,7 @@ public class ChessApiAnalyzer : IAsyncDisposable
         // Get evaluation from Chess API
         try
         {
-            string fen = board.ToFen();
+            string fen = RemoveEnPassantFromFen(board.ToFen());
             int depth = GetDepthForDifficulty();
 
             var request = new ChessApiRequest
@@ -144,14 +160,14 @@ public class ChessApiAnalyzer : IAsyncDisposable
             return materialDiff < -5 ? "Large advantage Black" : "Slight advantage Black";
     }
 
-    public async Task<Move?> GetBestMove(Board board, PieceColor color)
+    public async Task<string?> GetBestMove(ChessBoard board, PieceColor color)
     {
-        var validMoves = board.GetValidMoves(color);
+        var validMoves = board.Moves();
         
-        if (validMoves.Count == 0)
+        if (validMoves.Length == 0)
             return null;
 
-        string fen = board.ToFen();
+        string fen = RemoveEnPassantFromFen(board.ToFen());
         int depth = GetDepthForDifficulty();
 
         var request = new ChessApiRequest
@@ -182,40 +198,43 @@ public class ChessApiAnalyzer : IAsyncDisposable
 
             LastResponse = System.Text.Json.JsonSerializer.Serialize(apiResponse);
 
-            // Parse the move from API response - try multiple fields
-            string moveStr = (apiResponse.Move ?? apiResponse.Lan ?? apiResponse.San ?? "").ToLower();
+            // Parse the move from API response - prefer SAN for Gera.Chess
+            string moveStr = apiResponse.San ?? apiResponse.Move ?? apiResponse.Lan ?? "";
             
             if (string.IsNullOrEmpty(moveStr))
             {
                 throw new Exception($"Chess API did not return a valid move. Response: {LastResponse}");
             }
 
-            // Find matching move in valid moves
-            foreach (var move in validMoves)
-            {
-                string moveAlg = move.ToAlgebraic().ToLower();
-                
-                // Direct match (e.g., "e2e4" == "e2e4")
-                if (moveStr == moveAlg)
-                {
-                    return move;
-                }
-                
-                // Match without hyphens for castling (e.g., "o-o" vs "oo")
-                if (moveAlg.Replace("-", "") == moveStr.Replace("-", ""))
-                {
-                    return move;
-                }
-            }
-
-            // If no match found, provide detailed error
-            var validMovesList = string.Join(", ", validMoves.Select(m => m.ToAlgebraic()));
-            throw new Exception($"Could not match API move '{moveStr}' to any valid move. Valid moves: {validMovesList}");
+            // Validate move is legal (Gera.Chess will validate when we apply it)
+            return moveStr;
         }
         catch (HttpRequestException ex)
         {
             throw new Exception($"Chess API request failed: {ex.Message}", ex);
         }
+    }
+
+    private int CalculateMaterial(ChessBoard board, PieceColor color)
+    {
+        int total = 0;
+        // Use 0-based indexing: x=0-7 (columns a-h), y=0-7 (rows 1-8)
+        for (int y = 0; y < 8; y++)
+        {
+            for (int x = 0; x < 8; x++)
+            {
+                var piece = board[x, y];
+                if (piece != null && piece.Color == color)
+                {
+                    if (piece.Type == PieceType.Pawn) total += 1;
+                    else if (piece.Type == PieceType.Knight) total += 3;
+                    else if (piece.Type == PieceType.Bishop) total += 3;
+                    else if (piece.Type == PieceType.Rook) total += 5;
+                    else if (piece.Type == PieceType.Queen) total += 9;
+                }
+            }
+        }
+        return total;
     }
 
     public ValueTask DisposeAsync()

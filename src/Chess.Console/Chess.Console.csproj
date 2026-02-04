@@ -5,7 +5,7 @@
     <TargetFramework>net10.0</TargetFramework>
     <ImplicitUsings>enable</ImplicitUsings>
     <Nullable>enable</Nullable>
-    <Version>0.2.4</Version>
+    <Version>0.3.0</Version>
     <AssemblyName>blindfoldchess</AssemblyName>
     <Product>Blindfold Chess</Product>
     <Authors>Bert Temme</Authors>
@@ -13,14 +13,11 @@
   </PropertyGroup>
 
   <ItemGroup>
-    <ProjectReference Include="..\Chess.Core\Chess.Core.csproj" />
     <ProjectReference Include="..\Chess.AI\Chess.AI.csproj" />
   </ItemGroup>
 
   <ItemGroup>
-    <PackageReference Include="Gera.Chess" Version="1.2.0">
-      <Aliases>GeraChess</Aliases>
-    </PackageReference>
+    <PackageReference Include="Gera.Chess" Version="1.2.0" />
   </ItemGroup>
 
 </Project>
