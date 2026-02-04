@@ -156,10 +156,12 @@ o-o-o       Queenside castling
 | `show` | `s`, `board` | Show board (peeking!) |
 | `help` | `h`, `?` | Show help |
 | `moves` | `history` | Show move history |
+| `takeback` | `undo`, `back`, `tb` | ↩️  Undo last full turn (your move + computer's response) |
 | `analyze` | `a` | Analyze position |
 | `analytics` | `stats` | Toggle move analytics ON/OFF (default: ON) |
 | `debug` | `d` | Show API requests/responses |
 | `level` | `l` | Change difficulty |
+| `yolo` | - | 🎲 Let Stockfish make a move for you |
 | `version` | `v` | Version info |
 | `update` | - | Check for updates |
 | `new` | - | New game |

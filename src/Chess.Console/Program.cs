@@ -37,7 +37,7 @@ class Program
         // Normal startup
         System.Console.WriteLine("╔════════════════════════════════════════════╗");
         System.Console.WriteLine("║   Blindfold Chess - Train Your Vision      ║");
-        System.Console.WriteLine($"║              Version {Version,-22} ║");
+        System.Console.WriteLine($"║              Version {Version,-22}║");
         System.Console.WriteLine("╚════════════════════════════════════════════╝");
         System.Console.WriteLine();
         System.Console.WriteLine("Goal: Learn blindfold chess! The board is NOT automatically shown.");
@@ -102,7 +102,7 @@ class ChessGame
     {
         try
         {
-            System.Console.WriteLine($"New game started! You play WHITE (♟), computer plays BLACK (♙)");
+            System.Console.WriteLine($"New game started! You play WHITE, computer plays BLACK");
             System.Console.WriteLine($"Difficulty: {_analyzer.Difficulty}");
             System.Console.WriteLine();
 
@@ -410,6 +410,53 @@ class ChessGame
         }
     }
 
+    private void TakebackMove()
+    {
+        // Take back the last full turn (player + computer moves)
+        if (_board.ExecutedMoves.Count < 2)
+        {
+            System.Console.ForegroundColor = ConsoleColor.Yellow;
+            System.Console.WriteLine("❌ Cannot take back - not enough moves played yet.");
+            System.Console.ResetColor();
+            System.Console.WriteLine("   You need at least one full turn (your move + computer's response).");
+            return;
+        }
+
+        try
+        {
+            // Get the moves we're undoing for display
+            var computerMove = _board.ExecutedMoves[_board.ExecutedMoves.Count - 1];
+            var playerMove = _board.ExecutedMoves[_board.ExecutedMoves.Count - 2];
+
+            // Recreate board by replaying all moves except last 2
+            var newBoard = new ChessBoard();
+            for (int i = 0; i < _board.ExecutedMoves.Count - 2; i++)
+            {
+                newBoard.Move(_board.ExecutedMoves[i].San);
+            }
+            
+            _board = newBoard;
+
+            System.Console.ForegroundColor = ConsoleColor.Cyan;
+            System.Console.WriteLine("↩️  Takeback successful!");
+            System.Console.ResetColor();
+            System.Console.WriteLine($"   Undid your move: {playerMove.San}");
+            System.Console.WriteLine($"   Undid computer's move: {computerMove.San}");
+            System.Console.WriteLine();
+            
+            if (_showAnalytics)
+            {
+                ShowMoveHistory();
+            }
+        }
+        catch (Exception ex)
+        {
+            System.Console.ForegroundColor = ConsoleColor.Red;
+            System.Console.WriteLine($"❌ Error taking back move: {ex.Message}");
+            System.Console.ResetColor();
+        }
+    }
+
     private async Task<bool> HandleCommand(string input)
     {
         switch (input)
@@ -507,6 +554,13 @@ class ChessGame
 
             case "yolo":
                 await MakeStockfishMoveForWhite();
+                return true;
+
+            case "takeback":
+            case "undo":
+            case "back":
+            case "tb":
+                TakebackMove();
                 return true;
 
             default:
@@ -781,6 +835,7 @@ class ChessGame
         System.Console.WriteLine("  show/s      - 👀 Show the board (peeking!)");
         System.Console.WriteLine("  help/h/?    - Show this help");
         System.Console.WriteLine("  moves       - Show move history");
+        System.Console.WriteLine("  takeback/undo/back/tb - ↩️  Undo last full turn");
         System.Console.WriteLine("  analyze/a   - Analyze current position");
         System.Console.WriteLine("  analytics   - 📊 Toggle move analytics ON/OFF");
         System.Console.WriteLine("  debug/d     - 🔍 Show last API request & response");
