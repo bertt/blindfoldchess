@@ -1,0 +1,66 @@
+# Release Notes: Blindfold Chess v0.3.0
+
+## Major Refactoring: Gera.Chess Integration
+
+### Breaking Changes
+- **Internal chess engine replaced**: Migrated from custom Chess.Core library (~1,200 lines) to production-grade Gera.Chess library
+- **No user-facing changes**: All commands and gameplay remain identical
+
+### What Changed
+✅ **Removed** - Custom chess logic (Chess.Core project deleted):
+  - Board.cs (590 lines)
+  - Move.cs (295 lines)
+  - Position.cs, Piece.cs, PieceType.cs, PieceColor.cs
+  
+✅ **Migrated** to Gera.Chess v1.2.0:
+  - Professional move validation and generation
+  - Proper FEN notation support with full en passant tracking
+  - PGN import/export capabilities (foundation for future features)
+  - FIDE-compliant endgame rules (50-move, repetition, insufficient material)
+  
+✅ **Maintained** - All existing functionality:
+  - Chess API (chess-api.com) integration for AI opponent
+  - Colorblind-friendly board display
+  - Move analytics and difficulty levels
+  - All console commands work exactly as before
+
+### Benefits
+- **More reliable**: Production-tested chess engine used by thousands
+- **Better standards compliance**: Full FIDE rules implementation
+- **Less maintenance**: ~1,000 fewer lines of custom code to maintain
+- **Future-ready**: Foundation for advanced features (PGN export, game analysis, opening books)
+
+### Technical Details
+- Solution reduced from 3 projects to 2 projects
+- Gera.Chess handles all chess rules and move validation
+- Chess.AI adapter layer updated to work with Gera.Chess API
+- Board display now uses Gera.Chess directly (no FEN conversion needed)
+
+**Bug Fixes:**
+- Fixed chess-api.com FEN format compatibility (API doesn't accept en passant targets)
+- Fixed move notation parsing to use SAN instead of LAN
+- Fixed material calculation to use correct 0-based board indexing
+
+### For Developers
+**Migration notes:**
+- `Board` → `ChessBoard`
+- `Board.CurrentTurn` → `ChessBoard.Turn`
+- `Board.MoveHistory` → `ChessBoard.ExecutedMoves`
+- `Board.IsCheckmate()` → `ChessBoard.EndGame.EndgameType == Checkmate`
+- `Board.GetValidMoves()` → `ChessBoard.Moves()`
+- `Move.ToSan()` → `move.San` (property)
+
+### What's Next (v0.4.0)
+Potential features now easier to implement:
+- PGN export/import commands
+- Game save/load functionality  
+- Move history navigation (undo/redo)
+- Opening book integration
+- Position analysis improvements
+
+---
+
+**Installation:**
+Same as before - see README.md
+
+**GitHub:** https://github.com/bertt/blindfoldchess
