@@ -74,10 +74,13 @@ header h1 {
     gap: 10px;
     flex: 1;
     min-height: 0;
+    align-items: stretch;
 }
 
 .left-panel {
-    flex: 1;
+    width: 600px;
+    min-width: 600px;
+    max-width: 600px;
     display: flex;
     flex-direction: column;
     min-height: 0;
@@ -220,6 +223,7 @@ header h1 {
     margin-bottom: 10px;
     box-shadow: 0 10px 30px rgba(0,0,0,0.3);
     flex-shrink: 0;
+    width: 100%;
 }
 
 .prompt {
@@ -249,6 +253,7 @@ header h1 {
     gap: 8px;
     flex-wrap: wrap;
     flex-shrink: 0;
+    width: 100%;
 }
 
 .quick-commands button {
@@ -291,6 +296,22 @@ header h1 {
 
 .terminal::-webkit-scrollbar-thumb:hover {
     background: #777;
+}
+
+@media (max-width: 1200px) {
+    .game-container {
+        flex-direction: column;
+    }
+
+    .left-panel {
+        width: 100%;
+        min-width: 100%;
+        max-width: 100%;
+    }
+
+    .right-panel {
+        width: 100%;
+    }
 }
 
 @media (max-width: 768px) {

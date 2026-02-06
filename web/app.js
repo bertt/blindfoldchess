@@ -58,7 +58,7 @@ class BlindFoldChess {
             case 'show':
             case 's':
             case 'board':
-                this.toggleBoard(true);
+                this.toggleBoard();
                 return true;
 
             case 'hide':
@@ -302,6 +302,7 @@ class BlindFoldChess {
     }
 
     toggleBoard(show) {
+        // If show is undefined, toggle current state
         this.boardVisible = show !== undefined ? show : !this.boardVisible;
         const container = document.getElementById('boardContainer');
         
@@ -518,7 +519,7 @@ class BlindFoldChess {
     showHelp() {
         const help = `
 COMMANDS:
-  show/s/board   - 👀 Show the board (peeking!)
+  show/s/board   - 👀 Toggle board visibility (show/hide)
   hide           - 🙈 Hide the board
   analyze/a      - 🔍 Analyze current position
   analytics      - 📊 Toggle move analytics ON/OFF
