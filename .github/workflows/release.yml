@@ -62,8 +62,10 @@ jobs:
             -c Release \
             -r ${{ matrix.rid }} \
             --self-contained true \
-            -p:PublishSingleFile=true \
-            -p:IncludeNativeLibrariesForSelfExtract=true \
+            -p:PublishAot=true \
+            -p:InvariantGlobalization=true \
+            -p:StripSymbols=true \
+            -p:OptimizationPreference=Speed \
             -o ./publish/${{ matrix.platform }}
 
       - name: Create README for release
