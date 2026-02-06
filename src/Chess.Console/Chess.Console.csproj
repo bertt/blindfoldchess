@@ -13,7 +13,7 @@
     
     
     <!-- Performance optimizations for published executable -->
-    <PublishTrimmed>false</PublishTrimmed>
+    <PublishTrimmed>true</PublishTrimmed>
     
     <!-- Enable ReadyToRun for faster startup (pre-JIT compilation) -->
     <PublishReadyToRun>true</PublishReadyToRun>
