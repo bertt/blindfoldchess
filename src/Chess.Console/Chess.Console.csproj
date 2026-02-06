@@ -35,4 +35,8 @@
     <PackageReference Include="Gera.Chess" Version="1.2.0" />
   </ItemGroup>
 
+  <ItemGroup>
+    <TrimmerRootAssembly Include="ChessLibrary" />
+  </ItemGroup>
+
 </Project>
