@@ -2,7 +2,39 @@
 
 A console application for learning **blindfold chess**. Play against the computer without seeing the board - train your visualization skills!
 
-Homepage see https://bertt.github.io/blindfoldchess/
+**🎮 [Play in Browser](https://bertt.github.io/blindfoldchess/web/)** | [Homepage](https://bertt.github.io/blindfoldchess/)
+
+## Two Ways to Play
+
+### 🌐 Browser Version (New!)
+Play directly in your browser - no installation required!
+- **[Launch Browser App](https://bertt.github.io/blindfoldchess/web/)**
+- Works on any modern browser (Chrome, Firefox, Safari, Edge)
+- Same features as console version
+- Perfect for quick games
+
+**Test locally:**
+```powershell
+# PowerShell (Windows)
+.\serve.ps1
+
+# Or Node.js (cross-platform)
+npx http-server -p 8000
+
+# Then open: http://localhost:8000/web/
+```
+
+### 💻 Console Version
+Traditional command-line experience for power users
+- Self-contained executables (no .NET required)
+- Available for Windows, macOS, and Linux
+- See installation instructions below
+
+## Requirements
+
+- **For browser version**: Modern web browser with JavaScript enabled
+- **For console installation script**: No .NET needed (self-contained executables)
+- **For building from source**: [.NET 10.0 SDK](https://dotnet.microsoft.com/download/dotnet/10.0)
 
 ## Features
 
@@ -12,15 +44,12 @@ Homepage see https://bertt.github.io/blindfoldchess/
 🎯 **3 Difficulty Levels** - Beginner (~1000 ELO, Depth 10), Intermediate (~1800 ELO, Depth 12), Advanced (~2400 ELO, Depth 15)  
 📊 **Position Analysis** - Real-time material and strategic evaluation  
 👀 **Peek Function** - Type 'show' when stuck (but resist!)  
+🎲 **YOLO Mode** - Let Stockfish make a move for you when stuck  
+↩️ **Takeback** - Undo last full turn (your move + computer's response)  
 🎨 **Colorblind-Friendly** - Clear colors that work for all vision types  
-🔍 **Debug Mode** - View API requests/responses
+🔍 **Debug Mode** - View API requests/responses (console version)
 
-## Requirements
-
-- **For installation script**: No .NET needed (self-contained executables)
-- **For building from source**: [.NET 10.0 SDK](https://dotnet.microsoft.com/download/dotnet/10.0)
-
-## Installation & Setup
+## Console Installation & Setup
 
 ### Quick Install (Recommended) ⚡
 

@@ -1,0 +1,70 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Blindfold Chess - Browser Edition</title>
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+    <div class="container">
+        <header>
+            <h1>♟️ Blindfold Chess</h1>
+            <p class="version">Browser Edition v0.3.0</p>
+        </header>
+
+        <div class="game-info">
+            <div class="info-item">
+                <span class="label">You play:</span>
+                <span class="value" id="playerColor">WHITE ♟</span>
+            </div>
+            <div class="info-item">
+                <span class="label">Difficulty:</span>
+                <span class="value" id="difficulty">Intermediate</span>
+            </div>
+            <div class="info-item">
+                <span class="label">Material:</span>
+                <span class="value" id="material">White 39 - Black 39 (+0)</span>
+            </div>
+        </div>
+
+        <div class="game-container">
+            <div class="left-panel">
+                <div class="terminal" id="terminal">
+                    <div class="welcome-message">
+╔════════════════════════════════════════════╗
+║   Blindfold Chess - Train Your Vision      ║
+║         Browser Edition v0.3.0             ║
+╚════════════════════════════════════════════╝
+
+New game started! You play WHITE (♟), computer plays BLACK (♙)
+Difficulty: Intermediate
+Type 'help' for commands or enter a move (e.g., 'e4', 'Nf3')
+                    </div>
+                </div>
+
+                <div class="input-container">
+                    <span class="prompt">Your move (white) &gt;</span>
+                    <input type="text" id="moveInput" autocomplete="off" autofocus placeholder="Enter move or command...">
+                </div>
+
+                <div class="quick-commands">
+                    <button onclick="executeCommand('help')">Help</button>
+                    <button onclick="executeCommand('show')">Show Board</button>
+                    <button onclick="executeCommand('takeback')">Takeback</button>
+                    <button onclick="executeCommand('yolo')">YOLO</button>
+                    <button onclick="executeCommand('new')">New Game</button>
+                </div>
+            </div>
+
+            <div class="right-panel" id="boardContainer" style="display: none;">
+                <div class="board-header">👀 PEEKING - Current board position:</div>
+                <div class="chessboard" id="chessboard"></div>
+            </div>
+        </div>
+    </div>
+
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/chess.js/0.10.3/chess.min.js"></script>
+    <script src="app.js"></script>
+</body>
+</html>
