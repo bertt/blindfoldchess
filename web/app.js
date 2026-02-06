@@ -127,7 +127,18 @@ class BlindFoldChess {
         }
 
         try {
-            const result = this.chess.move(move, { sloppy: true });
+            // Normalize move notation - make piece letters uppercase
+            // Examples: nf3 -> Nf3, bxc4 -> Bxc4, e4 -> e4 (pawn moves stay lowercase)
+            let normalizedMove = move;
+            
+            // Check if first character is a piece letter (not a file)
+            const firstChar = move.charAt(0).toLowerCase();
+            if (['n', 'b', 'r', 'q', 'k'].includes(firstChar)) {
+                // Capitalize the piece letter
+                normalizedMove = move.charAt(0).toUpperCase() + move.slice(1);
+            }
+            
+            const result = this.chess.move(normalizedMove, { sloppy: true });
             
             if (result) {
                 this.addSuccess(`✓ Move played: ${result.san} (${this.describePiece(result.piece)} to ${result.to})`);
@@ -535,11 +546,11 @@ COMMANDS:
 
 MOVE NOTATION:
   e4             - Pawn to e4
-  Nf3            - Knight to f3
-  Bxc4           - Bishop captures on c4
-  O-O            - Kingside castling
-  O-O-O          - Queenside castling
-  e8=Q           - Pawn promotion to Queen
+  Nf3 or nf3     - Knight to f3 (case insensitive)
+  Bxc4 or bxc4   - Bishop captures on c4
+  O-O or o-o     - Kingside castling
+  O-O-O or o-o-o - Queenside castling
+  e8=Q or e8=q   - Pawn promotion to Queen
         `;
         this.addOutput(help);
     }
