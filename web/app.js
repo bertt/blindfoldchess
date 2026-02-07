@@ -992,36 +992,67 @@ class MultiplayerManager {
             const lobbyId = `blindfold-lobby-${i}`;
             
             try {
+                // Clean up previous peer if exists
+                if (this.peer) {
+                    this.peer.destroy();
+                }
+                
                 this.peer = new Peer();
                 await new Promise(resolve => this.peer.on('open', resolve));
                 
                 this.connection = this.peer.connect(lobbyId);
                 
-                // Wait a bit to see if connection succeeds
+                // Wait for connection to open
                 const connected = await new Promise((resolve) => {
-                    const timeout = setTimeout(() => resolve(false), 1000);
-                    this.connection.on('open', () => {
-                        clearTimeout(timeout);
-                        resolve(true);
-                    });
-                    this.connection.on('error', () => {
-                        clearTimeout(timeout);
+                    const timeout = setTimeout(() => {
                         resolve(false);
-                    });
+                    }, 2000); // Increased timeout to 2 seconds
+                    
+                    const openHandler = () => {
+                        clearTimeout(timeout);
+                        this.connection.off('error', errorHandler);
+                        resolve(true);
+                    };
+                    
+                    const errorHandler = () => {
+                        clearTimeout(timeout);
+                        this.connection.off('open', openHandler);
+                        resolve(false);
+                    };
+                    
+                    this.connection.on('open', openHandler);
+                    this.connection.on('error', errorHandler);
                 });
 
                 if (connected) {
                     this.myColor = 'b'; // Joiner plays black
                     this.isConnected = true;
-                    this.setupConnectionListeners();
                     this.game.addSuccess(`✅ Opponent found! Game starting...`);
+                    
+                    // Now setup permanent listeners
+                    this.setupConnectionListeners();
                     this.game.startMultiplayerGame('b');
                     return true;
+                } else {
+                    // Connection failed, clean up before trying next lobby
+                    if (this.connection) {
+                        this.connection.close();
+                    }
                 }
             } catch (err) {
-                // Try next lobby
+                console.error(`Failed to join lobby ${lobbyId}:`, err);
+                // Clean up and try next lobby
+                if (this.connection) {
+                    this.connection.close();
+                }
                 continue;
             }
+        }
+        
+        // Clean up peer if no lobby found
+        if (this.peer && !this.isConnected) {
+            this.peer.destroy();
+            this.peer = null;
         }
         
         return false;
@@ -1040,10 +1071,12 @@ class MultiplayerManager {
         });
 
         this.peer.on('connection', (conn) => {
+            console.log('Incoming connection received in lobby');
             this.connection = conn;
             
             // Wait for connection to open
             this.connection.on('open', () => {
+                console.log('Incoming connection opened');
                 this.isConnected = true;
                 this.game.addSuccess('✅ Opponent found! Game starting...');
                 this.setupConnectionListeners();
@@ -1051,7 +1084,15 @@ class MultiplayerManager {
             });
             
             this.connection.on('error', (err) => {
+                console.error('Incoming connection error:', err);
                 this.game.addError(`❌ Connection error: ${err.message}`);
+            });
+            
+            this.connection.on('close', () => {
+                console.log('Incoming connection closed before game started');
+                if (!this.isConnected) {
+                    this.game.addError('❌ Connection closed before game could start');
+                }
             });
         });
 
@@ -1074,21 +1115,29 @@ class MultiplayerManager {
     }
 
     setupConnectionListeners() {
-        // Don't listen for 'open' here - it's already handled in createGame/joinGame
+        // Setup data, close, and error listeners
+        // Note: 'open' event should already be handled before calling this
+        
+        console.log('Setting up connection listeners...');
         
         this.connection.on('data', (data) => {
+            console.log('Received data:', data);
             this.handleIncomingData(data);
         });
 
         this.connection.on('close', () => {
+            console.log('Connection closed');
             this.game.addError('❌ Opponent disconnected');
             this.isConnected = false;
-            this.game.updateOnlineStatus(); // Update online status when disconnected
+            this.game.updateOnlineStatus();
         });
 
         this.connection.on('error', (err) => {
+            console.error('Connection error:', err);
             this.game.addError(`❌ Connection error: ${err.message}`);
         });
+        
+        console.log('Connection listeners setup complete. Connection state:', this.connection.open);
     }
 
     handleIncomingData(data) {
