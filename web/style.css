@@ -205,13 +205,13 @@ header h1 {
 }
 
 .piece.white {
-    color: #fff;
+    color: #ffffff;
     text-shadow: 0 0 3px #000, 0 0 5px #000;
 }
 
 .piece.black {
-    color: #c586c0;
-    text-shadow: 0 0 2px #000;
+    color: #000000;
+    text-shadow: 0 0 2px #fff;
 }
 
 .input-container {

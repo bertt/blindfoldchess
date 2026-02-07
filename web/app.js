@@ -405,10 +405,13 @@ class BlindFoldChess {
     }
 
     getPieceSymbol(piece) {
-        const symbols = {
+        const whiteSymbols = {
+            'p': '♙', 'r': '♖', 'n': '♘', 'b': '♗', 'q': '♕', 'k': '♔'
+        };
+        const blackSymbols = {
             'p': '♟', 'r': '♜', 'n': '♞', 'b': '♝', 'q': '♛', 'k': '♚'
         };
-        return symbols[piece.type] || '';
+        return piece.color === 'w' ? whiteSymbols[piece.type] : blackSymbols[piece.type] || '';
     }
 
     describePiece(piece) {
