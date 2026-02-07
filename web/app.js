@@ -816,18 +816,10 @@ class MultiplayerManager {
 
         this.peer.on('connection', (conn) => {
             this.connection = conn;
-            
-            // Wait for connection to open
-            this.connection.on('open', () => {
-                this.isConnected = true;
-                this.game.addSuccess('✅ Opponent connected! Game starting...');
-                this.setupConnectionListeners();
-                this.game.startMultiplayerGame('w');
-            });
-            
-            this.connection.on('error', (err) => {
-                this.game.addError(`❌ Connection error: ${err.message}`);
-            });
+            this.setupConnectionListeners();
+            this.game.addSuccess('✅ Opponent connected! Game starting...');
+            this.isConnected = true;
+            this.game.startMultiplayerGame('w');
         });
 
         this.peer.on('error', (err) => {
@@ -847,19 +839,7 @@ class MultiplayerManager {
         this.peer.on('open', () => {
             this.game.addOutput(`🔗 Connecting to room: ${roomId}...`);
             this.connection = this.peer.connect(roomId);
-            
-            // Wait for connection to actually open before setting up listeners
-            this.connection.on('open', () => {
-                this.isConnected = true;
-                this.game.addSuccess('✅ Connected! Game starting...');
-                this.setupConnectionListeners();
-                this.game.startMultiplayerGame('b');
-            });
-            
-            this.connection.on('error', (err) => {
-                console.error('Connection error:', err);
-                this.game.addError(`❌ Connection failed: ${err.type}`);
-            });
+            this.setupConnectionListeners();
         });
 
         this.peer.on('error', (err) => {
@@ -875,10 +855,14 @@ class MultiplayerManager {
 
 
     setupConnectionListeners() {
-        // Setup data, close, and error listeners
-        // Note: 'open' event should already be handled before calling this
-        
         console.log('Setting up connection listeners...');
+
+        this.connection.on('open', () => {
+            console.log('Connection opened!');
+            this.isConnected = true;
+            this.game.addSuccess('✅ Connected! Game starting...');
+            this.game.startMultiplayerGame(this.myColor);
+        });
 
         this.connection.on('data', (data) => {
             console.log('Received data:', data);
@@ -896,7 +880,7 @@ class MultiplayerManager {
             this.game.addError(`❌ Connection error: ${err.message}`);
         });
         
-        console.log('Connection listeners setup complete. Connection state:', this.connection.open);
+        console.log('Connection listeners setup complete');
     }
 
     handleIncomingData(data) {
