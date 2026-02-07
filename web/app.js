@@ -998,31 +998,78 @@ class MultiplayerManager {
 
     createLobby() {
         // Use sequential lobby IDs based on current second (0-9)
-        // This increases chance of matching with someone who clicked at similar time
         const lobbyNumber = new Date().getSeconds() % 10;
         const lobbyId = `blindfold-lobby-${lobbyNumber}`;
         
         this.game.addOutput(`🔌 Connecting to PeerJS server...`);
-        this.game.addOutput(`📍 Joining/Creating lobby ${lobbyNumber}...`);
+        this.game.addOutput(`📍 Checking lobby ${lobbyNumber}...`);
+        
+        // FIRST: Try to join existing lobby (create anonymous peer)
+        this.peer = new Peer(); // Anonymous peer
+        
+        this.peer.on('open', (myId) => {
+            console.log('My peer ID:', myId);
+            
+            // Try to connect to the lobby
+            this.connection = this.peer.connect(lobbyId);
+            
+            // Set a timeout - if no connection in 2 seconds, assume lobby doesn't exist
+            const joinTimeout = setTimeout(() => {
+                console.log('No existing lobby found, creating one...');
+                
+                // Close failed connection attempt
+                if (this.connection) {
+                    this.connection.close();
+                    this.connection = null;
+                }
+                
+                // Destroy anonymous peer
+                this.peer.destroy();
+                
+                // Now create lobby with specific ID
+                this.createLobbyAsHost(lobbyId, lobbyNumber);
+            }, 2000);
+            
+            // If connection succeeds, we joined!
+            this.connection.on('open', () => {
+                clearTimeout(joinTimeout);
+                console.log('Successfully joined existing lobby!');
+                this.myColor = 'b'; // Joiner plays black
+                this.isConnected = true;
+                this.game.addSuccess(`✅ Joined lobby ${lobbyNumber}! Game starting...`);
+                this.setupConnectionListeners();
+                this.game.startMultiplayerGame('b');
+            });
+            
+            this.connection.on('error', (err) => {
+                console.log('Connection to lobby failed (probably doesn\'t exist):', err);
+                // Timeout will handle creating new lobby
+            });
+        });
+        
+        this.peer.on('error', (err) => {
+            console.error('Peer error:', err);
+            this.game.addError(`❌ Connection failed: ${err.message}`);
+        });
+    }
+    
+    createLobbyAsHost(lobbyId, lobbyNumber) {
+        console.log('Creating lobby as host:', lobbyId);
+        this.game.addOutput(`⏳ Creating lobby ${lobbyNumber}...`);
         
         this.peer = new Peer(lobbyId);
         this.myColor = 'w'; // Lobby creator plays white
         
-        let lobbyCreatedByMe = false;
-        
         this.peer.on('open', (id) => {
             this.roomId = id;
-            lobbyCreatedByMe = true;
-            console.log(`Created lobby: ${id}`);
-            this.game.addOutput(`⏳ Waiting for opponent in lobby ${lobbyNumber}...`);
-            this.game.addOutput(`💡 Tip: Have your friend also click "Random Opponent" now for instant match!`);
+            console.log(`Lobby created: ${id}`);
+            this.game.addOutput(`✅ Waiting for opponent in lobby ${lobbyNumber}...`);
         });
 
         this.peer.on('connection', (conn) => {
             console.log('Incoming connection received in lobby');
             this.connection = conn;
             
-            // Wait for connection to open
             this.connection.on('open', () => {
                 console.log('Incoming connection opened');
                 this.isConnected = true;
@@ -1035,60 +1082,16 @@ class MultiplayerManager {
                 console.error('Incoming connection error:', err);
                 this.game.addError(`❌ Connection error: ${err.message}`);
             });
-            
-            this.connection.on('close', () => {
-                console.log('Incoming connection closed before game started');
-                if (!this.isConnected) {
-                    this.game.addError('❌ Connection closed before game could start');
-                }
-            });
         });
 
         this.peer.on('error', (err) => {
-            console.error('Peer error:', err);
+            console.error('Host peer error:', err);
             
             if (err.type === 'unavailable-id') {
-                // Lobby already exists - try to join it instead
-                console.log(`Lobby ${lobbyId} already exists, attempting to join...`);
-                this.game.addOutput(`👥 Found existing lobby ${lobbyNumber}, joining...`);
-                
-                // Destroy current peer and wait for cleanup before creating new one
-                if (this.peer) {
-                    this.peer.destroy();
-                    this.peer = null;
-                }
-                
-                // Wait a moment for cleanup, then create new peer to join
-                setTimeout(() => {
-                    this.peer = new Peer();
-                    
-                    this.peer.on('open', () => {
-                        console.log('New peer ready, connecting to existing lobby...');
-                        this.myColor = 'b'; // Joiner plays black
-                        this.connection = this.peer.connect(lobbyId);
-                        
-                        this.connection.on('open', () => {
-                            console.log('Connected to existing lobby!');
-                            this.isConnected = true;
-                            this.game.addSuccess('✅ Joined existing lobby! Game starting...');
-                            this.setupConnectionListeners();
-                            this.game.startMultiplayerGame('b');
-                        });
-                        
-                        this.connection.on('error', (connErr) => {
-                            console.error('Failed to join existing lobby:', connErr);
-                            this.game.addError(`❌ Failed to join lobby: ${connErr.message}`);
-                        });
-                    });
-                    
-                    this.peer.on('error', (peerErr) => {
-                        console.error('Error creating joining peer:', peerErr);
-                        this.game.addError(`❌ Connection failed: ${peerErr.message}`);
-                    });
-                }, 500); // Wait 500ms for cleanup
-                
-            } else if (err.type === 'network' || err.type === 'server-error' || err.message.includes('Lost connection')) {
-                this.game.addError(`❌ PeerJS server connection failed. Try again or use mp-friend mode.`);
+                // Someone created the lobby in the meantime, retry joining
+                this.game.addOutput('🔄 Lobby just created by someone else, joining...');
+                this.peer.destroy();
+                setTimeout(() => this.createLobby(), 500);
             } else {
                 this.game.addError(`❌ Error: ${err.message}`);
             }
@@ -1098,7 +1101,6 @@ class MultiplayerManager {
         setTimeout(() => {
             if (!this.isConnected) {
                 this.game.addOutput('⏰ No opponent found after 30 seconds.');
-                this.game.addOutput('💡 Try again or use "Play Friend" mode to share a room ID directly.');
                 this.disconnect();
             }
         }, 30000);
