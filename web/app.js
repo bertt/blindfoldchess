@@ -332,12 +332,12 @@ class BlindFoldChess {
         const chessboard = document.getElementById('chessboard');
         chessboard.innerHTML = '';
 
-        // Add rank labels and squares
-        for (let rank = 7; rank >= 0; rank--) {
-            // Rank label
+        // Add rank labels and squares (rank 8 to 1, so white is at bottom)
+        for (let rank = 0; rank < 8; rank++) {
+            // Rank label (display 8-rank so rank 0 shows as 8, rank 7 shows as 1)
             const rankLabel = document.createElement('div');
             rankLabel.className = 'rank-label';
-            rankLabel.textContent = rank + 1;
+            rankLabel.textContent = 8 - rank;
             chessboard.appendChild(rankLabel);
 
             // Squares
