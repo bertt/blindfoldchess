@@ -609,6 +609,8 @@ ${myColor === 'w' ? "Your turn! Make your first move." : "Waiting for opponent's
         `);
         
         this.updatePlayerColor(colorName);
+        this.updatePrompt();
+        this.updateOnlineStatus();
         
         if (this.boardVisible) {
             this.renderBoard();
@@ -659,6 +661,26 @@ ${myColor === 'w' ? "Your turn! Make your first move." : "Waiting for opponent's
         const element = document.getElementById('playerColor');
         if (element) {
             element.textContent = `${colorName} ${colorName === 'WHITE' ? '♟' : '♙'}`;
+        }
+    }
+
+    updatePrompt() {
+        const promptElement = document.getElementById('inputPrompt');
+        if (promptElement) {
+            const colorName = this.myColor === 'w' ? 'white' : 'black';
+            promptElement.textContent = `Your move (${colorName}) >`;
+        }
+    }
+
+    updateOnlineStatus() {
+        const onlineElement = document.getElementById('onlinePlayers');
+        if (onlineElement) {
+            if (this.isMultiplayer && this.multiplayer && this.multiplayer.isConnected) {
+                onlineElement.textContent = 'In game';
+            } else {
+                // Re-check online players
+                this.checkOnlinePlayers();
+            }
         }
     }
 
@@ -768,6 +790,8 @@ ${myColor === 'w' ? "Your turn! Make your first move." : "Waiting for opponent's
         this.addSuccess('🎮 New game started! You play WHITE (♟), computer plays BLACK (♙)');
         this.addOutput(`Difficulty: ${this.difficulty}`);
         this.updatePlayerColor('WHITE');
+        this.updatePrompt();
+        this.updateOnlineStatus();
     }
 
     showMoveHistory() {
@@ -1053,6 +1077,7 @@ class MultiplayerManager {
         this.connection.on('close', () => {
             this.game.addError('❌ Opponent disconnected');
             this.isConnected = false;
+            this.game.updateOnlineStatus(); // Update online status when disconnected
         });
 
         this.connection.on('error', (err) => {
