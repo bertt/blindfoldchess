@@ -804,6 +804,8 @@ class MultiplayerManager {
     createGame() {
         this.mode = 'host';
         this.myColor = 'w'; // Host plays white
+        this.reconnectAttempts = 0;
+        this.maxReconnectAttempts = 2;
         
         // Configure PeerJS with explicit settings for better Chrome compatibility
         const peerConfig = {
@@ -821,6 +823,7 @@ class MultiplayerManager {
         
         this.peer.on('open', (id) => {
             this.roomId = id;
+            this.reconnectAttempts = 0; // Reset on success
             this.game.addOutput(`🎮 Room created! Share this ID: <strong>${id}</strong>`);
             this.game.addOutput(`⏳ Waiting for opponent to join...`);
             this.showCopyButton(id);
@@ -845,9 +848,10 @@ class MultiplayerManager {
         this.peer.on('error', (err) => {
             console.error('Peer error details:', err);
             if (err.type === 'network') {
-                this.game.addError(`❌ Network error: Cannot connect to PeerJS server. Try refreshing the page.`);
+                this.game.addError(`❌ Network error: Cannot connect to PeerJS server.`);
+                this.game.addOutput(`💡 Try: Disable Chrome extensions/adblockers or use Edge/Firefox`);
             } else if (err.type === 'server-error') {
-                this.game.addError(`❌ Server error: PeerJS server unavailable. Try again in a moment.`);
+                this.game.addError(`❌ Server error: PeerJS server unavailable.`);
             } else if (err.type === 'socket-error') {
                 this.game.addError(`❌ WebSocket error: ${err.message}`);
             } else {
@@ -857,10 +861,16 @@ class MultiplayerManager {
         
         this.peer.on('disconnected', () => {
             console.log('Peer disconnected from server');
-            this.game.addOutput('⚠️ Disconnected from server. Attempting to reconnect...');
-            // Try to reconnect
-            if (this.peer && !this.peer.destroyed) {
-                this.peer.reconnect();
+            this.reconnectAttempts++;
+            
+            if (this.reconnectAttempts <= this.maxReconnectAttempts) {
+                this.game.addOutput(`⚠️ Disconnected. Reconnect attempt ${this.reconnectAttempts}/${this.maxReconnectAttempts}...`);
+                if (this.peer && !this.peer.destroyed) {
+                    this.peer.reconnect();
+                }
+            } else {
+                this.game.addError(`❌ Failed to connect after ${this.maxReconnectAttempts} attempts.`);
+                this.game.addOutput(`💡 Suggestion: Try Edge/Firefox or check your network/extensions.`);
             }
         });
     }
@@ -870,6 +880,8 @@ class MultiplayerManager {
         this.mode = 'join';
         this.myColor = 'b'; // Joiner plays black
         this.roomId = roomId;
+        this.reconnectAttempts = 0;
+        this.maxReconnectAttempts = 2;
 
         // Configure PeerJS with explicit settings for better Chrome compatibility
         const peerConfig = {
@@ -886,6 +898,7 @@ class MultiplayerManager {
         this.peer = new Peer(peerConfig);
 
         this.peer.on('open', () => {
+            this.reconnectAttempts = 0; // Reset on success
             this.game.addOutput(`🔗 Joining room: ${roomId}...`);
             this.connection = this.peer.connect(roomId);
             
@@ -908,9 +921,10 @@ class MultiplayerManager {
             if (err.type === 'peer-unavailable') {
                 this.game.addError(`❌ Room not found. Check the ID and try again.`);
             } else if (err.type === 'network') {
-                this.game.addError(`❌ Network error: Cannot connect to PeerJS server. Try refreshing the page.`);
+                this.game.addError(`❌ Network error: Cannot connect to PeerJS server.`);
+                this.game.addOutput(`💡 Try: Disable Chrome extensions/adblockers or use Edge/Firefox`);
             } else if (err.type === 'server-error') {
-                this.game.addError(`❌ Server error: PeerJS server unavailable. Try again in a moment.`);
+                this.game.addError(`❌ Server error: PeerJS server unavailable.`);
             } else {
                 this.game.addError(`❌ Connection error: ${err.message || err.type}`);
             }
@@ -918,9 +932,16 @@ class MultiplayerManager {
         
         this.peer.on('disconnected', () => {
             console.log('Peer disconnected from server');
-            this.game.addOutput('⚠️ Disconnected from server. Attempting to reconnect...');
-            if (this.peer && !this.peer.destroyed) {
-                this.peer.reconnect();
+            this.reconnectAttempts++;
+            
+            if (this.reconnectAttempts <= this.maxReconnectAttempts) {
+                this.game.addOutput(`⚠️ Disconnected. Reconnect attempt ${this.reconnectAttempts}/${this.maxReconnectAttempts}...`);
+                if (this.peer && !this.peer.destroyed) {
+                    this.peer.reconnect();
+                }
+            } else {
+                this.game.addError(`❌ Failed to connect after ${this.maxReconnectAttempts} attempts.`);
+                this.game.addOutput(`💡 Suggestion: Try Edge/Firefox or check your network/extensions.`);
             }
         });
     }
