@@ -41,92 +41,7 @@ class BlindFoldChess {
         setInterval(() => this.checkOnlinePlayers(), 30000); // Update every 30 seconds
     }
 
-    async checkOnlinePlayers() {
-        try {
-            // Count how many lobbies are occupied (people waiting for match)
-            let waitingLobbies = 0;
-            const checkPromises = [];
-            
-            for (let i = 1; i <= 10; i++) {
-                const lobbyId = `blindfold-lobby-${i}`;
-                const promise = this.checkLobbyOccupied(lobbyId);
-                checkPromises.push(promise);
-            }
-            
-            const results = await Promise.all(checkPromises);
-            waitingLobbies = results.filter(r => r).length;
-            
-            // People waiting = lobbies with 1 person waiting
-            const waitingCount = waitingLobbies;
-            
-            // We can't know exact playing count without server
-            // But we can track if THIS user is playing
-            let playingCount = 0;
-            if (this.isMultiplayer && this.multiplayer && this.multiplayer.isConnected) {
-                playingCount = 2; // This game = 2 players
-            }
-            
-            // Update UI
-            const playingElement = document.getElementById('playingCount');
-            const waitingElement = document.getElementById('waitingCount');
-            
-            if (playingElement) {
-                if (playingCount > 0) {
-                    playingElement.textContent = `${playingCount}`;
-                } else {
-                    playingElement.textContent = '0';
-                }
-            }
-            
-            if (waitingElement) {
-                waitingElement.textContent = `${waitingCount}`;
-            }
-        } catch (err) {
-            console.error('Error checking online players:', err);
-            const playingElement = document.getElementById('playingCount');
-            const waitingElement = document.getElementById('waitingCount');
-            
-            if (playingElement) playingElement.textContent = '?';
-            if (waitingElement) waitingElement.textContent = '?';
-        }
-    }
 
-    async checkLobbyOccupied(lobbyId) {
-        return new Promise((resolve) => {
-            try {
-                const tempPeer = new Peer();
-                const timeout = setTimeout(() => {
-                    tempPeer.destroy();
-                    resolve(false);
-                }, 500);
-                
-                tempPeer.on('open', () => {
-                    const conn = tempPeer.connect(lobbyId);
-                    
-                    conn.on('open', () => {
-                        clearTimeout(timeout);
-                        conn.close();
-                        tempPeer.destroy();
-                        resolve(true); // Lobby exists and is occupied
-                    });
-                    
-                    conn.on('error', () => {
-                        clearTimeout(timeout);
-                        tempPeer.destroy();
-                        resolve(false);
-                    });
-                });
-                
-                tempPeer.on('error', () => {
-                    clearTimeout(timeout);
-                    tempPeer.destroy();
-                    resolve(false);
-                });
-            } catch (err) {
-                resolve(false);
-            }
-        });
-    }
 
     handleInput(input) {
         if (!input) return;
@@ -216,11 +131,6 @@ class BlindFoldChess {
             case 'mp-friend':
             case 'play-friend':
                 this.getMultiplayer().createGame();
-                return true;
-
-            case 'mp-random':
-            case 'random':
-                this.getMultiplayer().findRandomOpponent();
                 return true;
 
             case 'mp-join':
@@ -586,9 +496,6 @@ class BlindFoldChess {
     }
 
     showMultiplayerMenu() {
-        // Refresh online player count
-        this.checkOnlinePlayers();
-        
         this.addOutput(`
 ╔════════════════════════════════════════════╗
 ║          🎮 MULTIPLAYER MODE               ║
@@ -596,7 +503,6 @@ class BlindFoldChess {
 
 Choose an option:
   mp-friend  - 👥 Play with a friend (share room ID)
-  mp-random  - 🎲 Find random opponent
   mp-join    - 🔗 Join a room with ID
 
 Type 'new' to start a single player game instead.
@@ -623,7 +529,6 @@ ${myColor === 'w' ? "Your turn! Make your first move." : "Waiting for opponent's
         
         this.updatePlayerColor(colorName);
         this.updatePrompt();
-        this.updateOnlineStatus();
         
         if (this.boardVisible) {
             this.renderBoard();
@@ -683,11 +588,6 @@ ${myColor === 'w' ? "Your turn! Make your first move." : "Waiting for opponent's
             const colorName = this.myColor === 'w' ? 'white' : 'black';
             promptElement.textContent = `Your move (${colorName}) >`;
         }
-    }
-
-    updateOnlineStatus() {
-        // Always re-check to update both playing and waiting counts
-        this.checkOnlinePlayers();
     }
 
     showMaterialCount() {
@@ -797,7 +697,6 @@ ${myColor === 'w' ? "Your turn! Make your first move." : "Waiting for opponent's
         this.addOutput(`Difficulty: ${this.difficulty}`);
         this.updatePlayerColor('WHITE');
         this.updatePrompt();
-        this.updateOnlineStatus();
     }
 
     showMoveHistory() {
@@ -937,7 +836,8 @@ class MultiplayerManager {
         });
 
         this.peer.on('error', (err) => {
-            this.game.addError(`❌ Connection error: ${err.message}`);
+            this.game.addError(`❌ Peer error: ${err.message || err.type}`);
+            console.error('Peer error:', err);
         });
     }
 
@@ -947,11 +847,11 @@ class MultiplayerManager {
         this.myColor = 'b'; // Joiner plays black
         this.roomId = roomId;
 
-        this.game.addOutput('🔌 Connecting to PeerJS server...');
+        this.game.addOutput('🔌 Connecting to room...');
         this.peer = new Peer();
 
         this.peer.on('open', () => {
-            this.game.addOutput(`🔗 Connecting to room: ${roomId}...`);
+            this.game.addOutput(`🔗 Joining room: ${roomId}...`);
             this.connection = this.peer.connect(roomId);
             
             // Wait for connection to actually open before setting up listeners
@@ -964,154 +864,28 @@ class MultiplayerManager {
             
             this.connection.on('error', (err) => {
                 console.error('Connection error:', err);
-                this.game.addError(`❌ Connection failed: ${err.message}`);
+                this.game.addError(`❌ Connection failed: ${err.message || err.type}`);
             });
         });
 
         this.peer.on('error', (err) => {
             console.error('Peer error:', err);
-            if (err.type === 'network') {
-                this.game.addError(`❌ Network error: Cannot connect to PeerJS server. Check your internet connection.`);
-            } else if (err.type === 'peer-unavailable') {
-                this.game.addError(`❌ Room not found: The room ID "${roomId}" does not exist or is no longer available.`);
-            } else if (err.type === 'server-error') {
-                this.game.addError(`❌ Server error: PeerJS server is unavailable. Please try again later.`);
+            if (err.type === 'peer-unavailable') {
+                this.game.addError(`❌ Room not found. Check the ID and try again.`);
             } else {
-                this.game.addError(`❌ Failed to join: ${err.message}`);
+                this.game.addError(`❌ Connection error: ${err.message || err.type}`);
             }
         });
     }
 
-    // Random matchmaking using lobby system
-    async findRandomOpponent() {
-        this.mode = 'random';
-        
-        this.game.addOutput('🎲 Searching for opponent...');
-        this.createLobby();
-    }
 
-    // Simplified - no longer needed
-    async tryJoinLobby() {
-        // This function is deprecated - using simplified lobby approach
-        return false;
-    }
-
-    createLobby() {
-        // Use sequential lobby IDs based on current second (0-9)
-        const lobbyNumber = new Date().getSeconds() % 10;
-        const lobbyId = `blindfold-lobby-${lobbyNumber}`;
-        
-        this.game.addOutput(`🔌 Connecting to PeerJS server...`);
-        this.game.addOutput(`📍 Checking lobby ${lobbyNumber}...`);
-        
-        // FIRST: Try to join existing lobby (create anonymous peer)
-        this.peer = new Peer(); // Anonymous peer
-        
-        this.peer.on('open', (myId) => {
-            console.log('My peer ID:', myId);
-            
-            // Try to connect to the lobby
-            this.connection = this.peer.connect(lobbyId);
-            
-            // Set a timeout - if no connection in 2 seconds, assume lobby doesn't exist
-            const joinTimeout = setTimeout(() => {
-                console.log('No existing lobby found, creating one...');
-                
-                // Close failed connection attempt
-                if (this.connection) {
-                    this.connection.close();
-                    this.connection = null;
-                }
-                
-                // Destroy anonymous peer
-                this.peer.destroy();
-                
-                // Now create lobby with specific ID
-                this.createLobbyAsHost(lobbyId, lobbyNumber);
-            }, 2000);
-            
-            // If connection succeeds, we joined!
-            this.connection.on('open', () => {
-                clearTimeout(joinTimeout);
-                console.log('Successfully joined existing lobby!');
-                this.myColor = 'b'; // Joiner plays black
-                this.isConnected = true;
-                this.game.addSuccess(`✅ Joined lobby ${lobbyNumber}! Game starting...`);
-                this.setupConnectionListeners();
-                this.game.startMultiplayerGame('b');
-            });
-            
-            this.connection.on('error', (err) => {
-                console.log('Connection to lobby failed (probably doesn\'t exist):', err);
-                // Timeout will handle creating new lobby
-            });
-        });
-        
-        this.peer.on('error', (err) => {
-            console.error('Peer error:', err);
-            this.game.addError(`❌ Connection failed: ${err.message}`);
-        });
-    }
-    
-    createLobbyAsHost(lobbyId, lobbyNumber) {
-        console.log('Creating lobby as host:', lobbyId);
-        this.game.addOutput(`⏳ Creating lobby ${lobbyNumber}...`);
-        
-        this.peer = new Peer(lobbyId);
-        this.myColor = 'w'; // Lobby creator plays white
-        
-        this.peer.on('open', (id) => {
-            this.roomId = id;
-            console.log(`Lobby created: ${id}`);
-            this.game.addOutput(`✅ Waiting for opponent in lobby ${lobbyNumber}...`);
-        });
-
-        this.peer.on('connection', (conn) => {
-            console.log('Incoming connection received in lobby');
-            this.connection = conn;
-            
-            this.connection.on('open', () => {
-                console.log('Incoming connection opened');
-                this.isConnected = true;
-                this.game.addSuccess('✅ Opponent found! Game starting...');
-                this.setupConnectionListeners();
-                this.game.startMultiplayerGame('w');
-            });
-            
-            this.connection.on('error', (err) => {
-                console.error('Incoming connection error:', err);
-                this.game.addError(`❌ Connection error: ${err.message}`);
-            });
-        });
-
-        this.peer.on('error', (err) => {
-            console.error('Host peer error:', err);
-            
-            if (err.type === 'unavailable-id') {
-                // Someone created the lobby in the meantime, retry joining
-                this.game.addOutput('🔄 Lobby just created by someone else, joining...');
-                this.peer.destroy();
-                setTimeout(() => this.createLobby(), 500);
-            } else {
-                this.game.addError(`❌ Error: ${err.message}`);
-            }
-        });
-
-        // Timeout after 30 seconds
-        setTimeout(() => {
-            if (!this.isConnected) {
-                this.game.addOutput('⏰ No opponent found after 30 seconds.');
-                this.disconnect();
-            }
-        }, 30000);
-    }
 
     setupConnectionListeners() {
         // Setup data, close, and error listeners
         // Note: 'open' event should already be handled before calling this
         
         console.log('Setting up connection listeners...');
-        
+
         this.connection.on('data', (data) => {
             console.log('Received data:', data);
             this.handleIncomingData(data);
@@ -1121,7 +895,6 @@ class MultiplayerManager {
             console.log('Connection closed');
             this.game.addError('❌ Opponent disconnected');
             this.isConnected = false;
-            this.game.updateOnlineStatus();
         });
 
         this.connection.on('error', (err) => {

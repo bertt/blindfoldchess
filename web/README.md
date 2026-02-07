@@ -43,12 +43,10 @@ python -m http.server 8000
 - 📜 Move history
 - ♟️ Complete chess rules support
 
-🎮 **NEW: Multiplayer Mode** - Play against other humans!
+🎮 **Multiplayer Mode** - Play against other humans!
 - 👥 **Play with Friend** - Share room ID via chat/email
-- 🎲 **Random Opponent** - Auto-match with waiting players
 - 🔗 **Join Room** - Enter specific room ID to join
 - 🌐 **Serverless P2P** - Direct browser-to-browser connection
-- 🔢 **Online Counter** - See how many players are online
 - 🏳️ **Resign/Draw** - Full game control
 
 ## Multiplayer Technical Details
@@ -67,15 +65,9 @@ python -m http.server 8000
    - Friend enters ID using `mp-join` command
    - Instant connection, host plays White
 
-2. **Random Opponent** (`mp-random`)
-   - Time-based lobby matching system
-   - Uses current second to select lobby (0-9)
-   - Players clicking within same 10-second window auto-match
-   - 30-second timeout if no opponent found
-
-3. **Join Room** (`mp-join`)
+2. **Join Room** (`mp-join`)
    - Enter specific room ID to connect
-   - Great for organized games or tournaments
+   - Great for organized games or playing with friends
 
 ### Connection Features
 - **Turn Validation**: Can't move on opponent's turn
@@ -87,7 +79,6 @@ python -m http.server 8000
 
 ### Limitations
 - Relies on PeerJS cloud service (free tier)
-- Random matchmaking is best-effort (no guarantees)
 - NAT traversal may fail in restrictive corporate networks
 - No persistent game storage (game lost on disconnect)
 - No ELO ratings or match history (yet)
