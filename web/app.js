@@ -752,7 +752,6 @@ COMMANDS:
 
 MULTIPLAYER:
   mp-friend      - 👥 Play with a friend (share room ID)
-  mp-random      - 🎲 Find random opponent
   mp-join        - 🔗 Join a room with ID
   resign         - 🏳️  Resign (multiplayer only)
   offer-draw     - 🤝 Offer draw (multiplayer only)
@@ -806,7 +805,19 @@ class MultiplayerManager {
         this.mode = 'host';
         this.myColor = 'w'; // Host plays white
         
-        this.peer = new Peer();
+        // Configure PeerJS with explicit settings for better Chrome compatibility
+        const peerConfig = {
+            debug: 2, // Show warnings and errors
+            config: {
+                iceServers: [
+                    { urls: 'stun:stun.l.google.com:19302' },
+                    { urls: 'stun:global.stun.twilio.com:3478' }
+                ]
+            }
+        };
+        
+        this.game.addOutput('🔌 Connecting to PeerJS server...');
+        this.peer = new Peer(peerConfig);
         
         this.peer.on('open', (id) => {
             this.roomId = id;
@@ -832,8 +843,25 @@ class MultiplayerManager {
         });
 
         this.peer.on('error', (err) => {
-            this.game.addError(`❌ Peer error: ${err.message || err.type}`);
-            console.error('Peer error:', err);
+            console.error('Peer error details:', err);
+            if (err.type === 'network') {
+                this.game.addError(`❌ Network error: Cannot connect to PeerJS server. Try refreshing the page.`);
+            } else if (err.type === 'server-error') {
+                this.game.addError(`❌ Server error: PeerJS server unavailable. Try again in a moment.`);
+            } else if (err.type === 'socket-error') {
+                this.game.addError(`❌ WebSocket error: ${err.message}`);
+            } else {
+                this.game.addError(`❌ Peer error: ${err.message || err.type}`);
+            }
+        });
+        
+        this.peer.on('disconnected', () => {
+            console.log('Peer disconnected from server');
+            this.game.addOutput('⚠️ Disconnected from server. Attempting to reconnect...');
+            // Try to reconnect
+            if (this.peer && !this.peer.destroyed) {
+                this.peer.reconnect();
+            }
         });
     }
 
@@ -843,8 +871,19 @@ class MultiplayerManager {
         this.myColor = 'b'; // Joiner plays black
         this.roomId = roomId;
 
-        this.game.addOutput('🔌 Connecting to room...');
-        this.peer = new Peer();
+        // Configure PeerJS with explicit settings for better Chrome compatibility
+        const peerConfig = {
+            debug: 2,
+            config: {
+                iceServers: [
+                    { urls: 'stun:stun.l.google.com:19302' },
+                    { urls: 'stun:global.stun.twilio.com:3478' }
+                ]
+            }
+        };
+
+        this.game.addOutput('🔌 Connecting to PeerJS server...');
+        this.peer = new Peer(peerConfig);
 
         this.peer.on('open', () => {
             this.game.addOutput(`🔗 Joining room: ${roomId}...`);
@@ -865,11 +904,23 @@ class MultiplayerManager {
         });
 
         this.peer.on('error', (err) => {
-            console.error('Peer error:', err);
+            console.error('Peer error details:', err);
             if (err.type === 'peer-unavailable') {
                 this.game.addError(`❌ Room not found. Check the ID and try again.`);
+            } else if (err.type === 'network') {
+                this.game.addError(`❌ Network error: Cannot connect to PeerJS server. Try refreshing the page.`);
+            } else if (err.type === 'server-error') {
+                this.game.addError(`❌ Server error: PeerJS server unavailable. Try again in a moment.`);
             } else {
                 this.game.addError(`❌ Connection error: ${err.message || err.type}`);
+            }
+        });
+        
+        this.peer.on('disconnected', () => {
+            console.log('Peer disconnected from server');
+            this.game.addOutput('⚠️ Disconnected from server. Attempting to reconnect...');
+            if (this.peer && !this.peer.destroyed) {
+                this.peer.reconnect();
             }
         });
     }
