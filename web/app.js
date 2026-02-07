@@ -892,10 +892,18 @@ class MultiplayerManager {
 
         this.peer.on('connection', (conn) => {
             this.connection = conn;
-            this.setupConnection();
-            this.game.addSuccess('✅ Opponent connected! Game starting...');
-            this.isConnected = true;
-            this.game.startMultiplayerGame('w');
+            
+            // Wait for connection to open
+            this.connection.on('open', () => {
+                this.isConnected = true;
+                this.game.addSuccess('✅ Opponent connected! Game starting...');
+                this.setupConnectionListeners();
+                this.game.startMultiplayerGame('w');
+            });
+            
+            this.connection.on('error', (err) => {
+                this.game.addError(`❌ Connection error: ${err.message}`);
+            });
         });
 
         this.peer.on('error', (err) => {
@@ -914,7 +922,18 @@ class MultiplayerManager {
         this.peer.on('open', () => {
             this.game.addOutput(`🔗 Connecting to room: ${roomId}...`);
             this.connection = this.peer.connect(roomId);
-            this.setupConnection();
+            
+            // Wait for connection to actually open before setting up listeners
+            this.connection.on('open', () => {
+                this.isConnected = true;
+                this.game.addSuccess('✅ Connected! Game starting...');
+                this.setupConnectionListeners();
+                this.game.startMultiplayerGame('b');
+            });
+            
+            this.connection.on('error', (err) => {
+                this.game.addError(`❌ Connection failed: ${err.message}`);
+            });
         });
 
         this.peer.on('error', (err) => {
@@ -963,9 +982,9 @@ class MultiplayerManager {
 
                 if (connected) {
                     this.myColor = 'b'; // Joiner plays black
-                    this.setupConnection();
-                    this.game.addSuccess(`✅ Opponent found! Game starting...`);
                     this.isConnected = true;
+                    this.setupConnectionListeners();
+                    this.game.addSuccess(`✅ Opponent found! Game starting...`);
                     this.game.startMultiplayerGame('b');
                     return true;
                 }
@@ -992,10 +1011,18 @@ class MultiplayerManager {
 
         this.peer.on('connection', (conn) => {
             this.connection = conn;
-            this.setupConnection();
-            this.game.addSuccess('✅ Opponent found! Game starting...');
-            this.isConnected = true;
-            this.game.startMultiplayerGame('w');
+            
+            // Wait for connection to open
+            this.connection.on('open', () => {
+                this.isConnected = true;
+                this.game.addSuccess('✅ Opponent found! Game starting...');
+                this.setupConnectionListeners();
+                this.game.startMultiplayerGame('w');
+            });
+            
+            this.connection.on('error', (err) => {
+                this.game.addError(`❌ Connection error: ${err.message}`);
+            });
         });
 
         this.peer.on('error', (err) => {
@@ -1016,15 +1043,9 @@ class MultiplayerManager {
         }, 30000);
     }
 
-    setupConnection() {
-        this.connection.on('open', () => {
-            this.isConnected = true;
-            if (this.mode === 'join') {
-                this.game.addSuccess('✅ Connected! Game starting...');
-                this.game.startMultiplayerGame('b');
-            }
-        });
-
+    setupConnectionListeners() {
+        // Don't listen for 'open' here - it's already handled in createGame/joinGame
+        
         this.connection.on('data', (data) => {
             this.handleIncomingData(data);
         });
