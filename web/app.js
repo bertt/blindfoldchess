@@ -218,6 +218,14 @@ class BlindFoldChess {
                 
                 if (move) {
                     this.addOutput(`<span class="terminal-computer">💻 Computer move: ${move.san} (${this.describePiece(move.piece)} to ${move.to})</span>`);
+                    
+                    // Show evaluation score
+                    if (data.eval !== undefined) {
+                        const evalStr = data.eval > 0 ? `+${data.eval}` : `${data.eval}`;
+                        const advantage = data.eval > 0 ? 'White advantage' : data.eval < 0 ? 'Black advantage' : 'Equal';
+                        this.addOutput(`📊 Evaluation: ${evalStr} (${advantage})`);
+                    }
+                    
                     this.moveHistory.push({ player: 'black', move: move.san });
                     
                     this.addOutput(`📜 Moves: ${this.formatMoveHistory()}`);
@@ -251,7 +259,23 @@ class BlindFoldChess {
         this.addOutput('🎲 YOLO! Asking Stockfish for best move...');
 
         try {
-            const fen = this.chess.fen();
+            let fen = this.chess.fen();
+            
+            // Clean up FEN for chess-api.com (same as makeComputerMove)
+            const fenParts = fen.split(' ');
+            if (fenParts[3] !== '-') {
+                const enPassantSquare = fenParts[3];
+                const moves = this.chess.moves({ verbose: true });
+                const hasEnPassant = moves.some(move => 
+                    move.flags.includes('e') && move.to === enPassantSquare
+                );
+                if (!hasEnPassant) {
+                    fenParts[3] = '-';
+                    fen = fenParts.join(' ');
+                }
+            }
+            
+            console.log('YOLO FEN:', fen);
             const response = await fetch('https://chess-api.com/v1', {
                 method: 'POST',
                 headers: {
@@ -264,12 +288,21 @@ class BlindFoldChess {
             });
             
             const data = await response.json();
+            console.log('YOLO Response:', data);
 
             if (data && data.move) {
                 const move = this.chess.move(data.move, { sloppy: true });
                 
                 if (move) {
                     this.addSuccess(`✓ YOLO move: ${move.san} (${this.describePiece(move.piece)} to ${move.to})`);
+                    
+                    // Show evaluation score
+                    if (data.eval !== undefined) {
+                        const evalStr = data.eval > 0 ? `+${data.eval}` : `${data.eval}`;
+                        const advantage = data.eval > 0 ? 'White advantage' : data.eval < 0 ? 'Black advantage' : 'Equal';
+                        this.addOutput(`📊 Evaluation: ${evalStr} (${advantage})`);
+                    }
+                    
                     this.moveHistory.push({ player: 'white', move: move.san });
                     
                     if (this.analyticsEnabled) {
