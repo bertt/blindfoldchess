@@ -976,12 +976,14 @@ class MultiplayerManager {
         this.mode = 'random';
         
         this.game.addOutput('🎲 Searching for opponent...');
+        this.game.addOutput('⏳ Checking available lobbies...');
         
         // Try to find existing lobby
         const lobbyFound = await this.tryJoinLobby();
         
         if (!lobbyFound) {
             // No lobby found, create one and wait
+            this.game.addOutput('📍 No one waiting. Creating lobby...');
             this.createLobby();
         }
     }
@@ -990,6 +992,8 @@ class MultiplayerManager {
         // Try connecting to lobby-1 through lobby-10
         for (let i = 1; i <= 10; i++) {
             const lobbyId = `blindfold-lobby-${i}`;
+            
+            console.log(`Trying lobby ${i}...`);
             
             try {
                 // Clean up previous peer if exists
@@ -1002,11 +1006,11 @@ class MultiplayerManager {
                 
                 this.connection = this.peer.connect(lobbyId);
                 
-                // Wait for connection to open
+                // Reduced timeout to 800ms per lobby (total ~8 seconds for all 10)
                 const connected = await new Promise((resolve) => {
                     const timeout = setTimeout(() => {
                         resolve(false);
-                    }, 2000); // Increased timeout to 2 seconds
+                    }, 800);
                     
                     const openHandler = () => {
                         clearTimeout(timeout);
@@ -1025,15 +1029,17 @@ class MultiplayerManager {
                 });
 
                 if (connected) {
+                    console.log(`Connected to lobby ${i}!`);
                     this.myColor = 'b'; // Joiner plays black
                     this.isConnected = true;
-                    this.game.addSuccess(`✅ Opponent found! Game starting...`);
+                    this.game.addSuccess(`✅ Opponent found in lobby ${i}! Game starting...`);
                     
                     // Now setup permanent listeners
                     this.setupConnectionListeners();
                     this.game.startMultiplayerGame('b');
                     return true;
                 } else {
+                    console.log(`Lobby ${i} not available`);
                     // Connection failed, clean up before trying next lobby
                     if (this.connection) {
                         this.connection.close();
@@ -1055,6 +1061,7 @@ class MultiplayerManager {
             this.peer = null;
         }
         
+        console.log('No lobbies found');
         return false;
     }
 
