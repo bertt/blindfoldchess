@@ -15,6 +15,12 @@ class BlindFoldChess {
         this.boardVisible = false;
         this.isComputerThinking = false;
         
+        // Multiplayer support
+        this.isMultiplayer = false;
+        this.myColor = 'w'; // 'w' or 'b'
+        this.multiplayer = null; // Initialized on first use
+        this.waitingForRoomId = false;
+        
         this.init();
     }
 
@@ -29,6 +35,84 @@ class BlindFoldChess {
 
         // Auto-scroll terminal
         this.terminal = document.getElementById('terminal');
+        
+        // Check online players periodically
+        this.checkOnlinePlayers();
+        setInterval(() => this.checkOnlinePlayers(), 30000); // Update every 30 seconds
+    }
+
+    async checkOnlinePlayers() {
+        try {
+            // Count how many lobbies are occupied by trying to check their status
+            let occupiedLobbies = 0;
+            const checkPromises = [];
+            
+            for (let i = 1; i <= 10; i++) {
+                const lobbyId = `blindfold-lobby-${i}`;
+                const promise = this.checkLobbyOccupied(lobbyId);
+                checkPromises.push(promise);
+            }
+            
+            const results = await Promise.all(checkPromises);
+            occupiedLobbies = results.filter(r => r).length;
+            
+            // Estimate: 2 players per occupied lobby
+            const estimatedPlayers = occupiedLobbies * 2;
+            
+            const onlineElement = document.getElementById('onlinePlayers');
+            if (onlineElement) {
+                if (estimatedPlayers === 0) {
+                    onlineElement.textContent = 'No one waiting';
+                } else if (estimatedPlayers === 1) {
+                    onlineElement.textContent = '~1 player';
+                } else {
+                    onlineElement.textContent = `~${estimatedPlayers} players`;
+                }
+            }
+        } catch (err) {
+            console.error('Error checking online players:', err);
+            const onlineElement = document.getElementById('onlinePlayers');
+            if (onlineElement) {
+                onlineElement.textContent = 'Unknown';
+            }
+        }
+    }
+
+    async checkLobbyOccupied(lobbyId) {
+        return new Promise((resolve) => {
+            try {
+                const tempPeer = new Peer();
+                const timeout = setTimeout(() => {
+                    tempPeer.destroy();
+                    resolve(false);
+                }, 500);
+                
+                tempPeer.on('open', () => {
+                    const conn = tempPeer.connect(lobbyId);
+                    
+                    conn.on('open', () => {
+                        clearTimeout(timeout);
+                        conn.close();
+                        tempPeer.destroy();
+                        resolve(true); // Lobby exists and is occupied
+                    });
+                    
+                    conn.on('error', () => {
+                        clearTimeout(timeout);
+                        tempPeer.destroy();
+                        resolve(false);
+                    });
+                });
+                
+                tempPeer.on('error', () => {
+                    clearTimeout(timeout);
+                    tempPeer.destroy();
+                    resolve(false);
+                });
+            } catch (err) {
+                resolve(false);
+            }
+        });
     }
 
     handleInput(input) {
@@ -115,7 +199,47 @@ class BlindFoldChess {
                 this.setDifficulty('advanced');
                 return true;
 
+            // Multiplayer commands
+            case 'mp-friend':
+            case 'play-friend':
+                this.getMultiplayer().createGame();
+                return true;
+
+            case 'mp-random':
+            case 'random':
+                this.getMultiplayer().findRandomOpponent();
+                return true;
+
+            case 'mp-join':
+            case 'join':
+                this.addOutput('Enter room ID:');
+                this.waitingForRoomId = true;
+                return true;
+
+            case 'resign':
+                if (this.isMultiplayer) {
+                    this.getMultiplayer().resign();
+                } else {
+                    this.addOutput('❌ Resign only available in multiplayer');
+                }
+                return true;
+
+            case 'draw':
+            case 'offer-draw':
+                if (this.isMultiplayer) {
+                    this.getMultiplayer().offerDraw();
+                } else {
+                    this.addOutput('❌ Draw offers only available in multiplayer');
+                }
+                return true;
+
             default:
+                // Check if waiting for room ID
+                if (this.waitingForRoomId) {
+                    this.waitingForRoomId = false;
+                    this.getMultiplayer().joinGame(command);
+                    return true;
+                }
                 return false;
         }
     }
@@ -124,6 +248,15 @@ class BlindFoldChess {
         if (this.isComputerThinking) {
             this.addError('⏳ Computer is still thinking, please wait...');
             return;
+        }
+
+        // In multiplayer, check if it's our turn
+        if (this.isMultiplayer) {
+            const currentTurn = this.chess.turn();
+            if (currentTurn !== this.myColor) {
+                this.addError("❌ It's not your turn! Wait for opponent's move.");
+                return;
+            }
         }
 
         try {
@@ -158,8 +291,13 @@ class BlindFoldChess {
                     return;
                 }
 
-                // Computer's turn
-                this.makeComputerMove();
+                // In multiplayer, send move to opponent
+                if (this.isMultiplayer) {
+                    this.getMultiplayer().sendMove(result.san);
+                } else {
+                    // Computer's turn in single player
+                    this.makeComputerMove();
+                }
             } else {
                 this.addError('❌ Invalid move. Use algebraic notation (e.g., e4, Nf3, Bxc4) or type "help" for commands.');
             }
@@ -426,6 +564,104 @@ class BlindFoldChess {
         return names[piece] || 'Piece';
     }
 
+    // Multiplayer methods
+    getMultiplayer() {
+        if (!this.multiplayer) {
+            this.multiplayer = new MultiplayerManager(this);
+        }
+        return this.multiplayer;
+    }
+
+    showMultiplayerMenu() {
+        // Refresh online player count
+        this.checkOnlinePlayers();
+        
+        this.addOutput(`
+╔════════════════════════════════════════════╗
+║          🎮 MULTIPLAYER MODE               ║
+╚════════════════════════════════════════════╝
+
+Choose an option:
+  mp-friend  - 👥 Play with a friend (share room ID)
+  mp-random  - 🎲 Find random opponent
+  mp-join    - 🔗 Join a room with ID
+
+Type 'new' to start a single player game instead.
+        `);
+    }
+
+    startMultiplayerGame(myColor) {
+        this.isMultiplayer = true;
+        this.myColor = myColor;
+        this.chess.reset();
+        this.moveHistory = [];
+        
+        const colorName = myColor === 'w' ? 'WHITE' : 'BLACK';
+        const symbol = myColor === 'w' ? '♟' : '♙';
+        
+        this.addOutput(`
+╔════════════════════════════════════════════╗
+║      MULTIPLAYER GAME STARTED!             ║
+╚════════════════════════════════════════════╝
+
+You play: ${colorName} ${symbol}
+${myColor === 'w' ? "Your turn! Make your first move." : "Waiting for opponent's move..."}
+        `);
+        
+        this.updatePlayerColor(colorName);
+        
+        if (this.boardVisible) {
+            this.renderBoard();
+        }
+    }
+
+    receiveOpponentMove(moveNotation) {
+        // Validate it's opponent's turn
+        const currentTurn = this.chess.turn();
+        if (currentTurn === this.myColor) {
+            this.addError('❌ Received move out of turn');
+            return;
+        }
+
+        // Apply the move
+        const move = this.chess.move(moveNotation, { sloppy: true });
+        
+        if (move) {
+            const opponentColor = this.myColor === 'w' ? 'black' : 'white';
+            this.addOutput(`<span class="terminal-computer">🌐 Opponent: ${move.san} (${this.describePiece(move.piece)} to ${move.to})</span>`);
+            this.moveHistory.push({ player: opponentColor, move: move.san });
+            
+            this.addOutput(`📜 Moves: ${this.formatMoveHistory()}`);
+            
+            if (this.analyticsEnabled) {
+                this.showMaterialCount();
+            }
+
+            if (this.boardVisible) {
+                this.renderBoard();
+            }
+
+            // Check for game over
+            if (this.chess.game_over()) {
+                this.handleGameOver();
+                return;
+            }
+
+            // Now it's our turn
+            const myColorName = this.myColor === 'w' ? 'white' : 'black';
+            this.addOutput(`<span class="terminal-prompt">Your move (${myColorName}) &gt;</span>`);
+        } else {
+            this.addError('❌ Invalid move received from opponent');
+        }
+    }
+
+    updatePlayerColor(colorName) {
+        const element = document.getElementById('playerColor');
+        if (element) {
+            element.textContent = `${colorName} ${colorName === 'WHITE' ? '♟' : '♙'}`;
+        }
+    }
+
     showMaterialCount() {
         const pieces = {
             p: 1, n: 3, b: 3, r: 5, q: 9, k: 0
@@ -517,12 +753,21 @@ class BlindFoldChess {
     }
 
     newGame() {
+        // Disconnect multiplayer if active
+        if (this.isMultiplayer && this.multiplayer) {
+            this.multiplayer.disconnect();
+            this.isMultiplayer = false;
+            this.myColor = 'w';
+            this.addOutput('🔌 Disconnected from multiplayer');
+        }
+        
         this.chess.reset();
         this.moveHistory = [];
         this.boardVisible = false;
         document.getElementById('boardContainer').style.display = 'none';
         this.addSuccess('🎮 New game started! You play WHITE (♟), computer plays BLACK (♙)');
         this.addOutput(`Difficulty: ${this.difficulty}`);
+        this.updatePlayerColor('WHITE');
     }
 
     showMoveHistory() {
@@ -577,8 +822,15 @@ COMMANDS:
   beginner/1     - Set difficulty to Beginner (~1000)
   intermediate/2 - Set difficulty to Intermediate (~1800)
   advanced/3     - Set difficulty to Advanced (~2400)
-  new            - 🎮 Start new game
+  new            - 🎮 Start new game (vs Computer)
   help/h/?       - ❓ Show this help
+
+MULTIPLAYER:
+  mp-friend      - 👥 Play with a friend (share room ID)
+  mp-random      - 🎲 Find random opponent
+  mp-join        - 🔗 Join a room with ID
+  resign         - 🏳️  Resign (multiplayer only)
+  offer-draw     - 🤝 Offer draw (multiplayer only)
 
 MOVE NOTATION:
   e4             - Pawn to e4
@@ -609,6 +861,230 @@ MOVE NOTATION:
 
     addError(text) {
         this.addToTerminal(`<span class="terminal-error">${text}</span>`);
+    }
+}
+
+// Multiplayer Manager using PeerJS
+class MultiplayerManager {
+    constructor(game) {
+        this.game = game;
+        this.peer = null;
+        this.connection = null;
+        this.mode = null; // 'host', 'join', 'random'
+        this.myColor = null; // 'w' or 'b'
+        this.isConnected = false;
+        this.roomId = null;
+    }
+
+    // Create new game as host (Play Friend mode)
+    createGame() {
+        this.mode = 'host';
+        this.myColor = 'w'; // Host plays white
+        
+        this.peer = new Peer();
+        
+        this.peer.on('open', (id) => {
+            this.roomId = id;
+            this.game.addOutput(`🎮 Room created! Share this ID: <strong>${id}</strong>`);
+            this.game.addOutput(`⏳ Waiting for opponent to join...`);
+            this.showCopyButton(id);
+        });
+
+        this.peer.on('connection', (conn) => {
+            this.connection = conn;
+            this.setupConnection();
+            this.game.addSuccess('✅ Opponent connected! Game starting...');
+            this.isConnected = true;
+            this.game.startMultiplayerGame('w');
+        });
+
+        this.peer.on('error', (err) => {
+            this.game.addError(`❌ Connection error: ${err.message}`);
+        });
+    }
+
+    // Join existing game with room ID
+    joinGame(roomId) {
+        this.mode = 'join';
+        this.myColor = 'b'; // Joiner plays black
+        this.roomId = roomId;
+
+        this.peer = new Peer();
+
+        this.peer.on('open', () => {
+            this.game.addOutput(`🔗 Connecting to room: ${roomId}...`);
+            this.connection = this.peer.connect(roomId);
+            this.setupConnection();
+        });
+
+        this.peer.on('error', (err) => {
+            this.game.addError(`❌ Failed to join: ${err.message}`);
+        });
+    }
+
+    // Random matchmaking using lobby system
+    async findRandomOpponent() {
+        this.mode = 'random';
+        
+        this.game.addOutput('🎲 Searching for opponent...');
+        
+        // Try to find existing lobby
+        const lobbyFound = await this.tryJoinLobby();
+        
+        if (!lobbyFound) {
+            // No lobby found, create one and wait
+            this.createLobby();
+        }
+    }
+
+    async tryJoinLobby() {
+        // Try connecting to lobby-1 through lobby-10
+        for (let i = 1; i <= 10; i++) {
+            const lobbyId = `blindfold-lobby-${i}`;
+            
+            try {
+                this.peer = new Peer();
+                await new Promise(resolve => this.peer.on('open', resolve));
+                
+                this.connection = this.peer.connect(lobbyId);
+                
+                // Wait a bit to see if connection succeeds
+                const connected = await new Promise((resolve) => {
+                    const timeout = setTimeout(() => resolve(false), 1000);
+                    this.connection.on('open', () => {
+                        clearTimeout(timeout);
+                        resolve(true);
+                    });
+                    this.connection.on('error', () => {
+                        clearTimeout(timeout);
+                        resolve(false);
+                    });
+                });
+
+                if (connected) {
+                    this.myColor = 'b'; // Joiner plays black
+                    this.setupConnection();
+                    this.game.addSuccess(`✅ Opponent found! Game starting...`);
+                    this.isConnected = true;
+                    this.game.startMultiplayerGame('b');
+                    return true;
+                }
+            } catch (err) {
+                // Try next lobby
+                continue;
+            }
+        }
+        
+        return false;
+    }
+
+    createLobby() {
+        // Create lobby with predictable ID
+        const lobbyId = `blindfold-lobby-${Math.floor(Math.random() * 10) + 1}`;
+        
+        this.peer = new Peer(lobbyId);
+        this.myColor = 'w'; // Lobby creator plays white
+        
+        this.peer.on('open', (id) => {
+            this.roomId = id;
+            this.game.addOutput(`⏳ Waiting in lobby (${id})... Searching for opponent...`);
+        });
+
+        this.peer.on('connection', (conn) => {
+            this.connection = conn;
+            this.setupConnection();
+            this.game.addSuccess('✅ Opponent found! Game starting...');
+            this.isConnected = true;
+            this.game.startMultiplayerGame('w');
+        });
+
+        this.peer.on('error', (err) => {
+            // If lobby ID taken, try another
+            if (err.type === 'unavailable-id') {
+                this.createLobby();
+            } else {
+                this.game.addError(`❌ Matchmaking error: ${err.message}`);
+            }
+        });
+
+        // Timeout after 30 seconds
+        setTimeout(() => {
+            if (!this.isConnected) {
+                this.game.addOutput('⏰ No opponent found. Try "Play Friend" mode instead.');
+                this.disconnect();
+            }
+        }, 30000);
+    }
+
+    setupConnection() {
+        this.connection.on('open', () => {
+            this.isConnected = true;
+            if (this.mode === 'join') {
+                this.game.addSuccess('✅ Connected! Game starting...');
+                this.game.startMultiplayerGame('b');
+            }
+        });
+
+        this.connection.on('data', (data) => {
+            this.handleIncomingData(data);
+        });
+
+        this.connection.on('close', () => {
+            this.game.addError('❌ Opponent disconnected');
+            this.isConnected = false;
+        });
+
+        this.connection.on('error', (err) => {
+            this.game.addError(`❌ Connection error: ${err.message}`);
+        });
+    }
+
+    handleIncomingData(data) {
+        if (data.type === 'move') {
+            this.game.receiveOpponentMove(data.move);
+        } else if (data.type === 'resign') {
+            this.game.addSuccess('🏳️ Opponent resigned! You win!');
+        } else if (data.type === 'draw-offer') {
+            this.game.addOutput('🤝 Opponent offers a draw. Type "accept-draw" to accept.');
+        }
+    }
+
+    sendMove(move) {
+        if (this.connection && this.isConnected) {
+            this.connection.send({ type: 'move', move: move });
+        }
+    }
+
+    resign() {
+        if (this.connection && this.isConnected) {
+            this.connection.send({ type: 'resign' });
+            this.game.addOutput('🏳️ You resigned');
+            this.disconnect();
+        }
+    }
+
+    offerDraw() {
+        if (this.connection && this.isConnected) {
+            this.connection.send({ type: 'draw-offer' });
+            this.game.addOutput('🤝 Draw offer sent');
+        }
+    }
+
+    disconnect() {
+        if (this.connection) {
+            this.connection.close();
+        }
+        if (this.peer) {
+            this.peer.destroy();
+        }
+        this.isConnected = false;
+        this.connection = null;
+        this.peer = null;
+    }
+
+    showCopyButton(roomId) {
+        const copyBtn = `<button onclick="navigator.clipboard.writeText('${roomId}').then(() => game.addSuccess('✓ Room ID copied!'))">📋 Copy ID</button>`;
+        this.game.addToTerminal(copyBtn);
     }
 }
 

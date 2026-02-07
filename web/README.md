@@ -43,17 +43,68 @@ python -m http.server 8000
 - 📜 Move history
 - ♟️ Complete chess rules support
 
+🎮 **NEW: Multiplayer Mode** - Play against other humans!
+- 👥 **Play with Friend** - Share room ID via chat/email
+- 🎲 **Random Opponent** - Auto-match with waiting players
+- 🔗 **Join Room** - Enter specific room ID to join
+- 🌐 **Serverless P2P** - Direct browser-to-browser connection
+- 🔢 **Online Counter** - See how many players are online
+- 🏳️ **Resign/Draw** - Full game control
+
+## Multiplayer Technical Details
+
+### How It Works
+- **Technology**: WebRTC peer-to-peer connections via [PeerJS](https://peerjs.com/)
+- **Signaling**: Free PeerJS cloud server for connection setup
+- **Data Transfer**: Direct browser-to-browser after connection established
+- **No Backend**: Completely serverless architecture
+
+### Multiplayer Modes
+
+1. **Play with Friend** (`mp-friend`)
+   - Creates a unique room with shareable ID
+   - Share ID via chat, email, or any messaging platform
+   - Friend enters ID using `mp-join` command
+   - Instant connection, host plays White
+
+2. **Random Opponent** (`mp-random`)
+   - Auto-matchmaking using lobby system
+   - Scans 10 lobby rooms (`blindfold-lobby-1` to `lobby-10`)
+   - Joins first available opponent or creates waiting room
+   - 30-second timeout if no opponent found
+
+3. **Join Room** (`mp-join`)
+   - Enter specific room ID to connect
+   - Great for organized games or tournaments
+
+### Connection Features
+- **Turn Validation**: Can't move on opponent's turn
+- **Move Sync**: Moves instantly transmitted via WebRTC
+- **Board Independence**: Each player chooses blindfold/board visibility
+- **Analytics Independence**: Each player controls their own analytics
+- **Disconnect Handling**: Graceful error messages on connection loss
+- **Resign/Draw**: Standard chess game controls
+
+### Limitations
+- Relies on PeerJS cloud service (free tier)
+- Random matchmaking is best-effort (no guarantees)
+- NAT traversal may fail in restrictive corporate networks
+- No persistent game storage (game lost on disconnect)
+- No ELO ratings or match history (yet)
+
 ## Architecture
 
 - **index.html** - Main game interface
 - **style.css** - Styling and responsive design
-- **app.js** - Game logic, Stockfish integration, UI handling
+- **app.js** - Game logic, Stockfish integration, multiplayer manager, UI handling
 - **chess.js** (CDN) - Chess move validation library
+- **peerjs** (CDN) - WebRTC peer-to-peer connections
 
 ## Technology Stack
 
 - Pure vanilla JavaScript (no build step required)
-- Chess.js library for chess logic
+- Chess.js v0.10.3 for chess logic
+- PeerJS v1.5.2 for multiplayer WebRTC connections
 - Stockfish 17 via Chess-API.com
 - Responsive CSS Grid for chessboard
 - Terminal-style UI matching console version

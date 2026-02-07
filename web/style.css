@@ -250,7 +250,7 @@ header h1 {
 .quick-commands {
     display: flex;
     justify-content: center;
-    gap: 8px;
+    gap: 6px;
     flex-wrap: wrap;
     flex-shrink: 0;
     width: 100%;
@@ -260,9 +260,9 @@ header h1 {
     background: white;
     color: #667eea;
     border: none;
-    padding: 8px 16px;
+    padding: 6px 12px;
     border-radius: 6px;
-    font-size: 0.9rem;
+    font-size: 0.85rem;
     font-weight: 600;
     cursor: pointer;
     transition: all 0.3s ease;
