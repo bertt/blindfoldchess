@@ -35,10 +35,6 @@ class BlindFoldChess {
 
         // Auto-scroll terminal
         this.terminal = document.getElementById('terminal');
-        
-        // Check online players periodically
-        this.checkOnlinePlayers();
-        setInterval(() => this.checkOnlinePlayers(), 30000); // Update every 30 seconds
     }
 
 
