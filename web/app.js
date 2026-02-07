@@ -43,8 +43,8 @@ class BlindFoldChess {
 
     async checkOnlinePlayers() {
         try {
-            // Count how many lobbies are occupied by trying to check their status
-            let occupiedLobbies = 0;
+            // Count how many lobbies are occupied (people waiting for match)
+            let waitingLobbies = 0;
             const checkPromises = [];
             
             for (let i = 1; i <= 10; i++) {
@@ -54,27 +54,40 @@ class BlindFoldChess {
             }
             
             const results = await Promise.all(checkPromises);
-            occupiedLobbies = results.filter(r => r).length;
+            waitingLobbies = results.filter(r => r).length;
             
-            // Estimate: 2 players per occupied lobby
-            const estimatedPlayers = occupiedLobbies * 2;
+            // People waiting = lobbies with 1 person waiting
+            const waitingCount = waitingLobbies;
             
-            const onlineElement = document.getElementById('onlinePlayers');
-            if (onlineElement) {
-                if (estimatedPlayers === 0) {
-                    onlineElement.textContent = 'No one waiting';
-                } else if (estimatedPlayers === 1) {
-                    onlineElement.textContent = '~1 player';
+            // We can't know exact playing count without server
+            // But we can track if THIS user is playing
+            let playingCount = 0;
+            if (this.isMultiplayer && this.multiplayer && this.multiplayer.isConnected) {
+                playingCount = 2; // This game = 2 players
+            }
+            
+            // Update UI
+            const playingElement = document.getElementById('playingCount');
+            const waitingElement = document.getElementById('waitingCount');
+            
+            if (playingElement) {
+                if (playingCount > 0) {
+                    playingElement.textContent = `${playingCount}`;
                 } else {
-                    onlineElement.textContent = `~${estimatedPlayers} players`;
+                    playingElement.textContent = '0';
                 }
+            }
+            
+            if (waitingElement) {
+                waitingElement.textContent = `${waitingCount}`;
             }
         } catch (err) {
             console.error('Error checking online players:', err);
-            const onlineElement = document.getElementById('onlinePlayers');
-            if (onlineElement) {
-                onlineElement.textContent = 'Unknown';
-            }
+            const playingElement = document.getElementById('playingCount');
+            const waitingElement = document.getElementById('waitingCount');
+            
+            if (playingElement) playingElement.textContent = '?';
+            if (waitingElement) waitingElement.textContent = '?';
         }
     }
 
@@ -673,15 +686,8 @@ ${myColor === 'w' ? "Your turn! Make your first move." : "Waiting for opponent's
     }
 
     updateOnlineStatus() {
-        const onlineElement = document.getElementById('onlinePlayers');
-        if (onlineElement) {
-            if (this.isMultiplayer && this.multiplayer && this.multiplayer.isConnected) {
-                onlineElement.textContent = 'In game';
-            } else {
-                // Re-check online players
-                this.checkOnlinePlayers();
-            }
-        }
+        // Always re-check to update both playing and waiting counts
+        this.checkOnlinePlayers();
     }
 
     showMaterialCount() {
