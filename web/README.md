@@ -68,9 +68,9 @@ python -m http.server 8000
    - Instant connection, host plays White
 
 2. **Random Opponent** (`mp-random`)
-   - Auto-matchmaking using lobby system
-   - Scans 10 lobby rooms (`blindfold-lobby-1` to `lobby-10`)
-   - Joins first available opponent or creates waiting room
+   - Time-based lobby matching system
+   - Uses current second to select lobby (0-9)
+   - Players clicking within same 10-second window auto-match
    - 30-second timeout if no opponent found
 
 3. **Join Room** (`mp-join`)

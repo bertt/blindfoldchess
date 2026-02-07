@@ -987,9 +987,6 @@ class MultiplayerManager {
         this.mode = 'random';
         
         this.game.addOutput('🎲 Searching for opponent...');
-        
-        // Simplified approach: Just create a lobby immediately
-        // The lobby ID selection will help with auto-matching
         this.createLobby();
     }
 
@@ -1083,10 +1080,8 @@ class MultiplayerManager {
                     this.game.addError(`❌ Connection failed: ${peerErr.message}`);
                 });
                 
-            } else if (err.type === 'network') {
-                this.game.addError(`❌ Network error: Cannot connect to PeerJS server. Check your internet connection.`);
-            } else if (err.type === 'server-error') {
-                this.game.addError(`❌ Server error: PeerJS server is unavailable. Please try "Play Friend" mode instead.`);
+            } else if (err.type === 'network' || err.type === 'server-error' || err.message.includes('Lost connection')) {
+                this.game.addError(`❌ PeerJS server connection failed. Try again or use mp-friend mode.`);
             } else {
                 this.game.addError(`❌ Error: ${err.message}`);
             }
