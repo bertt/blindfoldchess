@@ -79,9 +79,23 @@ python -m http.server 8000
 
 ### Limitations
 - Relies on PeerJS cloud service (free tier)
+- **Chrome Compatibility**: Chrome may block WebSocket connections due to security policies or extensions. **Recommended browsers: Edge or Firefox**
 - NAT traversal may fail in restrictive corporate networks
 - No persistent game storage (game lost on disconnect)
 - No ELO ratings or match history (yet)
+
+### Troubleshooting Multiplayer
+
+**"Lost connection to server" error (Chrome):**
+- **Solution 1**: Use Edge or Firefox instead (fully compatible)
+- **Solution 2**: Try Chrome incognito mode (Ctrl+Shift+N)
+- **Solution 3**: Disable Chrome extensions (especially adblockers, VPNs, privacy tools)
+- **Solution 4**: Check if corporate firewall blocks WebSocket connections
+
+**Connection works in Edge/Firefox but not Chrome:**
+- This is a known Chrome issue with PeerJS WebSocket connections
+- Chrome has stricter security policies that may interfere
+- Extensions like uBlock Origin, Privacy Badger can block WebSockets
 
 ## Architecture
 
