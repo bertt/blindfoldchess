@@ -525,6 +525,7 @@ ${myColor === 'w' ? "Your turn! Make your first move." : "Waiting for opponent's
         
         this.updatePlayerColor(colorName);
         this.updatePrompt();
+        this.updateOnlineCounter();
         
         if (this.boardVisible) {
             this.renderBoard();
@@ -583,6 +584,17 @@ ${myColor === 'w' ? "Your turn! Make your first move." : "Waiting for opponent's
         if (promptElement) {
             const colorName = this.myColor === 'w' ? 'white' : 'black';
             promptElement.textContent = `Your move (${colorName}) >`;
+        }
+    }
+
+    updateOnlineCounter() {
+        const onlineElement = document.getElementById('onlineCount');
+        if (onlineElement) {
+            if (this.isMultiplayer && this.multiplayer && this.multiplayer.isConnected) {
+                onlineElement.textContent = '2'; // This game has 2 players
+            } else {
+                onlineElement.textContent = '0';
+            }
         }
     }
 
@@ -693,6 +705,7 @@ ${myColor === 'w' ? "Your turn! Make your first move." : "Waiting for opponent's
         this.addOutput(`Difficulty: ${this.difficulty}`);
         this.updatePlayerColor('WHITE');
         this.updatePrompt();
+        this.updateOnlineCounter();
     }
 
     showMoveHistory() {
@@ -873,6 +886,7 @@ class MultiplayerManager {
             console.log('Connection closed');
             this.game.addError('❌ Opponent disconnected');
             this.isConnected = false;
+            this.game.updateOnlineCounter();
         });
 
         this.connection.on('error', (err) => {
