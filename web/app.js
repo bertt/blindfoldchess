@@ -180,20 +180,21 @@ class BlindFoldChess {
 
         try {
             // Normalize move notation - make piece letters uppercase
-            // Examples: nf3 -> Nf3, bxc4 -> Bxc4, e4 -> e4 (pawn moves stay lowercase)
+            // Examples: nf3 -> Nf3, Bxc4 (bishop), e4 -> e4, bxc4 (pawn capture stays lowercase)
             let normalizedMove = move;
             
             // Check if first character is a piece letter (not a file)
             const firstChar = move.charAt(0).toLowerCase();
             const secondChar = move.charAt(1);
             
-            // Only capitalize if it's a piece move (piece letter followed by file/rank/capture)
-            // Don't capitalize pawn moves like b3, e4, a5, etc.
-            // Pawn move pattern: file letter (a-h) followed by rank (1-8) and nothing else (or promotion)
+            // Pawn move patterns:
+            // - Regular pawn move: e4, a5, h7 (file + rank)
+            // - Pawn capture: exd5, bxc4, axb8=Q (file + 'x' + file + rank)
             const isPawnMove = /^[a-h][1-8]($|[=QRBN])/.test(move.toLowerCase());
+            const isPawnCapture = /^[a-h]x[a-h][1-8]/.test(move.toLowerCase());
             
-            if (['n', 'b', 'r', 'q', 'k'].includes(firstChar) && !isPawnMove) {
-                // Capitalize the piece letter
+            if (['n', 'b', 'r', 'q', 'k'].includes(firstChar) && !isPawnMove && !isPawnCapture) {
+                // Capitalize the piece letter for piece moves (not pawn moves/captures)
                 normalizedMove = move.charAt(0).toUpperCase() + move.slice(1);
             }
             
