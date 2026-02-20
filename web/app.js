@@ -185,7 +185,14 @@ class BlindFoldChess {
             
             // Check if first character is a piece letter (not a file)
             const firstChar = move.charAt(0).toLowerCase();
-            if (['n', 'b', 'r', 'q', 'k'].includes(firstChar)) {
+            const secondChar = move.charAt(1);
+            
+            // Only capitalize if it's a piece move (piece letter followed by file/rank/capture)
+            // Don't capitalize pawn moves like b3, e4, a5, etc.
+            // Pawn move pattern: file letter (a-h) followed by rank (1-8)
+            const isPawnMove = /^[a-h][1-8]/.test(move.toLowerCase());
+            
+            if (['n', 'b', 'r', 'q', 'k'].includes(firstChar) && !isPawnMove) {
                 // Capitalize the piece letter
                 normalizedMove = move.charAt(0).toUpperCase() + move.slice(1);
             }
