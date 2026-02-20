@@ -179,26 +179,15 @@ class BlindFoldChess {
         }
 
         try {
-            // Normalize move notation - make piece letters uppercase
-            // Examples: nf3 -> Nf3, Bxc4 (bishop), e4 -> e4, bxc4 (pawn capture stays lowercase)
-            let normalizedMove = move;
+            // Let chess.js handle move parsing with sloppy mode
+            // Try original input first, then capitalized version for backwards compatibility
+            let result = this.chess.move(move, { sloppy: true });
             
-            // Check if first character is a piece letter (not a file)
-            const firstChar = move.charAt(0).toLowerCase();
-            const secondChar = move.charAt(1);
-            
-            // Pawn move patterns:
-            // - Regular pawn move: e4, a5, h7 (file + rank)
-            // - Pawn capture: exd5, bxc4, axb8=Q (file + 'x' + file + rank)
-            const isPawnMove = /^[a-h][1-8]($|[=QRBN])/.test(move.toLowerCase());
-            const isPawnCapture = /^[a-h]x[a-h][1-8]/.test(move.toLowerCase());
-            
-            if (['n', 'b', 'r', 'q', 'k'].includes(firstChar) && !isPawnMove && !isPawnCapture) {
-                // Capitalize the piece letter for piece moves (not pawn moves/captures)
-                normalizedMove = move.charAt(0).toUpperCase() + move.slice(1);
+            // Fallback: try capitalizing first letter for legacy support (e.g., "nf3" -> "Nf3")
+            if (!result && move.length > 0) {
+                const capitalizedMove = move.charAt(0).toUpperCase() + move.slice(1);
+                result = this.chess.move(capitalizedMove, { sloppy: true });
             }
-            
-            const result = this.chess.move(normalizedMove, { sloppy: true });
             
             if (result) {
                 this.addSuccess(`✓ Move played: ${result.san} (${this.describePiece(result.piece)} to ${result.to})`);
@@ -777,13 +766,15 @@ MULTIPLAYER:
   resign         - 🏳️  Resign (multiplayer only)
   offer-draw     - 🤝 Offer draw (multiplayer only)
 
-MOVE NOTATION:
-  e4             - Pawn to e4
+MOVE NOTATION (flexible, multiple formats supported):
+  e4 or e2e4     - Pawn to e4 (SAN or UCI)
   Nf3 or nf3     - Knight to f3 (case insensitive)
-  Bxc4 or bxc4   - Bishop captures on c4
-  O-O or o-o     - Kingside castling
-  O-O-O or o-o-o - Queenside castling
-  e8=Q or e8=q   - Pawn promotion to Queen
+  exd5           - Pawn captures on d5
+  Bxc4           - Bishop captures on c4
+  bxc4           - b-pawn captures on c4
+  O-O or 0-0     - Kingside castling (various formats)
+  O-O-O or 0-0-0 - Queenside castling
+  e8=Q or e7e8q  - Pawn promotion (SAN or UCI)
         `;
         this.addOutput(help);
     }
