@@ -189,8 +189,8 @@ class BlindFoldChess {
             
             // Only capitalize if it's a piece move (piece letter followed by file/rank/capture)
             // Don't capitalize pawn moves like b3, e4, a5, etc.
-            // Pawn move pattern: file letter (a-h) followed by rank (1-8)
-            const isPawnMove = /^[a-h][1-8]/.test(move.toLowerCase());
+            // Pawn move pattern: file letter (a-h) followed by rank (1-8) and nothing else (or promotion)
+            const isPawnMove = /^[a-h][1-8]($|[=QRBN])/.test(move.toLowerCase());
             
             if (['n', 'b', 'r', 'q', 'k'].includes(firstChar) && !isPawnMove) {
                 // Capitalize the piece letter
