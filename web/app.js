@@ -180,13 +180,20 @@ class BlindFoldChess {
 
         try {
             // Let chess.js handle move parsing with sloppy mode
-            // Try original input first, then capitalized version for backwards compatibility
+            // Try original input first
             let result = this.chess.move(move, { sloppy: true });
             
-            // Fallback: try capitalizing first letter for legacy support (e.g., "nf3" -> "Nf3")
+            // Fallback strategies for legacy/alternative notations
             if (!result && move.length > 0) {
+                // Try capitalizing first letter (e.g., "nf3" -> "Nf3")
                 const capitalizedMove = move.charAt(0).toUpperCase() + move.slice(1);
                 result = this.chess.move(capitalizedMove, { sloppy: true });
+                
+                // Try uppercase for castling (e.g., "o-o" -> "O-O", "o-o-o" -> "O-O-O")
+                if (!result) {
+                    const uppercaseMove = move.toUpperCase();
+                    result = this.chess.move(uppercaseMove, { sloppy: true });
+                }
             }
             
             if (result) {
